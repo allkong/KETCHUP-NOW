@@ -11,6 +11,10 @@ java {
     sourceCompatibility = '17'
 }
 
+wrapper {
+    gradleVersion = '8.7'
+}
+
 repositories {
     mavenCentral()
 }
