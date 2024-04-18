@@ -26,6 +26,11 @@ jobs:
       with:
         java-version: '17'
         distribution: 'temurin'
+        
+    - name: Build with Gradle (yubin)
+      uses: gradle/gradle-build-action@v2
+      with:
+        gradle-version: 8.7
 
     # Configure Gradle for optimal use in GiHub Actions, including caching of downloaded dependencies.
     # See: https://github.com/gradle/actions/blob/main/setup-gradle/README.md
