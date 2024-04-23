@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: double-bean-api-server
+    
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/double_bean?allowMultiQueries=true
+    username: root
+    password: ssafy
