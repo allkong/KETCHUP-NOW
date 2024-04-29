@@ -12,4 +12,8 @@ public interface AuthService {
 
 	// Refresh token에 대한 무효화를 수행한다.
 	void revokeRefreshToken(String token);
+
+	enum TokenType {
+		ACCESS, REFRESH
+	}
 }

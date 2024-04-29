@@ -6,7 +6,6 @@ import java.util.UUID;
 
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Result;
 import org.apache.ibatis.annotations.ResultMap;
@@ -45,6 +44,5 @@ public interface UserRepository {
 
 	@Insert({ "INSERT INTO users(login_id, nickname) VALUES (#{loginId}, #{nickname}); ",
 			"INSERT INTO passwords(user_id, password, salt) VALUES (LAST_INSERT_ID(), #{password}, #{salt});" })
-	@Options(useGeneratedKeys = true, keyProperty = "id", keyColumn = "id")
-	int insert(UserEntity dto);
+	void insert(UserEntity dto);
 }
