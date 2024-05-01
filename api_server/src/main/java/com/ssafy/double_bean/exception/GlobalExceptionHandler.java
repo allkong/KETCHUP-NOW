@@ -25,7 +25,7 @@ public class GlobalExceptionHandler {
     public Object handleControllerValidationException(MethodArgumentNotValidException e) {
         List<Map<String, String>> errorMessages = new ArrayList<>();
 
-        for(FieldError fieldError : e.getBindingResult().getFieldErrors()) {
+        for (FieldError fieldError : e.getBindingResult().getFieldErrors()) {
             Map<String, String> errorDescription = new HashMap<>();
             errorDescription.put("message", fieldError.getDefaultMessage());
             errorDescription.put("field", fieldError.getField());
@@ -49,7 +49,7 @@ public class GlobalExceptionHandler {
     protected ResponseEntity<ErrorResponse> handleUnknownException(Exception e) {
         System.out.println("Unknown exception:::::");
         e.printStackTrace();
-        ErrorResponse response = new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), "", "Unknown exception occurred.");
+        ErrorResponse response = new ErrorResponse("", "Unknown exception occurred.");
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
 }

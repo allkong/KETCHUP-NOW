@@ -8,7 +8,7 @@ public enum ErrorCode {
     NOT_READABLE_REQUEST(HttpStatus.BAD_REQUEST, "E0002", "Not readable request."),
 
     // 401 Unauthorized
-    UNKNOWN_USER(HttpStatus.UNAUTHORIZED,  "E0001","No such user with given credential."),
+    UNKNOWN_USER(HttpStatus.UNAUTHORIZED, "E0001", "No such user with given credential."),
     EXPIRED_TOKEN(HttpStatus.UNAUTHORIZED, "E0002", "Given token is expired."),
 
     // 409 Conflict
