@@ -1,6 +1,7 @@
 package com.ssafy.double_bean.auth.service;
 
 import com.ssafy.double_bean.auth.dto.LoginRequestDto;
+import com.ssafy.double_bean.auth.dto.SingleTokenDto;
 import com.ssafy.double_bean.auth.dto.TokenResponseDto;
 import com.ssafy.double_bean.exception.ErrorCode;
 import com.ssafy.double_bean.exception.HttpResponseException;
@@ -51,8 +52,10 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public TokenResponseDto getTokenWithRefreshToken(String token) {
-        return null;
+    public SingleTokenDto getTokenWithRefreshToken(String token) {
+        UUID uuid = parseUuidFrom(token);
+        String accessToken = createToken(uuid.toString(), TokenType.ACCESS);
+        return new SingleTokenDto(TokenType.ACCESS, accessToken);
     }
 
     @Override
@@ -88,19 +91,21 @@ public class AuthServiceImpl implements AuthService {
 
     public String createToken(String identifier, TokenType type) {
         JsonClaim claim = new JsonClaim(identifier, type);
-        switch (type) {
-            case ACCESS:
-                return createToken(claim, 3 * HOURS);
-            case REFRESH:
-                return createToken(claim, 30 * DAYS);
-            default:
-                throw new IllegalStateException("Unknown token type : " + type);
-        }
+        return switch (type) {
+            case ACCESS -> createToken(claim, 3 * HOURS);
+            case REFRESH -> createToken(claim, 30 * DAYS);
+            default -> throw new IllegalStateException("Unknown token type : " + type);
+        };
     }
 
     public String createToken(JsonClaim claim, long expiration) {
         return Jwts.builder().expiration(new Date(System.currentTimeMillis() + expiration)).claims(claim.toMap())
                 .signWith(secretKey).compact();
+    }
+
+    private UUID parseUuidFrom(String token) {
+        Claims claims = Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload();
+        return UUID.fromString(claims.get("id", String.class));
     }
 
     private record JsonClaim(String identifier, TokenType type) {
