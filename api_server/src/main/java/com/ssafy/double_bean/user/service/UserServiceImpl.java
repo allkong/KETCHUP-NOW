@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -37,5 +38,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public Optional<UserEntity> findUserByLoginId(String loginId) {
         return userRepository.findByLoginId(loginId);
+    }
+
+    @Override
+    public Optional<UserEntity> findUserByUuid(UUID uuid) {
+        return userRepository.findByUuid(uuid);
     }
 }
