@@ -1,0 +1,25 @@
+package com.ssafy.double_bean.config;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.CorsRegistration;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+@Configuration
+public class WebConfig implements WebMvcConfigurer {
+	@Value("${spring.profiles.active}")
+	private String activeProfile;
+
+	@Override
+	public void addCorsMappings(CorsRegistry registry) {
+		CorsRegistration defaultRegistry = registry.addMapping("/**")
+				.allowedMethods("OPTIONS", "GET", "POST", "PUT", "DELETE")
+				.allowedHeaders("Authorization", "Content-Type", "Access-Control-Allow-Origin").allowCredentials(true)
+				.exposedHeaders("Authorization").maxAge(3600);
+
+		if (activeProfile.equals("dev")) {
+			defaultRegistry.allowedOrigins("http://localhost:3030/");
+		}
+	}
+}
