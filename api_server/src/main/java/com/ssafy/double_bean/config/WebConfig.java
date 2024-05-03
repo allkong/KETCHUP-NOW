@@ -20,6 +20,8 @@ public class WebConfig implements WebMvcConfigurer {
 
         if (activeProfile.equals("dev")) {
             defaultRegistry.allowedOriginPatterns("http://localhost:3030/");
+        } else if (activeProfile.equals("prod")) {
+            defaultRegistry.allowedOriginPatterns("*");
         }
     }
 }
