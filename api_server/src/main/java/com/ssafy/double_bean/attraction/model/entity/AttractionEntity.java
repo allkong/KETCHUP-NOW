@@ -25,9 +25,9 @@ public class AttractionEntity {
     // 이미지 url 2
     private URI secondImageUrl;
     // 위도
-    private float latitude;
+    private double latitude;
     // 경도
-    private float longitude;
+    private double longitude;
     // 시-군-구 코드
     private String sigunguCode;
     // 연락처
@@ -121,19 +121,19 @@ public class AttractionEntity {
         this.secondImageUrl = secondImageUrl;
     }
 
-    public float getLatitude() {
+    public double getLatitude() {
         return latitude;
     }
 
-    public void setLatitude(float latitude) {
+    public void setLatitude(double latitude) {
         this.latitude = latitude;
     }
 
-    public float getLongitude() {
+    public double getLongitude() {
         return longitude;
     }
 
-    public void setLongitude(float longitude) {
+    public void setLongitude(double longitude) {
         this.longitude = longitude;
     }
 

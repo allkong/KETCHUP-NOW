@@ -36,8 +36,8 @@ CREATE TABLE attractions
     content_type_id VARCHAR(50)     NOT NULL,
     first_image     VARCHAR(200)    NOT NULL DEFAULT '',
     second_image    VARCHAR(200)    NOT NULL DEFAULT '',
-    longitude       FLOAT           NOT NULL,
-    latitude        FLOAT           NOT NULL,
+    longitude       DOUBLE          NOT NULL,
+    latitude        DOUBLE          NOT NULL,
     sigungucode     CHAR(3)         NOT NULL DEFAULT '',
     tel             VARCHAR(100),
     title           VARCHAR(100)
