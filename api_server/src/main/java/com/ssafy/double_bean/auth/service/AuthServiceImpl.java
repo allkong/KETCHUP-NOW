@@ -22,8 +22,8 @@ import org.springframework.stereotype.Service;
 import javax.crypto.SecretKey;
 import java.util.*;
 
-import static com.ssafy.double_bean.util.DatetimeUtil.DAYS;
-import static com.ssafy.double_bean.util.DatetimeUtil.HOURS;
+import static com.ssafy.double_bean.util.constant.TimeUnit.DAYS;
+import static com.ssafy.double_bean.util.constant.TimeUnit.HOURS;
 
 @Service
 public class AuthServiceImpl implements AuthService {
