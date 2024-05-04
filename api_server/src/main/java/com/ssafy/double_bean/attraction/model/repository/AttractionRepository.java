@@ -1,17 +1,15 @@
 package com.ssafy.double_bean.attraction.model.repository;
 
+import com.ssafy.double_bean.attraction.dto.CoordinateDto;
 import com.ssafy.double_bean.attraction.model.entity.AttractionEntity;
 import com.ssafy.double_bean.util.type_handler.URITypeHandler;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Result;
-import org.apache.ibatis.annotations.Results;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
 
 import java.util.List;
 
 @Mapper
 public interface AttractionRepository {
-    @Select("SELECT id, title, addr1, addr2, area_code, category_1, category_2, category_3"
+    @Select("SELECT id, title, addr1, addr2, area_code, category_1, category_2, category_3,"
             + " content_type_id, first_image, second_image, latitude, longitude, sigungucode, tel"
             + " FROM attractions")
     @Results(id = "attractionResult", value = {
@@ -32,4 +30,9 @@ public interface AttractionRepository {
             @Result(property = "telephoneNumber", column = "tel"),
     })
     List<AttractionEntity> getAll();
+
+    @Select("SELECT * FROM attractions WHERE (latitude BETWEEN #{leftBottom.latitude} AND #{rightTop.latitude}) " +
+            "AND (longitude BETWEEN #{leftBottom.longitude} AND #{rightTop.longitude})")
+    @ResultMap("attractionResult")
+    List<AttractionEntity> getWithin(CoordinateDto leftBottom, CoordinateDto rightTop);
 }
