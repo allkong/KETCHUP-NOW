@@ -18,3 +18,7 @@ spring:
 auth:
   jwt:
     secretKey: axbcshbrAFkufvkdfusvdKDS387rslsdf87gwegodscuSDF983iusg8WaFSD83
+
+openapi:
+  service-key: rf2THTSq3Rnvz7yUJWlRW2YjsfVvxufJssCC4SgBAcoGXoIE/fZH72XMDiy4AYxbmYQXRGYxAFKO1+AKnL91rg==
+

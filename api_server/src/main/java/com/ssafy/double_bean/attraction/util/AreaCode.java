@@ -35,6 +35,11 @@ public enum AreaCode {
                 .findFirst().orElseThrow(() -> new IllegalArgumentException("Unknown area code."));
     }
 
+    public static AreaCode getByName(String name) {
+        return getAllAreaCodes().stream().filter(areaCode -> areaCode.name.equals(name))
+                .findFirst().orElseThrow(() -> new IllegalArgumentException("Unknown area name."));
+    }
+
     public static List<AreaCode> getAllAreaCodes() {
         return Arrays.asList(AreaCode.values());
     }
