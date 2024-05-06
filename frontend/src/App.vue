@@ -9,20 +9,22 @@ import FooterView from '@/views/includes/FooterView.vue'
   https://antdv.com/components/layout
  -->
 <template>
-<a-layout class="layout">
-  <HeaderView />
-  <RouterView />
-  <FooterView />
-</a-layout>
+  <a-layout class="layout">
+    <HeaderView />
+    <RouterView />
+    <FooterView />
+  </a-layout>
 </template>
 
 <style>
 body {
-  margin: 0
+  margin: 0;
 }
 
-.ant-menu-horizontal, .ant-menu-item, .ant-menu-item::after {
-    border: none !important;
-    color: inherit !important;
+.ant-menu-horizontal,
+.ant-menu-item,
+.ant-menu-item::after {
+  border: none !important;
+  color: inherit !important;
 }
 </style>

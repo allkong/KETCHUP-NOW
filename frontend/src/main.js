@@ -9,7 +9,7 @@ import router from './router'
  * npm i ant-design-vue
  * https://antdv.com/docs/vue/getting-started
  */
-import Antd from 'ant-design-vue';
+import Antd from 'ant-design-vue'
 
 /**
  * npm i @ant-design/icons-vue
