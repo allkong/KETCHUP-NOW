@@ -1,13 +1,11 @@
-<script setup>
-
-</script>
+<script setup></script>
 
 <template>
-    <a-layout-content>
-        <h1>HomeView</h1>
-    </a-layout-content>
+  <a-layout-content>
+    <div :style="{ background: '#fff', padding: '24px', minHeight: '86vh' }">
+      홈
+    </div>
+  </a-layout-content>
 </template>
 
-<style scoped>
-
-</style>
+<style scoped></style>
