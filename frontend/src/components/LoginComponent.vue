@@ -14,7 +14,7 @@
         await userStore.login(userInfo.value)
     }
 
-    const onFinishFailed = errorInfo => {
+    const onFailed = errorInfo => {
         console.log('Failed:', errorInfo);
     };
 
@@ -30,7 +30,7 @@
       name="normal_login"
       class="login-form"
       @finish="login"
-      @finishFailed="onFinishFailed"
+      @finishFailed="onFailed"
     >
       <a-form-item
         label="ID"

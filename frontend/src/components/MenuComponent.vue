@@ -7,10 +7,7 @@
 </script>
 
 <template>
-    <a-menu
-        v-model:selectedKeys="selectedKeys"
-        mode="horizontal"
-      >
+    <a-menu mode="horizontal" class="menu-items">
         <a-menu-item v-for="menu in menuList" :key="menu.name">
             <RouterLink :to="{ name: menu.routeName }">{{ menu.name }}</RouterLink>
         </a-menu-item>
@@ -18,4 +15,7 @@
 </template>
 
 <style scoped>
+.menu-items {
+    float: right;
+}
 </style>

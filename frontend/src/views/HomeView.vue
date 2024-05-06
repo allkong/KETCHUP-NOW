@@ -4,10 +4,9 @@
 
 <template>
     <a-layout-content>
-        <h1>HomeView</h1>
+        <div :style="{ background: '#fff', padding: '24px', minHeight: '86vh' }">홈</div>
     </a-layout-content>
 </template>
 
 <style scoped>
-
 </style>
