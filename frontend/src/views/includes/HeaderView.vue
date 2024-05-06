@@ -8,18 +8,22 @@ import MenuComponent from '@/components/MenuComponent.vue'
   https://antdv.com/components/grid
  -->
 <template>
-    <a-layout-header class="header">
-      <a-row justify="center" align="middle">
-        <a-col :span="10">
-          <RouterLink :to="{ name: 'home' }">
-            <img src="@/assets/logo.png" alt="" :style="{ display: 'flex', height: '40px' }">
-          </RouterLink>
-        </a-col>
-        <a-col :span="10">
-          <MenuComponent/>
-        </a-col>
-      </a-row>
-    </a-layout-header>
+  <a-layout-header class="header">
+    <a-row justify="center" align="middle">
+      <a-col :span="10">
+        <RouterLink :to="{ name: 'home' }">
+          <img
+            src="@/assets/logo.png"
+            alt=""
+            :style="{ display: 'flex', height: '40px' }"
+          />
+        </RouterLink>
+      </a-col>
+      <a-col :span="10">
+        <MenuComponent />
+      </a-col>
+    </a-row>
+  </a-layout-header>
 </template>
 
 <style scoped>
