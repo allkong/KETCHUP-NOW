@@ -4,6 +4,7 @@ import HomeView from '@/views/HomeView.vue'
 import UserView from '@/views/UserView.vue'
 import LoginComponent from '@/components/LoginComponent.vue'
 import SignUpComponent from '@/components/SignUpComponent.vue'
+import CreatorView from '@/views/CreatorView.vue'
 
 const webRouter = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -29,6 +30,11 @@ const webRouter = createRouter({
           component: SignUpComponent,
         },
       ],
+    },
+    {
+      path: '/creator',
+      name: 'creator',
+      component: CreatorView,
     },
   ],
 })
