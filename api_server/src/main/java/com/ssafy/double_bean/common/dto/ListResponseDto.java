@@ -17,6 +17,10 @@ public class ListResponseDto<E> {
     @Schema(description = "조회한 데이터 목록")
     private List<E> data;
 
+    public ListResponseDto(ListResponseDto responseDto, List<E> data) {
+        this(responseDto.getPage(), responseDto.getSize(), responseDto.hasNext, responseDto.hasPrev, data);
+    }
+
     public ListResponseDto(int page, int size, boolean hasNext, boolean hasPrev, List<E> data) {
         this.page = page;
         this.size = size;

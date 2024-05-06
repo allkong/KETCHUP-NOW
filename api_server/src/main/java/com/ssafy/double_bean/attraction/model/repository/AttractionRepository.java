@@ -2,10 +2,13 @@ package com.ssafy.double_bean.attraction.model.repository;
 
 import com.ssafy.double_bean.attraction.dto.CoordinateDto;
 import com.ssafy.double_bean.attraction.model.entity.AttractionEntity;
+import com.ssafy.double_bean.common.dto.ListRequestDto;
 import com.ssafy.double_bean.util.type_handler.URITypeHandler;
 import org.apache.ibatis.annotations.*;
 
 import java.util.List;
+
+import static com.ssafy.double_bean.common.model.repository.RepositoryUtil.PAGING_QUERY;
 
 @Mapper
 public interface AttractionRepository {
@@ -32,7 +35,7 @@ public interface AttractionRepository {
     List<AttractionEntity> getAll();
 
     @Select("SELECT * FROM attractions WHERE (latitude BETWEEN #{leftBottom.latitude} AND #{rightTop.latitude}) " +
-            "AND (longitude BETWEEN #{leftBottom.longitude} AND #{rightTop.longitude})")
+            "AND (longitude BETWEEN #{leftBottom.longitude} AND #{rightTop.longitude}) " + PAGING_QUERY)
     @ResultMap("attractionResult")
-    List<AttractionEntity> getWithin(CoordinateDto leftBottom, CoordinateDto rightTop);
+    List<AttractionEntity> getWithin(ListRequestDto listRequest, CoordinateDto leftBottom, CoordinateDto rightTop);
 }

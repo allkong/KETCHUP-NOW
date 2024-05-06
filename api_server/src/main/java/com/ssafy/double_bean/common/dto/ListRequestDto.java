@@ -30,6 +30,10 @@ public class ListRequestDto {
         this.orderDirection = orderDirection;
     }
 
+    public ListRequestDto(int page, int size) {
+        this(page, size, "createdAt", OrderDirection.ASC);
+    }
+
     public int getPage() {
         return page;
     }

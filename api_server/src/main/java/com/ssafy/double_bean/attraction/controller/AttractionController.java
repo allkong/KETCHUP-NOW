@@ -1,8 +1,13 @@
 package com.ssafy.double_bean.attraction.controller;
 
 import com.ssafy.double_bean.attraction.dto.AreaCodeResponseDto;
+import com.ssafy.double_bean.attraction.dto.AttractionResponseDto;
+import com.ssafy.double_bean.attraction.dto.CoordinateDto;
+import com.ssafy.double_bean.attraction.model.entity.AttractionEntity;
 import com.ssafy.double_bean.attraction.service.AreaCodeService;
+import com.ssafy.double_bean.attraction.service.AttractionService;
 import com.ssafy.double_bean.attraction.util.AreaCode;
+import com.ssafy.double_bean.common.dto.ListRequestDto;
 import com.ssafy.double_bean.common.dto.ListResponseDto;
 import com.ssafy.double_bean.exception.ErrorCode;
 import com.ssafy.double_bean.exception.HttpResponseException;
@@ -13,11 +18,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -26,9 +29,32 @@ import java.util.List;
 @Tag(name = "Attraction API", description = "관광지 데이터")
 public class AttractionController {
     private final AreaCodeService areaCodeService;
+    private final AttractionService attractionService;
 
-    public AttractionController(AreaCodeService areaCodeService) {
+    public AttractionController(AreaCodeService areaCodeService, AttractionService attractionService) {
         this.areaCodeService = areaCodeService;
+        this.attractionService = attractionService;
+    }
+
+    @GetMapping
+    @Tag(name = "Attraction API")
+    @Operation(summary = "지도 상의 두 지점을 좌하단, 우상단으로 하는 사각형 구역 내부의 여행지 목록을 반환합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "조회 성공",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = AttractionListResponseDto.class)))
+    })
+    public ResponseEntity<ListResponseDto<AttractionResponseDto>> getAttractionsBetween(@Valid ListRequestDto listRequestDto,
+                                                                                        @RequestParam("left-bottom-latitude") double leftBottomLatitude,
+                                                                                        @RequestParam("left-bottom-longitude") double leftBottomLongitude,
+                                                                                        @RequestParam("right-top-latitude") double rightTopLatitude,
+                                                                                        @RequestParam("right-top-longitude") double rightTopLongitude) {
+        CoordinateDto leftBottom = new CoordinateDto(leftBottomLatitude, leftBottomLongitude);
+        CoordinateDto rightTop = new CoordinateDto(rightTopLatitude, rightTopLongitude);
+        ListResponseDto<AttractionEntity> listResponseDto = attractionService.getAttractionsWithin(listRequestDto, leftBottom, rightTop);
+        List<AttractionResponseDto> dtoList = listResponseDto.getData()
+                .stream().map(AttractionResponseDto::new).toList();
+        ListResponseDto<AttractionResponseDto> dto = new ListResponseDto<>(listResponseDto, dtoList);
+        return ResponseEntity.ok(dto);
     }
 
     @GetMapping("/areas")
@@ -72,8 +98,15 @@ public class AttractionController {
     }
 
     @DocumentOnly
-    private class SubAreaNameListResponseDto extends ListResponseDto<List<String>> {
-        public SubAreaNameListResponseDto(int page, int size, boolean hasNext, boolean hasPrev, List<List<String>> data) {
+    private class SubAreaNameListResponseDto extends ListResponseDto<String> {
+        public SubAreaNameListResponseDto(int page, int size, boolean hasNext, boolean hasPrev, List<String> data) {
+            super(page, size, hasNext, hasPrev, data);
+        }
+    }
+
+    @DocumentOnly
+    private class AttractionListResponseDto extends ListResponseDto<AttractionResponseDto> {
+        public AttractionListResponseDto(int page, int size, boolean hasNext, boolean hasPrev, List<AttractionResponseDto> data) {
             super(page, size, hasNext, hasPrev, data);
         }
     }
