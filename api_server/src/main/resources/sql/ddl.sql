@@ -27,8 +27,8 @@ CREATE TABLE passwords
 CREATE TABLE attractions
 (
     id              INT PRIMARY KEY NOT NULL,
-    addr1           VARCHAR(100)    NOT NULL DEFAULT '',
-    addr2           VARCHAR(100)    NOT NULL DEFAULT '',
+    addr1           VARCHAR(300)    NOT NULL DEFAULT '',
+    addr2           VARCHAR(300)    NOT NULL DEFAULT '',
     area_code       INT             NOT NULL,
     category_1      CHAR(3),
     category_2      CHAR(5),
@@ -39,6 +39,6 @@ CREATE TABLE attractions
     longitude       DOUBLE          NOT NULL,
     latitude        DOUBLE          NOT NULL,
     sigungucode     CHAR(3)         NOT NULL DEFAULT '',
-    tel             VARCHAR(100),
-    title           VARCHAR(100)
+    tel             VARCHAR(300),
+    title           VARCHAR(300)
 );
