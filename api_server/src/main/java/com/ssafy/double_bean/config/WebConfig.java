@@ -18,11 +18,10 @@ public class WebConfig implements WebMvcConfigurer {
 				.allowedHeaders("Authorization", "Content-Type", "Access-Control-Allow-Origin").allowCredentials(true)
 				.exposedHeaders("Authorization").maxAge(3600);
 
-		defaultRegistry.allowedOriginPatterns("http://localhost:3030/");
 		if (activeProfile.equals("dev")) {
-			// Add origin patterns here
+			defaultRegistry.allowedOriginPatterns("http://localhost:3030/");
 		} else if (activeProfile.equals("prod")) {
-			defaultRegistry.allowedOriginPatterns("http://home.pcjs156.net/");
+			defaultRegistry.allowedOriginPatterns("http://localhost:3030/", "http://home.pcjs156.net/");
 		}
 	}
 }
