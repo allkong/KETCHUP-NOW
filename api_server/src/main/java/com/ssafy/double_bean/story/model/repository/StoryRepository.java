@@ -3,6 +3,7 @@ package com.ssafy.double_bean.story.model.repository;
 import com.ssafy.double_bean.common.model.repository.type_handler.URITypeHandler;
 import com.ssafy.double_bean.common.model.repository.type_handler.UUIDTypeHandler;
 import com.ssafy.double_bean.story.model.entity.StoryEntity;
+import com.ssafy.double_bean.story.model.repository.type_handler.StoryStatusTypeHandler;
 import org.apache.ibatis.annotations.*;
 
 import java.util.List;
@@ -15,7 +16,7 @@ public interface StoryRepository {
             @Result(property = "id", column = "id"),
             @Result(property = "uuid", column = "uuid", typeHandler = UUIDTypeHandler.class),
             @Result(property = "version", column = "version"),
-            @Result(property = "status", column = "status"),
+            @Result(property = "status", column = "status", typeHandler = StoryStatusTypeHandler.class),
             @Result(property = "title", column = "title"),
             @Result(property = "description", column = "description"),
             @Result(property = "sido", column = "sido"),
@@ -35,5 +36,5 @@ public interface StoryRepository {
             + "INSERT INTO stories(story_base_id, version, status, title, description, sido, gungu, image_uri, thumbnail_image_uri) "
             + "VALUES (LAST_INSERT_ID(), 1, 'WRITING', #{entity.title}, #{entity.description}, #{entity.sido}, #{entity.gungu}, '', '');")
     @Options(useGeneratedKeys = true, keyProperty = "entity.id", keyColumn = "id")
-    int createFirstStory(int authorId, StoryEntity entity);
+    void createFirstStory(int authorId, StoryEntity entity);
 }
