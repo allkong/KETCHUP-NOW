@@ -1,8 +1,8 @@
 package com.ssafy.double_bean.config;
 
-import com.ssafy.double_bean.auth.service.AuthService;
-import com.ssafy.double_bean.filter.JwtFilter;
-import com.ssafy.double_bean.user.dto.AuthenticatedUser;
+import java.util.Arrays;
+import java.util.stream.Stream;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -12,8 +12,9 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import java.util.Arrays;
-import java.util.stream.Stream;
+import com.ssafy.double_bean.auth.service.AuthService;
+import com.ssafy.double_bean.filter.JwtFilter;
+import com.ssafy.double_bean.user.dto.AuthenticatedUser;
 
 @EnableWebSecurity
 @Configuration
@@ -26,7 +27,7 @@ public class WebSecurityConfig {
     };
 
     private final String[] anonymousAllowedPaths = {
-            "/api/v1/users/sign-up", "/api/v1/auth/login", "/api/v1/auth/token"
+            "/api/v1/users/sign-up", "/api/v1/auth/login", "/api/v1/auth/token", "/api/v1/attractions/**"
     };
 
     public WebSecurityConfig(AuthService authService, AuthenticatedUser authenticatedUser) {
