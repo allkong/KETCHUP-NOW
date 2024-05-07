@@ -1,4 +1,4 @@
-package com.ssafy.double_bean.config;
+package com.ssafy.double_bean.auth.config;
 
 import com.ssafy.double_bean.auth.service.AuthService;
 import com.ssafy.double_bean.common.filter.JwtFilter;
