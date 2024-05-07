@@ -1,7 +1,7 @@
 package com.ssafy.double_bean.story.model.repository;
 
-import com.ssafy.double_bean.common.type_handler.URITypeHandler;
-import com.ssafy.double_bean.common.type_handler.UUIDTypeHandler;
+import com.ssafy.double_bean.common.model.repository.type_handler.URITypeHandler;
+import com.ssafy.double_bean.common.model.repository.type_handler.UUIDTypeHandler;
 import com.ssafy.double_bean.story.model.entity.StoryEntity;
 import org.apache.ibatis.annotations.*;
 
@@ -35,5 +35,5 @@ public interface StoryRepository {
             + "INSERT INTO stories(story_base_id, version, status, title, description, sido, gungu, image_uri, thumbnail_image_uri) "
             + "VALUES (LAST_INSERT_ID(), 1, 'WRITING', #{entity.title}, #{entity.description}, #{entity.sido}, #{entity.gungu}, '', '');")
     @Options(useGeneratedKeys = true, keyProperty = "entity.id", keyColumn = "id")
-	int createFirstStory(int authorId, StoryEntity entity);
+    int createFirstStory(int authorId, StoryEntity entity);
 }

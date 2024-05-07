@@ -1,4 +1,4 @@
-package com.ssafy.double_bean.common.type_handler;
+package com.ssafy.double_bean.common.model.repository.type_handler;
 
 import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;
