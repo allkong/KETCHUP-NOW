@@ -1,8 +1,8 @@
 package com.ssafy.double_bean.config;
 
-import java.util.Arrays;
-import java.util.stream.Stream;
-
+import com.ssafy.double_bean.auth.service.AuthService;
+import com.ssafy.double_bean.common.filter.JwtFilter;
+import com.ssafy.double_bean.user.dto.AuthenticatedUser;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -12,9 +12,8 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import com.ssafy.double_bean.auth.service.AuthService;
-import com.ssafy.double_bean.filter.JwtFilter;
-import com.ssafy.double_bean.user.dto.AuthenticatedUser;
+import java.util.Arrays;
+import java.util.stream.Stream;
 
 @EnableWebSecurity
 @Configuration

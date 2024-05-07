@@ -1,4 +1,4 @@
-package com.ssafy.double_bean.exception;
+package com.ssafy.double_bean.common.exception;
 
 public class HttpResponseException extends RuntimeException {
     private final ErrorCode errorCode;

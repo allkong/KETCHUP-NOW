@@ -1,14 +1,5 @@
 package com.ssafy.double_bean.attraction.controller;
 
-import java.util.List;
-
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.ssafy.double_bean.attraction.dto.AreaCodeResponseDto;
 import com.ssafy.double_bean.attraction.dto.AttractionResponseDto;
 import com.ssafy.double_bean.attraction.dto.CoordinateDto;
@@ -16,12 +7,11 @@ import com.ssafy.double_bean.attraction.model.entity.AttractionEntity;
 import com.ssafy.double_bean.attraction.service.AreaCodeService;
 import com.ssafy.double_bean.attraction.service.AttractionService;
 import com.ssafy.double_bean.attraction.util.AreaCode;
+import com.ssafy.double_bean.common.annotation.DocumentOnly;
 import com.ssafy.double_bean.common.dto.ListRequestDto;
 import com.ssafy.double_bean.common.dto.ListResponseDto;
-import com.ssafy.double_bean.exception.ErrorCode;
-import com.ssafy.double_bean.exception.HttpResponseException;
-import com.ssafy.double_bean.util.annotation.DocumentOnly;
-
+import com.ssafy.double_bean.common.exception.ErrorCode;
+import com.ssafy.double_bean.common.exception.HttpResponseException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -29,6 +19,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/attractions")
@@ -50,7 +44,7 @@ public class AttractionController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = AttractionListResponseDto.class)))
     })
     public ResponseEntity<ListResponseDto<AttractionResponseDto>> getAttractionsBetween(@Valid ListRequestDto listRequestDto,
-    																					@Schema(example = "37.57589573217255")
+                                                                                        @Schema(example = "37.57589573217255")
                                                                                         @RequestParam("left-bottom-latitude") double leftBottomLatitude,
                                                                                         @Schema(example = "126.97157440092022")
                                                                                         @RequestParam("left-bottom-longitude") double leftBottomLongitude,

@@ -1,8 +1,8 @@
 package com.ssafy.double_bean.user.controller;
 
-import com.ssafy.double_bean.exception.ErrorCode;
-import com.ssafy.double_bean.exception.ErrorResponse;
-import com.ssafy.double_bean.exception.HttpResponseException;
+import com.ssafy.double_bean.common.exception.ErrorCode;
+import com.ssafy.double_bean.common.exception.ErrorResponse;
+import com.ssafy.double_bean.common.exception.HttpResponseException;
 import com.ssafy.double_bean.user.dto.AuthenticatedUser;
 import com.ssafy.double_bean.user.dto.SignUpRequestDto;
 import com.ssafy.double_bean.user.dto.UserResponseDto;

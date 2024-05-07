@@ -3,8 +3,8 @@ package com.ssafy.double_bean.auth.service;
 import com.ssafy.double_bean.auth.dto.LoginRequestDto;
 import com.ssafy.double_bean.auth.dto.SingleTokenDto;
 import com.ssafy.double_bean.auth.dto.TokenResponseDto;
-import com.ssafy.double_bean.exception.ErrorCode;
-import com.ssafy.double_bean.exception.HttpResponseException;
+import com.ssafy.double_bean.common.exception.ErrorCode;
+import com.ssafy.double_bean.common.exception.HttpResponseException;
 import com.ssafy.double_bean.user.model.entity.UserEntity;
 import com.ssafy.double_bean.user.service.UserService;
 import io.jsonwebtoken.Claims;
@@ -22,8 +22,8 @@ import org.springframework.stereotype.Service;
 import javax.crypto.SecretKey;
 import java.util.*;
 
-import static com.ssafy.double_bean.util.constant.TimeUnit.DAYS;
-import static com.ssafy.double_bean.util.constant.TimeUnit.HOURS;
+import static com.ssafy.double_bean.common.constant.TimeUnit.DAYS;
+import static com.ssafy.double_bean.common.constant.TimeUnit.HOURS;
 
 @Service
 public class AuthServiceImpl implements AuthService {

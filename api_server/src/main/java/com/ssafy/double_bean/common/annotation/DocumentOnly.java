@@ -1,4 +1,4 @@
-package com.ssafy.double_bean.util.annotation;
+package com.ssafy.double_bean.common.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

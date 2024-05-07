@@ -1,7 +1,7 @@
 package com.ssafy.double_bean.user.service;
 
-import com.ssafy.double_bean.exception.ErrorCode;
-import com.ssafy.double_bean.exception.HttpResponseException;
+import com.ssafy.double_bean.common.exception.ErrorCode;
+import com.ssafy.double_bean.common.exception.HttpResponseException;
 import com.ssafy.double_bean.user.dto.SignUpRequestDto;
 import com.ssafy.double_bean.user.model.entity.UserEntity;
 import com.ssafy.double_bean.user.model.repository.UserRepository;
