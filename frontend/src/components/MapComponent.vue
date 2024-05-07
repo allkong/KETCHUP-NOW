@@ -5,12 +5,8 @@ const { VITE_KAKAO_MAP_KEY } = import.meta.env
 const axios = inject('axios')
 
 const mapInfo = {
-  listRequestDto: {
-    page: 1,
-    size: 10,
-    orderKey: 'createdAt',
-    orderDirection: 'ASC',
-  },
+  page: 1,
+  size: 10,
   'left-bottom-latitude': 0,
   'left-bottom-longitude': 0,
   'right-top-latitude': 0,
@@ -18,25 +14,29 @@ const mapInfo = {
 }
 
 const getAttractions = (mapInfo) => {
-  axios.get('/attractions').then((response) => console.log(response))
+  axios
+    .get('/attractions', { params: mapInfo }, { withCredentials: true })
+    .then((response) => response.data.data)
+    .then((attractions) => {
+      console.log(attractions)
+      // 마커 추가
+      attractions.forEach((attraction) => {
+        const markerPosition = new window.kakao.maps.LatLng(
+          attraction.latitude,
+          attraction.longitude
+        )
+        const marker = new window.kakao.maps.Marker({
+          position: markerPosition,
+          title: attraction.title,
+        })
+        markers.push(marker)
+      })
+    })
 }
 
 const mapContainer = ref(null)
 let mapInstance = null
 const markers = []
-
-const positions = [
-  {
-    title: '장소1',
-    latitude: 33.450936,
-    longitude: 126.569477,
-  },
-  {
-    title: '장소2',
-    latitude: 33.450879,
-    longitude: 126.56994,
-  },
-]
 
 onMounted(() => {
   loadKakaoMap(mapContainer.value)
@@ -54,8 +54,10 @@ const loadKakaoMap = (container) => {
         level: 3, // 지도 확대 레벨
         maxLevel: 5, // 지도 축소 제한 레벨
       }
+
       mapInstance = new window.kakao.maps.Map(container, options) // 지도 생성
 
+      // 북동, 남서 위경도 받아오기
       mapInfo['left-bottom-latitude'] = mapInstance
         .getBounds()
         .getSouthWest().Ma
@@ -65,20 +67,8 @@ const loadKakaoMap = (container) => {
       mapInfo['right-top-latitude'] = mapInstance.getBounds().getNorthEast().Ma
       mapInfo['right-top-longitude'] = mapInstance.getBounds().getNorthEast().La
 
+      // 관광지 데이터 받아오기
       getAttractions(mapInfo)
-
-      // 마커 추가
-      positions.forEach((position) => {
-        const markerPosition = new window.kakao.maps.LatLng(
-          position.latitude,
-          position.longitude
-        )
-        const marker = new window.kakao.maps.Marker({
-          position: markerPosition,
-          title: position.title,
-        })
-        markers.push(marker)
-      })
     })
   }
 }
