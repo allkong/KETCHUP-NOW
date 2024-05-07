@@ -11,9 +11,14 @@ spring:
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/double_bean?allowMultiQueries=true
+    url: jdbc:mysql://localhost:3306/double_bean?allowMultiQueries=true&useSSL=false&useUnicode=true&characterEncoding=utf8
     username: root
     password: ssafy
+
+  servlet:
+    multipart:
+      max-file-size: 30MB
+      max-request-size: 50MB
 
 auth:
   jwt:
@@ -22,3 +27,7 @@ auth:
 openapi:
   service-key: rf2THTSq3Rnvz7yUJWlRW2YjsfVvxufJssCC4SgBAcoGXoIE/fZH72XMDiy4AYxbmYQXRGYxAFKO1+AKnL91rg==
 
+aws:
+  region: ap-northeast-2
+  s3:
+    bucket-name: ketchup-now-local-yubin

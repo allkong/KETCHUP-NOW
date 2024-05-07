@@ -87,6 +87,12 @@
             <artifactId>gson</artifactId>
             <version>2.10.1</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-s3 -->
+        <dependency>
+            <groupId>com.amazonaws</groupId>
+            <artifactId>aws-java-sdk-s3</artifactId>
+            <version>1.12.708</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -98,37 +104,37 @@
                 </configuration>
             </plugin>
             <plugin>
-		      <groupId>io.sentry</groupId>
-		      <artifactId>sentry-maven-plugin</artifactId>
-		      <version>0.0.8</version>
-		      <extensions>true</extensions>
-		      <configuration>
-		        <!-- for showing output of sentry-cli -->
-		        <debugSentryCli>true</debugSentryCli>
-		
-		        <org>ssafy-yubin</org>
-		
-		        <project>ketchup-now</project>
-		
-		        <!-- in case you're self hosting, provide the URL here -->
-		        <!--<url>http://localhost:8000/</url>-->
-		
-		        <!-- provide your auth token via SENTRY_AUTH_TOKEN environment variable -->
-		        <authToken>${env.SENTRY_AUTH_TOKEN}</authToken>
-		      </configuration>
-		      <executions>
-		        <execution>
-		          <goals>
-		            <!--
-		            Generates a JVM (Java, Kotlin, etc.) source bundle and uploads your source code to Sentry.
-		            This enables source context, allowing you to see your source
-		            code as part of your stack traces in Sentry.
-		            -->
-		            <goal>uploadSourceBundle</goal>
-		          </goals>
-		        </execution>
-		      </executions>
-		    </plugin>
+                <groupId>io.sentry</groupId>
+                <artifactId>sentry-maven-plugin</artifactId>
+                <version>0.0.8</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <!-- for showing output of sentry-cli -->
+                    <debugSentryCli>true</debugSentryCli>
+
+                    <org>ssafy-yubin</org>
+
+                    <project>ketchup-now</project>
+
+                    <!-- in case you're self hosting, provide the URL here -->
+                    <!--<url>http://localhost:8000/</url>-->
+
+                    <!-- provide your auth token via SENTRY_AUTH_TOKEN environment variable -->
+                    <authToken>${env.SENTRY_AUTH_TOKEN}</authToken>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <!--
+                            Generates a JVM (Java, Kotlin, etc.) source bundle and uploads your source code to Sentry.
+                            This enables source context, allowing you to see your source
+                            code as part of your stack traces in Sentry.
+                            -->
+                            <goal>uploadSourceBundle</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
