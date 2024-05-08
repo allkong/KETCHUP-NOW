@@ -1,8 +1,12 @@
-<script setup></script>
+<script setup>
+import MenuComponent from '@/components/mobile/MenuComponent.vue'
+</script>
 
 <template>
   <a-affix :offset-bottom="0" class="bottom-navbar">
-    <a-layout-footer class="navbar-footer"> nav </a-layout-footer>
+    <a-layout-footer class="navbar-footer">
+      <MenuComponent />
+    </a-layout-footer>
   </a-affix>
 </template>
 

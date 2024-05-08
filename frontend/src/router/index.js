@@ -1,11 +1,16 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
 import desktopHomeView from '@/views/desktop/HomeView.vue'
-import UserView from '@/views/desktop/UserView.vue'
-import LoginComponent from '@/components/desktop/LoginComponent.vue'
-import SignUpComponent from '@/components/desktop/SignUpComponent.vue'
-import CreatorView from '@/views/desktop/CreatorView.vue'
+import desktopUserView from '@/views/desktop/UserView.vue'
+import desktopLoginComponent from '@/components/desktop/LoginComponent.vue'
+import desktopSignUpComponent from '@/components/desktop/SignUpComponent.vue'
+import desktopCreatorView from '@/views/desktop/CreatorView.vue'
+
 import mobileHomeView from '@/views/mobile/HomeView.vue'
+import mobileSearchView from '@/views/mobile/SearchView.vue'
+import mobilePlayView from '@/views/mobile/PlayView.vue'
+import mobileRecordView from '@/views/mobile/StoryRecordView.vue'
+import mobileMyPageView from '@/views/mobile/MyPageView.vue'
 
 const desktopRouter = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -13,31 +18,31 @@ const desktopRouter = createRouter({
     {
       path: '/',
       name: 'home',
-      component: desktopHomeView
+      component: desktopHomeView,
     },
     {
       path: '/user',
       name: 'user',
-      component: UserView,
+      component: desktopUserView,
       children: [
         {
           path: 'login',
           name: 'login',
-          component: LoginComponent
+          component: desktopLoginComponent,
         },
         {
           path: 'signup',
           name: 'signup',
-          component: SignUpComponent
-        }
-      ]
+          component: desktopSignUpComponent,
+        },
+      ],
     },
     {
       path: '/creator',
       name: 'creator',
-      component: CreatorView
-    }
-  ]
+      component: desktopCreatorView,
+    },
+  ],
 })
 
 const mobileRouter = createRouter({
@@ -46,9 +51,29 @@ const mobileRouter = createRouter({
     {
       path: '/',
       name: 'home',
-      component: mobileHomeView
-    }
-  ]
+      component: mobileHomeView,
+    },
+    {
+      path: '/search',
+      name: 'search',
+      component: mobileSearchView,
+    },
+    {
+      path: '/play',
+      name: 'play',
+      component: mobilePlayView,
+    },
+    {
+      path: '/record',
+      name: 'record',
+      component: mobileRecordView,
+    },
+    {
+      path: '/mypage',
+      name: 'mypage',
+      component: mobileMyPageView,
+    },
+  ],
 })
 
 // 화면 너비에 따른 mobile, web(pc) 분기
