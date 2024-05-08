@@ -1,13 +1,13 @@
 <script setup>
 import { ref, computed } from 'vue'
-import { UserOutlined, LockOutlined } from '@ant-design/icons-vue'
 import { useUserStore } from '@/stores/user-store'
+import { UserOutlined, LockOutlined } from '@ant-design/icons-vue'
 
 const userStore = useUserStore()
 
 const userInfo = ref({
   loginId: '',
-  password: '',
+  password: ''
 })
 
 const login = async () => {
@@ -61,12 +61,7 @@ const disabled = computed(() => {
     </a-form-item>
 
     <a-form-item>
-      <a-button
-        :disabled="disabled"
-        type="primary"
-        html-type="submit"
-        class="login-form-button"
-      >
+      <a-button :disabled="disabled" type="primary" html-type="submit" class="login-form-button">
         로그인
       </a-button>
       <a href="">register now!</a>

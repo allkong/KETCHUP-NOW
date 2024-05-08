@@ -1,18 +1,18 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
-import HomeView from '@/views/HomeView.vue'
-import UserView from '@/views/UserView.vue'
-import LoginComponent from '@/components/LoginComponent.vue'
-import SignUpComponent from '@/components/SignUpComponent.vue'
-import CreatorView from '@/views/CreatorView.vue'
+import HomeView from '@/views/desktop/HomeView.vue'
+import UserView from '@/views/desktop/UserView.vue'
+import LoginComponent from '@/components/desktop/LoginComponent.vue'
+import SignUpComponent from '@/components/desktop/SignUpComponent.vue'
+import CreatorView from '@/views/desktop/CreatorView.vue'
 
-const webRouter = createRouter({
+const desktopRouter = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: '/',
       name: 'home',
-      component: HomeView,
+      component: HomeView
     },
     {
       path: '/user',
@@ -22,21 +22,21 @@ const webRouter = createRouter({
         {
           path: 'login',
           name: 'login',
-          component: LoginComponent,
+          component: LoginComponent
         },
         {
           path: 'signup',
           name: 'signup',
-          component: SignUpComponent,
-        },
-      ],
+          component: SignUpComponent
+        }
+      ]
     },
     {
       path: '/creator',
       name: 'creator',
-      component: CreatorView,
-    },
-  ],
+      component: CreatorView
+    }
+  ]
 })
 
 const mobileRouter = createRouter({
@@ -45,7 +45,7 @@ const mobileRouter = createRouter({
     {
       path: '/',
       name: 'home',
-      component: HomeView,
+      component: HomeView
     },
     {
       path: '/user',
@@ -55,16 +55,16 @@ const mobileRouter = createRouter({
         {
           path: 'login',
           name: 'login',
-          component: LoginComponent,
+          component: LoginComponent
         },
         {
           path: 'signup',
           name: 'signup',
-          component: SignUpComponent,
-        },
-      ],
-    },
-  ],
+          component: SignUpComponent
+        }
+      ]
+    }
+  ]
 })
 
 // 화면 너비에 따른 mobile, web(pc) 분기
@@ -76,7 +76,7 @@ if (isMobile) {
   router = mobileRouter
 } else {
   console.log('pc')
-  router = webRouter
+  router = desktopRouter
 }
 
 export default router

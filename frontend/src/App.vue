@@ -1,7 +1,7 @@
 <script setup>
 import { RouterView } from 'vue-router'
-import HeaderView from '@/views/includes/HeaderView.vue'
-import FooterView from '@/views/includes/FooterView.vue'
+import HeaderView from '@/views/desktop/includes/HeaderView.vue'
+import FooterView from '@/views/desktop/includes/FooterView.vue'
 </script>
 
 <!-- 
