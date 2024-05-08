@@ -48,19 +48,20 @@ const loadKakaoMap = (container) => {
   }
 }
 
-// 관광지 데이터 받아오기
+// 관광지 데이터로 지도에 마커 표시
 const getAttractions = () => {
-  // 현재 영역의 위도, 경도 세팅
+  // 현재 영역의 남서, 북동 위경도 세팅
   mapInfo['left-bottom-latitude'] = mapInstance.getBounds().getSouthWest().Ma
   mapInfo['left-bottom-longitude'] = mapInstance.getBounds().getSouthWest().La
   mapInfo['right-top-latitude'] = mapInstance.getBounds().getNorthEast().Ma
   mapInfo['right-top-longitude'] = mapInstance.getBounds().getNorthEast().La
 
+  // 관광지 데이터 요청
   axios
     .get('/attractions', { params: mapInfo }, { withCredentials: true })
     .then((response) => response.data.data)
     .then((attractions) => {
-      // 마커 추가
+      // 받아온 관광지들로 마커 생성하여 markers 배열에 추가
       attractions.forEach((attraction) => {
         const markerPosition = new window.kakao.maps.LatLng(
           attraction.latitude,
@@ -71,34 +72,39 @@ const getAttractions = () => {
           title: attraction.title,
         })
         markers.push(marker)
-        marker.setMap(mapInstance)
       })
+      // 지도에 마커 표시
+      setMarkers(mapInstance)
     })
     .catch((error) => console.error(error))
 }
 
-// 관광지 마커 표시하기/끄기
+// 모든 마커 지도에 표시하기/끄기
+const setMarkers = (mapInstance) => {
+  markers.forEach((marker) => marker.setMap(mapInstance))
+  markers = []
+}
+
+// 관광지 버튼 활성화/비활성화
 const handleChange = () => {
   if (selectTag.value) {
     getAttractions()
   } else {
-    removeAllMarkers()
+    setMarkers(null)
   }
-}
-
-// 모든 마커 지우기
-const removeAllMarkers = () => {
-  markers.forEach((marker) => marker.setMap(null))
-  markers = []
 }
 </script>
 
 <template>
   <div>
-    <div ref="mapContainer" style="width: 100%; height: 70vh"></div>
-    <a-checkable-tag v-model:checked="selectTag" @change="() => handleChange()">
+    <a-checkable-tag
+      color="red"
+      v-model:checked="selectTag"
+      @change="() => handleChange()"
+    >
       관광지
     </a-checkable-tag>
+    <div ref="mapContainer" style="width: 100%; height: 70vh"></div>
   </div>
 </template>
 
