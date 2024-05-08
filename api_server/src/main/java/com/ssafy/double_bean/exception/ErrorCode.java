@@ -7,6 +7,7 @@ public enum ErrorCode {
     INVALID_REQUEST(HttpStatus.BAD_REQUEST, "E0001", "Invalid request."),
     NOT_READABLE_REQUEST(HttpStatus.BAD_REQUEST, "E0002", "Not readable request."),
     BAD_TOKEN_TYPE(HttpStatus.BAD_REQUEST, "E0003", "Given token's type is unexpected."),
+    INVALID_AUTHORIZATION_HEADER(HttpStatus.BAD_REQUEST, "E0004", "Invalid 'Authorization' header value."),
 
     // 401 Unauthorized
     UNKNOWN_USER(HttpStatus.UNAUTHORIZED, "E0001", "No such user with given credential."),
