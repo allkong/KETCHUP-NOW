@@ -95,12 +95,29 @@ const handleChange = () => {
 </script>
 
 <template>
-  <div>
-    <a-checkable-tag v-model:checked="selectTag" @change="() => handleChange()">
+  <div id="mapwrap">
+    <div ref="mapContainer" style="width: 100%; height: 70vh"></div>
+    <a-checkable-tag
+      class="attraction-check"
+      v-model:checked="selectTag"
+      @change="() => handleChange()"
+    >
       관광지
     </a-checkable-tag>
-    <div ref="mapContainer" style="width: 100%; height: 70vh"></div>
   </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+#mapwrap {
+  position: relative;
+  overflow: hidden;
+}
+
+.attraction-check {
+  position: absolute;
+  overflow: hidden;
+  top: 10px;
+  left: 10px;
+  z-index: 10;
+}
+</style>
