@@ -72,16 +72,15 @@ const getAttractions = () => {
           title: attraction.title,
         })
         markers.push(marker)
+        marker.setMap(mapInstance)
       })
-      // 지도에 마커 표시
-      setMarkers(mapInstance)
     })
     .catch((error) => console.error(error))
 }
 
-// 모든 마커 지도에 표시하기/끄기
-const setMarkers = (mapInstance) => {
-  markers.forEach((marker) => marker.setMap(mapInstance))
+// 모든 마커 지도에서 없애기
+const removeAllMarkers = () => {
+  markers.forEach((marker) => marker.setMap(null))
   markers = []
 }
 
@@ -90,18 +89,14 @@ const handleChange = () => {
   if (selectTag.value) {
     getAttractions()
   } else {
-    setMarkers(null)
+    removeAllMarkers()
   }
 }
 </script>
 
 <template>
   <div>
-    <a-checkable-tag
-      color="red"
-      v-model:checked="selectTag"
-      @change="() => handleChange()"
-    >
+    <a-checkable-tag v-model:checked="selectTag" @change="() => handleChange()">
       관광지
     </a-checkable-tag>
     <div ref="mapContainer" style="width: 100%; height: 70vh"></div>
