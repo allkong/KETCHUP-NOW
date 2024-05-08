@@ -1,7 +1,5 @@
 <script setup>
 import { RouterView } from 'vue-router'
-import HeaderView from '@/views/desktop/includes/HeaderView.vue'
-import FooterView from '@/views/desktop/includes/FooterView.vue'
 </script>
 
 <!-- 
@@ -9,10 +7,8 @@ import FooterView from '@/views/desktop/includes/FooterView.vue'
   https://antdv.com/components/layout
  -->
 <template>
-  <a-layout class="layout">
-    <HeaderView />
+  <a-layout>
     <RouterView />
-    <FooterView />
   </a-layout>
 </template>
 
