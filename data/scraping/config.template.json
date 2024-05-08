@@ -1,0 +1,13 @@
+{
+  "scraping": {
+    "serviceKey": String Open API Service Key
+  },
+  "database": {
+    "host": String host (IP),
+    "port": Integer port number,
+    "user": String DB username,
+    "password": String DB password,
+    "db": String DB database name,
+    "charset": "utf8"
+  }
+}
