@@ -42,12 +42,11 @@ public class AuthController {
     @PostMapping("/login")
     @Tag(name = "Auth API")
     @Operation(summary = "로그인 API", description = "로그인 ID, 비밀번호를 받아 Access token과 Refresh token을 발급합니다. <br/>" +
-            "일관성을 위해 Access token은 header에, Refresh token은 body에 전달되므로 유의해야 합니다.")
+            "Access token은 header에, Refresh token은 cookie에 전달되므로 유의해야 합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "JWT 발급 성공",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = SingleTokenDto.class)),
-                    headers = {@Header(name = "authorization", description = "Access JWT", schema = @Schema(example = "Bearer {{ JWT }}"))}),
-            @ApiResponse(responseCode = "401", description = "로그인 실패")
+                    headers = {@Header(name = "Authorization", description = "Access JWT", schema = @Schema(example = "Bearer {{ JWT }}"))}),
+            @ApiResponse(responseCode = "401", description = "로그인 실패", content = @Content(schema = @Schema(implementation = Void.class)))
     })
     public ResponseEntity<SingleTokenDto> doLogin(@Valid @RequestBody LoginRequestDto dto, HttpServletResponse response) {
         TokenResponseDto generatedTokens = authService.getTokenWithLoginInfo(dto);
@@ -65,12 +64,11 @@ public class AuthController {
 
     @PostMapping("/token")
     @Tag(name = "Auth API")
-    @Operation(summary = "Access Token 재발급 API", description = "Refresh token을 받아 새 Access token을 발급합니다.")
+    @Operation(summary = "Access Token 재발급 API", description = "Refresh token을 받아 새 Access token을 발급합니다. (쿠키 기반)")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "JWT 발급 성공",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = SingleTokenDto.class)),
                     headers = {@Header(name = "authorization", description = "Access JWT", schema = @Schema(example = "Bearer {{ JWT }}"))}),
-            @ApiResponse(responseCode = "401", description = "인증 실패")
+            @ApiResponse(responseCode = "401", description = "인증 실패", content = @Content(schema = @Schema(implementation = Void.class)))
     })
     public ResponseEntity<Void> issueToken(HttpServletRequest request, HttpServletResponse response) {
     	String token = authService.resolveToken(request);
@@ -78,9 +76,11 @@ public class AuthController {
     		throw new HttpResponseException(ErrorCode.INVALID_TOKEN);
     	}
     	
+        HttpHeaders headers = new HttpHeaders();
         SingleTokenDto result = authService.getTokenWithRefreshToken(token);
-        ResponseCookie refreshTokenCookie = getRefreshTokenResponseCookie(result.token());
-        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString()).build();
+        headers.add("Authorization", "Bearer " + result.token());
+
+        return ResponseEntity.ok().headers(headers).build();
     }
     
     private ResponseCookie getRefreshTokenResponseCookie(String refreshToken) {
