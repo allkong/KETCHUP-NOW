@@ -1,11 +1,14 @@
 package com.ssafy.double_bean.auth.service;
 
+import java.util.UUID;
+
+import org.springframework.security.core.Authentication;
+
 import com.ssafy.double_bean.auth.dto.LoginRequestDto;
 import com.ssafy.double_bean.auth.dto.SingleTokenDto;
 import com.ssafy.double_bean.auth.dto.TokenResponseDto;
-import org.springframework.security.core.Authentication;
 
-import java.util.UUID;
+import jakarta.servlet.http.HttpServletRequest;
 
 public interface AuthService {
     // 로그인 정보를 받아 JWT Access/Refresh token을 발급한다.
@@ -20,6 +23,8 @@ public interface AuthService {
     Authentication getAuthentication(String token, String uuid);
 
     UUID validateAndGetUuid(String token, TokenType requiredType);
+
+    String resolveToken(HttpServletRequest request);
 
     enum TokenType {
         ACCESS, REFRESH

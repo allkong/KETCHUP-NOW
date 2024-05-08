@@ -1,13 +1,9 @@
 /* eslint-env node */
 module.exports = {
   root: true,
-  extends: [
-    'plugin:vue/vue3-essential',
-    'eslint:recommended',
-    'plugin:prettier/recommended',
-  ],
+  extends: ['plugin:vue/vue3-essential', 'eslint:recommended', 'plugin:prettier/recommended'],
   parserOptions: {
-    ecmaVersion: 'latest',
+    ecmaVersion: 'latest'
   },
   rules: {
     'prettier/prettier': [
@@ -21,8 +17,8 @@ module.exports = {
         printWidth: 80,
         bracketSpacing: true,
         arrowParens: 'avoid',
-        endOfLine: 'auto',
-      },
-    ],
-  },
+        endOfLine: 'auto'
+      }
+    ]
+  }
 }
