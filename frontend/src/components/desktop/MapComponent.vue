@@ -41,7 +41,7 @@ const loadKakaoMap = (container) => {
       window.kakao.maps.event.addListener(mapInstance, 'dragend', () => {
         // 관광지 버튼이 활성화인 상태로 지도를 이동하면 이동한 지도 영역의 관광지 마커를 생성
         if (selectTag.value) {
-          getAttractions(mapInfo)
+          getAttractions()
         }
       })
     })
@@ -65,7 +65,7 @@ const getAttractions = () => {
       attractions.forEach((attraction) => {
         const markerPosition = new window.kakao.maps.LatLng(
           attraction.latitude,
-          attraction.longitude
+          attraction.longitude,
         )
         const marker = new window.kakao.maps.Marker({
           position: markerPosition,
