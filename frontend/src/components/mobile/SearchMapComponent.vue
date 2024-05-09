@@ -3,7 +3,6 @@ import { ref, computed, onMounted } from 'vue'
 const { VITE_KAKAO_MAP_KEY } = import.meta.env
 
 const mapContainer = ref(null)
-let mapInstance = null
 
 onMounted(() => {
   loadKakaoMap(mapContainer.value)
@@ -22,24 +21,25 @@ const loadKakaoMap = (container) => {
         maxLevel: 5, // 지도 축소 제한 레벨
       }
 
-      mapInstance = new window.kakao.maps.Map(container, options) // 지도 생성
+      const mapInstance = new window.kakao.maps.Map(container, options) // 지도 생성
     })
   }
 }
-console.log(window.innerHeight - 94)
-const customHeight = computed(() => {
-  return '--test-map': window.innerHeight - 94
+
+// 지도 높이 구하기
+const customMapHeight = computed(() => {
+  return `--map-height: ${window.innerHeight - 94}px`
 })
 </script>
 
 <template>
-  <div :style="customHeight" class="map-style">
-    <div ref="mapContainer" style="width: 100%; height: 70vh"></div>
+  <div :style="customMapHeight" class="map-style">
+    <div ref="mapContainer" style="height: 100%"></div>
   </div>
 </template>
 
 <style scoped>
 .map-style {
-  height: var(--test-map);
+  height: var(--map-height);
 }
 </style>
