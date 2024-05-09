@@ -11,6 +11,7 @@ import MobileSearchView from '@/views/mobile/SearchView.vue'
 import MobilePlayView from '@/views/mobile/PlayView.vue'
 import MobileRecordView from '@/views/mobile/StoryRecordView.vue'
 import MobileMyPageView from '@/views/mobile/MyPageView.vue'
+import MobileMyReviewListView from '@/views/mobile/MyReviewListView.vue'
 
 const desktopRouter = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -72,6 +73,11 @@ const mobileRouter = createRouter({
       path: '/user/my-page',
       name: 'user:my-page',
       component: MobileMyPageView,
+    },
+    {
+      path: '/user/my-reviews',
+      name: 'user:my-reviews',
+      component: MobileMyReviewListView,
     },
   ],
 })

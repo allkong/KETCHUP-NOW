@@ -75,6 +75,10 @@ function doPasswordChange() {
     message.success('수정 완료!')
   }, 3000)
 }
+
+function goMyReviewListPage() {
+  router.push({ name: 'user:my-reviews' })
+}
 </script>
 
 <template>
@@ -138,7 +142,9 @@ function doPasswordChange() {
       </a-layout-content>
     </a-card>
     <a-card title="기타 정보">
-      <a-button id="my-review-page-btn" type="primary">작성한 리뷰 관리</a-button>
+      <a-button id="my-review-page-btn" type="primary" @click="goMyReviewListPage"
+        >작성한 리뷰 관리</a-button
+      >
     </a-card>
     <a-divider />
     <div id="project-info-container">
