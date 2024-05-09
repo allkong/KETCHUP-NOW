@@ -1,11 +1,11 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
-import desktopHomeView from '@/views/desktop/HomeView.vue'
+import DesktopHomeView from '@/views/desktop/HomeView.vue'
 import UserView from '@/views/desktop/UserView.vue'
 import LoginComponent from '@/components/desktop/LoginComponent.vue'
 import SignUpComponent from '@/components/desktop/SignUpComponent.vue'
 import CreatorView from '@/views/desktop/CreatorView.vue'
-import mobileHomeView from '@/views/mobile/HomeView.vue'
+import MobileHomeView from '@/views/mobile/HomeView.vue'
 
 const desktopRouter = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -13,7 +13,7 @@ const desktopRouter = createRouter({
     {
       path: '/',
       name: 'home',
-      component: desktopHomeView
+      component: DesktopHomeView
     },
     {
       path: '/user',
@@ -46,7 +46,7 @@ const mobileRouter = createRouter({
     {
       path: '/',
       name: 'home',
-      component: mobileHomeView
+      component: MobileHomeView
     }
   ]
 })
