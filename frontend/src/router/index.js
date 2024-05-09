@@ -1,16 +1,16 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
-import desktopHomeView from '@/views/desktop/HomeView.vue'
-import desktopUserView from '@/views/desktop/UserView.vue'
-import desktopLoginComponent from '@/components/desktop/LoginComponent.vue'
-import desktopSignUpComponent from '@/components/desktop/SignUpComponent.vue'
-import desktopCreatorView from '@/views/desktop/CreatorView.vue'
+import DesktopHomeView from '@/views/desktop/HomeView.vue'
+import DesktopUserView from '@/views/desktop/UserView.vue'
+import DesktopLoginComponent from '@/components/desktop/LoginComponent.vue'
+import DesktopSignUpComponent from '@/components/desktop/SignUpComponent.vue'
+import DesktopCreatorView from '@/views/desktop/CreatorView.vue'
 
-import mobileHomeView from '@/views/mobile/HomeView.vue'
-import mobileSearchView from '@/views/mobile/SearchView.vue'
-import mobilePlayView from '@/views/mobile/PlayView.vue'
-import mobileRecordView from '@/views/mobile/StoryRecordView.vue'
-import mobileMyPageView from '@/views/mobile/MyPageView.vue'
+import MobileHomeView from '@/views/mobile/HomeView.vue'
+import MobileSearchView from '@/views/mobile/SearchView.vue'
+import MobilePlayView from '@/views/mobile/PlayView.vue'
+import MobileRecordView from '@/views/mobile/StoryRecordView.vue'
+import MobileMyPageView from '@/views/mobile/MyPageView.vue'
 
 const desktopRouter = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -18,29 +18,29 @@ const desktopRouter = createRouter({
     {
       path: '/',
       name: 'home',
-      component: desktopHomeView,
+      component: DesktopHomeView,
     },
     {
       path: '/user',
       name: 'user',
-      component: desktopUserView,
+      component: DesktopUserView,
       children: [
         {
           path: 'login',
           name: 'login',
-          component: desktopLoginComponent,
+          component: DesktopLoginComponent,
         },
         {
           path: 'signup',
           name: 'signup',
-          component: desktopSignUpComponent,
+          component: DesktopSignUpComponent,
         },
       ],
     },
     {
       path: '/creator',
       name: 'creator',
-      component: desktopCreatorView,
+      component: DesktopCreatorView,
     },
   ],
 })
@@ -51,27 +51,27 @@ const mobileRouter = createRouter({
     {
       path: '/',
       name: 'home',
-      component: mobileHomeView,
+      component: MobileHomeView,
     },
     {
       path: '/search',
       name: 'search',
-      component: mobileSearchView,
+      component: MobileSearchView,
     },
     {
       path: '/play',
       name: 'play',
-      component: mobilePlayView,
+      component: MobilePlayView,
     },
     {
       path: '/record',
       name: 'record',
-      component: mobileRecordView,
+      component: MobileRecordView,
     },
     {
       path: '/mypage',
       name: 'mypage',
-      component: mobileMyPageView,
+      component: MobileMyPageView,
     },
   ],
 })
