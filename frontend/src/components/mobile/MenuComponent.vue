@@ -5,7 +5,7 @@ const menuList = ref([
   { name: '검색', routeName: 'search' },
   { name: '플레이', routeName: 'play' },
   { name: '스토리', routeName: 'record' },
-  { name: 'MY', routeName: 'mypage' },
+  { name: 'MY', routeName: 'user:my-page' },
 ])
 </script>
 
