@@ -1,10 +1,5 @@
-<script setup>
-import NavigationView from '@/views/mobile/includes/NavigationView.vue'
-</script>
+<script setup></script>
 
-<template>
-  Contents
-  <NavigationView />
-</template>
+<template>홈, 로그인, 회원가입</template>
 
 <style scoped></style>

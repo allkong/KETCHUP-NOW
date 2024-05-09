@@ -2,9 +2,10 @@
 import { ref } from 'vue'
 
 const menuList = ref([
-  { name: '스토리창작', routeName: 'creator' },
-  { name: '로그인', routeName: 'login' },
-  { name: '회원가입', routeName: 'signup' }
+  { name: '검색', routeName: 'search' },
+  { name: '플레이', routeName: 'play' },
+  { name: '스토리', routeName: 'record' },
+  { name: 'MY', routeName: 'mypage' },
 ])
 </script>
 
@@ -17,7 +18,7 @@ const menuList = ref([
 </template>
 
 <style scoped>
-.menu-items {
+/* .menu-items {
   float: right;
-}
+} */
 </style>
