@@ -5,6 +5,7 @@ import DesktopUserView from '@/views/desktop/UserView.vue'
 import DesktopLoginComponent from '@/components/desktop/LoginComponent.vue'
 import DesktopSignUpComponent from '@/components/desktop/SignUpComponent.vue'
 import DesktopCreatorView from '@/views/desktop/CreatorView.vue'
+import DesktopNotFoundView from '@/views/desktop/NotFoundView.vue'
 
 import MobileHomeView from '@/views/mobile/HomeView.vue'
 import MobileSearchView from '@/views/mobile/SearchView.vue'
@@ -12,6 +13,7 @@ import MobilePlayView from '@/views/mobile/PlayView.vue'
 import MobileRecordView from '@/views/mobile/StoryRecordView.vue'
 import MobileMyPageView from '@/views/mobile/MyPageView.vue'
 import MobileMyReviewListView from '@/views/mobile/MyReviewListView.vue'
+import MobileNotFoundView from '@/views/mobile/NotFoundView.vue'
 
 const desktopRouter = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -42,6 +44,11 @@ const desktopRouter = createRouter({
       path: '/creator',
       name: 'creator',
       component: DesktopCreatorView,
+    },
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'not-found',
+      component: DesktopNotFoundView,
     },
   ],
 })
@@ -78,6 +85,11 @@ const mobileRouter = createRouter({
       path: '/user/my-reviews',
       name: 'user:my-reviews',
       component: MobileMyReviewListView,
+    },
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'not-found',
+      component: MobileNotFoundView,
     },
   ],
 })
