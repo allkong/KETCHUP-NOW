@@ -3,8 +3,9 @@ import _ from 'lodash'
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
-import { ArrowLeftOutlined, CopyrightCircleOutlined, GithubOutlined } from '@ant-design/icons-vue'
+import { CopyrightCircleOutlined, GithubOutlined } from '@ant-design/icons-vue'
 import NavigationView from '@/views/mobile/includes/NavigationView.vue'
+import GoBackIcon from '@/components/mobile/functional-icons/GoBackIcon.vue'
 
 const router = useRouter()
 
@@ -14,10 +15,6 @@ const passwordForm = ref({
 })
 
 const isPasswordUpdating = ref(false)
-
-function goBack() {
-  router.back()
-}
 
 const PASSWORD_VERIFICATION_STATUS = {
   NOT_YET: 'NOT_YET',
@@ -82,7 +79,7 @@ function doPasswordChange() {
 
 <template>
   <a-layout-content id="content-container">
-    <ArrowLeftOutlined id="go-back-icon" @click="goBack" />
+    <GoBackIcon />
     <div id="greeting-container">
       <img id="logo-img" src="@/assets/logo.png" alt="logo-img" />
       <h1>여행자 <span id="heading-nickname">팔척장신</span>님!</h1>
@@ -156,11 +153,6 @@ function doPasswordChange() {
 </template>
 
 <style scoped lang="scss">
-#go-back-icon {
-  margin-top: 0.5rem;
-  margin-left: 0.5rem;
-  font-size: large;
-}
 #content-container {
   background: $whiteBackgroundColor;
   padding: 1rem;
