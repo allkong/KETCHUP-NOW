@@ -1,5 +1,23 @@
 package com.ssafy.double_bean.auth.service;
 
+import static com.ssafy.double_bean.util.constant.TimeUnit.SECONDS;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
+import javax.crypto.SecretKey;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.crypto.bcrypt.BCrypt;
+import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+
 import com.ssafy.double_bean.auth.dto.LoginRequestDto;
 import com.ssafy.double_bean.auth.dto.SingleTokenDto;
 import com.ssafy.double_bean.auth.dto.TokenResponseDto;
@@ -7,27 +25,20 @@ import com.ssafy.double_bean.common.exception.ErrorCode;
 import com.ssafy.double_bean.common.exception.HttpResponseException;
 import com.ssafy.double_bean.user.model.entity.UserEntity;
 import com.ssafy.double_bean.user.service.UserService;
+
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.crypto.bcrypt.BCrypt;
-import org.springframework.stereotype.Service;
-
-import javax.crypto.SecretKey;
-import java.util.*;
-
-import static com.ssafy.double_bean.common.constant.TimeUnit.DAYS;
-import static com.ssafy.double_bean.common.constant.TimeUnit.HOURS;
+import jakarta.servlet.http.HttpServletRequest;
 
 @Service
 public class AuthServiceImpl implements AuthService {
-    private final UserService userService;
+	public static final String AUTHORIZATION_HEADER = "Authorization";
+    public static final String TOKEN_PREFIX = "Bearer ";
+	
+	private final UserService userService;
     private final SecretKey secretKey;
 
     public AuthServiceImpl(@Value("${auth.jwt.secretKey}") String rawSecretKey, UserService userService) {
@@ -54,6 +65,10 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public SingleTokenDto getTokenWithRefreshToken(String token) {
         UUID uuid = parseUuidFrom(token);
+        TokenType type = getClaims(token).get("type", TokenType.class);
+        if (type == TokenType.ACCESS) {
+        	throw new HttpResponseException(ErrorCode.BAD_TOKEN_TYPE);
+        }
         String accessToken = createToken(uuid.toString(), TokenType.ACCESS);
         return new SingleTokenDto(TokenType.ACCESS, accessToken);
     }
@@ -72,7 +87,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public UUID validateAndGetUuid(String token, TokenType requiredType) {
         try {
-            Claims claims = Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload();
+            Claims claims = getClaims(token);
             String tokenType = claims.get("type", String.class);
             if (!requiredType.name().equals(tokenType)) {
                 throw new HttpResponseException(ErrorCode.BAD_TOKEN_TYPE);
@@ -92,8 +107,8 @@ public class AuthServiceImpl implements AuthService {
     public String createToken(String identifier, TokenType type) {
         JsonClaim claim = new JsonClaim(identifier, type);
         return switch (type) {
-            case ACCESS -> createToken(claim, 3 * HOURS);
-            case REFRESH -> createToken(claim, 30 * DAYS);
+            case ACCESS -> createToken(claim, 1 * SECONDS);
+            case REFRESH -> createToken(claim, 3 * SECONDS);
             default -> throw new IllegalStateException("Unknown token type : " + type);
         };
     }
@@ -104,7 +119,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     private UUID parseUuidFrom(String token) {
-        Claims claims = Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload();
+        Claims claims = getClaims(token);
         return UUID.fromString(claims.get("id", String.class));
     }
 
@@ -116,4 +131,22 @@ public class AuthServiceImpl implements AuthService {
             return map;
         }
     }
+
+
+	@Override
+    public String resolveToken(HttpServletRequest request) {
+        String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
+        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(TOKEN_PREFIX)) {
+            return bearerToken.substring(TOKEN_PREFIX.length());
+        }
+        return null;
+    }
+	
+	private Claims getClaims(String token) {
+		try {
+			return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload();
+		} catch (ExpiredJwtException e) {
+			throw new HttpResponseException(ErrorCode.EXPIRED_TOKEN);
+		}
+	}
 }
