@@ -69,8 +69,8 @@ const mobileRouter = createRouter({
       component: MobileRecordView,
     },
     {
-      path: '/mypage',
-      name: 'mypage',
+      path: '/user/my-page',
+      name: 'user:my-page',
       component: MobileMyPageView,
     },
   ],
