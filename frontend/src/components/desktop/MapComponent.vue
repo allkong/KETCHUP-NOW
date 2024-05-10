@@ -6,7 +6,7 @@ const axios = inject('axios')
 
 const mapInfo = {
   page: 1,
-  size: 20,
+  size: 100,
   'left-bottom-latitude': 0,
   'left-bottom-longitude': 0,
   'right-top-latitude': 0,
