@@ -14,6 +14,7 @@ import MobileRecordView from '@/views/mobile/StoryRecordView.vue'
 import MobileMyPageView from '@/views/mobile/MyPageView.vue'
 import MobileMyReviewListView from '@/views/mobile/MyReviewListView.vue'
 import MobileNotFoundView from '@/views/mobile/NotFoundView.vue'
+import LoginView from '@/views/mobile/LoginView.vue'
 
 const desktopRouter = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -85,6 +86,11 @@ const mobileRouter = createRouter({
       path: '/user/my-reviews',
       name: 'user:my-reviews',
       component: MobileMyReviewListView,
+    },
+    {
+      path: '/auth/login',
+      name: 'auth:login',
+      component: LoginView,
     },
     {
       path: '/:pathMatch(.*)*',
