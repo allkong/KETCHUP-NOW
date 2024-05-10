@@ -10,11 +10,12 @@ import MenuComponent from '@/components/mobile/MenuComponent.vue'
   </a-affix>
 </template>
 
-<style scoped>
+<style scoped lang="scss">
 .bottom-navbar {
   position: fixed;
   bottom: 0;
   width: 100%;
+  height: $footerHeight;
 }
 
 .navbar-footer {
