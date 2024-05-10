@@ -12,8 +12,8 @@ import { PASSWORD_VERIFICATION_STATUS } from '@/components/mobile/auth/variables
 const router = useRouter()
 
 const passwordForm = ref({
-  newPassword: '',
-  newPasswordCheck: '',
+  password: '',
+  passwordCheck: '',
 })
 
 const isPasswordUpdating = ref(false)
@@ -38,8 +38,6 @@ function onPasswordFormChange(updatedPasswordForm, updatedPasswordVerificationSt
 }
 
 function doPasswordChange() {
-  console.log(passwordForm.value)
-
   switch (passwordVerificationStatus.value) {
     case PASSWORD_VERIFICATION_STATUS.NOT_YET:
       message.warning('비밀번호를 입력해 주세요.')
@@ -57,8 +55,8 @@ function doPasswordChange() {
   setTimeout(() => {
     // TODO : 수정 실패 시나리오도 필요함
     isPasswordUpdating.value = false
-    passwordForm.value.newPassword = ''
-    passwordForm.value.newPasswordCheck = ''
+    passwordForm.value.password = ''
+    passwordForm.value.passwordCheck = ''
 
     message.success('수정 완료!')
   }, 3000)

@@ -2,7 +2,7 @@
 import _ from 'lodash'
 import { ref } from 'vue'
 import { message } from 'ant-design-vue'
-import GoBackIcon from '@/components/mobile/functional-icons/GoBackIcon.vue'
+import TextLogo from '@/components/mobile/TextLogo.vue'
 
 const loginForm = ref({
   loginId: '',
@@ -29,7 +29,7 @@ function doLogin() {
 
 <template>
   <a-layout-content>
-    <GoBackIcon />
+    <TextLogo />
     <a-form :label-col="{ col: 8 }" @submit.prevent="doLogin">
       <div id="logo-container">
         <img id="logo-img" src="@/assets/logo.png" />
@@ -46,7 +46,7 @@ function doLogin() {
         >
       </a-form-item>
       <div id="register-link-container">
-        <RouterLink>Or Register now!</RouterLink>
+        <RouterLink :to="{ name: 'auth:sign-up' }">Or Register now!</RouterLink>
       </div>
     </a-form>
   </a-layout-content>
@@ -55,10 +55,13 @@ function doLogin() {
 <style scoped lang="scss">
 .ant-layout-content {
   padding: 1rem;
+  background-color: $whiteBackgroundColor;
+  margin: 50% auto;
   min-height: 100vh;
 }
 #logo-container {
   text-align: center;
+  margin-top: 1rem;
 }
 #logo-img {
   width: 30%;
@@ -67,7 +70,7 @@ h1 {
   text-align: center;
 }
 .ant-form {
-  margin: 50% 1rem;
+  margin: 0% 1rem;
   padding: 2rem;
   padding-top: 0.5rem;
   background: $whiteBackgroundColor;
