@@ -120,4 +120,10 @@ h1 {
 .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled):hover::after {
   background-color: tomato;
 }
+#cleared-story-preview-cards-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
 </style>
