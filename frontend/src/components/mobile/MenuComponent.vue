@@ -4,7 +4,7 @@ import { ref } from 'vue'
 const menuList = ref([
   { name: '검색', routeName: 'search' },
   { name: '플레이', routeName: 'play' },
-  { name: '스토리', routeName: 'record' },
+  { name: '스토리', routeName: 'story:cleared-list' },
   { name: 'MY', routeName: 'user:my-page' },
 ])
 </script>
