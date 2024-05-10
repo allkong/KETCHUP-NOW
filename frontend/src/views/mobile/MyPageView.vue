@@ -6,38 +6,19 @@ import { message } from 'ant-design-vue'
 import { CopyrightCircleOutlined, GithubOutlined } from '@ant-design/icons-vue'
 import NavigationView from '@/views/mobile/includes/NavigationView.vue'
 import GoBackIcon from '@/components/mobile/functional-icons/GoBackIcon.vue'
+import PasswordCheckingInput from '@/components/mobile/auth/PasswordCheckingInput.vue'
+import { PASSWORD_VERIFICATION_STATUS } from '@/components/mobile/auth/variables'
 
 const router = useRouter()
 
 const passwordForm = ref({
-  newPassword: '',
-  newPasswordCheck: '',
+  password: '',
+  passwordCheck: '',
 })
 
 const isPasswordUpdating = ref(false)
 
-const PASSWORD_VERIFICATION_STATUS = {
-  NOT_YET: 'NOT_YET',
-  DIFFERENT: 'DIFFERENT',
-  TOO_SHORT: 'TOO_SHORT',
-}
-Object.freeze(PASSWORD_VERIFICATION_STATUS)
-
-const passwordVerificationStatus = computed(() => {
-  // 아직 입력하지 않은 경우
-  if (_.isEmpty(passwordForm.value.newPassword)) {
-    return PASSWORD_VERIFICATION_STATUS.NOT_YET
-  }
-  // 입력은 했으나, 확인란과 다른 경우
-  else if (passwordForm.value.newPassword !== passwordForm.value.newPasswordCheck) {
-    return PASSWORD_VERIFICATION_STATUS.DIFFERENT
-  }
-  // 너무 짧은 경우
-  else if (passwordForm.value.newPassword.length < 10) {
-    return PASSWORD_VERIFICATION_STATUS.TOO_SHORT
-  }
-})
-
+const passwordVerificationStatus = ref(PASSWORD_VERIFICATION_STATUS.NOT_YET)
 const passwordChangeBtnClass = computed(() => {
   switch (passwordVerificationStatus.value) {
     case PASSWORD_VERIFICATION_STATUS.NOT_YET:
@@ -51,10 +32,15 @@ const passwordChangeBtnClass = computed(() => {
   }
 })
 
+function onPasswordFormChange(updatedPasswordForm, updatedPasswordVerificationStatus) {
+  passwordForm.value = updatedPasswordForm
+  passwordVerificationStatus.value = updatedPasswordVerificationStatus
+}
+
 function doPasswordChange() {
   switch (passwordVerificationStatus.value) {
     case PASSWORD_VERIFICATION_STATUS.NOT_YET:
-      message.warning('새 비밀번호를 입력해 주세요.')
+      message.warning('비밀번호를 입력해 주세요.')
       return
     case PASSWORD_VERIFICATION_STATUS.DIFFERENT:
       message.error('비밀번호가 일치하지 않습니다.')
@@ -69,8 +55,8 @@ function doPasswordChange() {
   setTimeout(() => {
     // TODO : 수정 실패 시나리오도 필요함
     isPasswordUpdating.value = false
-    passwordForm.value.newPassword = ''
-    passwordForm.value.newPasswordCheck = ''
+    passwordForm.value.password = ''
+    passwordForm.value.passwordCheck = ''
 
     message.success('수정 완료!')
   }, 3000)
@@ -111,26 +97,10 @@ function goMyReviewListPage() {
         </a-row>
         <a-collapse :bordered="false">
           <a-collapse-panel header="비밀번호 수정">
-            <a-row>
-              <a-col :span="24">
-                <a-input
-                  type="password"
-                  v-model:value="passwordForm.newPassword"
-                  placeholder="새 비밀번호를 입력해 주세요."
-                >
-                </a-input>
-              </a-col>
-            </a-row>
-            <a-row>
-              <a-col :span="24">
-                <a-input
-                  type="password"
-                  v-model:value="passwordForm.newPasswordCheck"
-                  placeholder="새 비밀번호를 다시 입력해 주세요."
-                >
-                </a-input>
-              </a-col>
-            </a-row>
+            <PasswordCheckingInput
+              :password-form="passwordForm"
+              @password-form-change="onPasswordFormChange"
+            />
             <a-button
               :class="passwordChangeBtnClass"
               @:click="doPasswordChange"

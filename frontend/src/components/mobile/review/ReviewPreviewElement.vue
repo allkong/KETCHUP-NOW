@@ -7,6 +7,16 @@ const props = defineProps({
     type: Object,
     required: true,
   },
+  renderHeader: {
+    type: Boolean,
+    required: false,
+    default: true,
+  },
+  renderFooter: {
+    type: Boolean,
+    required: false,
+    default: true,
+  },
 })
 
 const review = reactive(props.review)
@@ -20,7 +30,10 @@ const concatenatedReviewContent = computed(() =>
 </script>
 
 <template>
-  <a-card :title="review.title" :headStyle="{ backgroundColor: 'silver', color: 'white' }">
+  <a-card
+    :title="props.renderHeader ? review.title : null"
+    :headStyle="{ backgroundColor: 'silver', color: 'white' }"
+  >
     <div class="review-header" @click="showStarPoint" :star="review.star">
       <span class="review-title">{{ review.storyTitle }}</span>
       <div class="review-start-container">
@@ -40,7 +53,7 @@ const concatenatedReviewContent = computed(() =>
     <div class="review-content-container">
       {{ concatenatedReviewContent }}
     </div>
-    <div class="review-btn-container">
+    <div class="review-btn-container" v-if="renderFooter">
       <a-button class="review-update-btn">수정</a-button>
       <a-button class="review-delete-btn">삭제</a-button>
     </div>
