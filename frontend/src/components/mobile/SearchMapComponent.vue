@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 const { VITE_KAKAO_MAP_KEY } = import.meta.env
+import StoryModal from '@/components/mobile/modal/StoryModal.vue'
 
 const props = defineProps({
   navbarHeight: Number,
@@ -14,6 +15,8 @@ const places = [
   [37.576072552, 126.9768042386],
   [37.5766530058, 126.974893286],
 ]
+const modalOpen = ref(false)
+const clickedMarker = ref()
 
 onMounted(() => {
   loadKakaoMap(mapContainer.value)
@@ -42,7 +45,9 @@ const loadKakaoMap = (container) => {
 
       markers.forEach((marker) => {
         window.kakao.maps.event.addListener(marker, 'click', () => {
-          console.log(marker)
+          // console.log(marker)
+          modalOpen.value = true
+          clickedMarker.value = marker
         })
       })
     })
@@ -66,9 +71,19 @@ const getStories = () => {
 const customMapHeight = computed(() => {
   return `--map-height: ${window.innerHeight - props.navbarHeight}px`
 })
+
+const closeStoryModal = () => {
+  modalOpen.value = false
+}
 </script>
 
 <template>
+  <StoryModal
+    v-if="modalOpen"
+    :modal-open="modalOpen"
+    :clicked-marker="clickedMarker"
+    @close-modal="closeStoryModal"
+  />
   <div :style="customMapHeight" class="map-style">
     <div ref="mapContainer" style="height: 100%"></div>
   </div>
