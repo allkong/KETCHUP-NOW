@@ -16,7 +16,7 @@ function goToHome() {
 
 <style scoped lang="scss">
 #logo-text {
-  font-family: 'Bagel Fat One';
+  font-family: 'Bagel Fat One' !important;
   color: $primaryColor;
   font-size: xx-large;
   margin-left: 1rem;
