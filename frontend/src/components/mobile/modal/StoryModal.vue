@@ -1,6 +1,27 @@
 <script setup>
 import { ref } from 'vue'
 import MapComponent from '@/components/mobile/MapComponent.vue'
+import ReviewList from '@/components/mobile/review/ReviewPreviewElement.vue'
+
+const reviews = ref([
+  {
+    uuid: crypto.randomUUID(),
+    title: '기타에 불 붙혀보셨나요?',
+    star: 4.3,
+    content:
+      '세상 머리가 해맑던 어린 내가 떠올라. 장래 희망을 물으면 10개를 답했던 아이. 대통령, 선생님, 때론 문방구 주인, 때론 아름다운 할머니 된대!',
+    createdAt: '2024-05-10',
+  },
+  {
+    uuid: crypto.randomUUID(),
+    title: '바퀴벌레 나왔어요',
+    star: 2.2,
+    content:
+      '마마 왜 내 심장은 가짜야? 나는 왜 찢겨도 붉은 피 하나 나지 않는 가짜야? 다들 물어본다고요. 너도 겨울을 아냐고. 마른 가지 같은 손가락이 왜 슬픈 줄 아냐고. 그럼 당연히 알지 왜 몰라, 그 잔가지 위에 업힌 나의 생. 그럼 당연히 알지 왜 몰라, 그 잔가지 위에 업힌 나의 생.',
+    createdAt: '2024-05-10',
+  },
+])
+
 const props = defineProps({
   modalOpen: Boolean,
 })
@@ -19,12 +40,14 @@ const handleOk = (e) => {
       v-model:open="isOpen"
       title="Story"
       centered
-      width="25rem"
+      okText="PLAY!"
       @cancel="$emit('closeModal')"
       @ok="handleOk"
     >
       <div class="thumnail"></div>
-      <h2>싸피산책로</h2>
+      <div>
+        <h2 :style="{ display: 'inline' }">싸피산책로</h2>
+      </div>
       <span>서울시 강남구</span>
 
       <a-tabs v-model:activeKey="activeKey" class="tabs-container">
@@ -42,7 +65,16 @@ const handleOk = (e) => {
             <MapComponent />
           </div>
         </a-tab-pane>
-        <a-tab-pane key="3" tab="리뷰">Content of Tab Pane 3</a-tab-pane>
+        <a-tab-pane key="3" tab="리뷰">
+          <div class="tab-review">
+            <ReviewList
+              :review="review"
+              :render-footer="false"
+              v-for="review in reviews"
+              :key="review.uuid"
+            />
+          </div>
+        </a-tab-pane>
       </a-tabs>
     </a-modal>
   </div>
@@ -74,5 +106,10 @@ h2 {
   border-radius: 0.5rem;
   overflow: hidden;
   margin: 1rem 0 1rem 0;
+}
+
+.tab-review {
+  max-height: 17rem;
+  overflow: auto;
 }
 </style>
