@@ -4,9 +4,7 @@ import MenuComponent from '@/components/mobile/MenuComponent.vue'
 
 <template>
   <a-affix :offset-bottom="0" class="bottom-navbar">
-    <a-layout-footer class="navbar-footer">
-      <MenuComponent />
-    </a-layout-footer>
+    <MenuComponent />
   </a-affix>
 </template>
 
