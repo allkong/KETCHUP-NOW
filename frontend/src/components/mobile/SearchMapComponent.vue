@@ -2,6 +2,10 @@
 import { ref, computed, onMounted } from 'vue'
 const { VITE_KAKAO_MAP_KEY } = import.meta.env
 
+const props = defineProps({
+  navbarHeight: Number,
+})
+
 const mapContainer = ref(null)
 let mapInstance = null
 let markers = []
@@ -30,10 +34,10 @@ const loadKakaoMap = (container) => {
 
       mapInstance = new window.kakao.maps.Map(container, options) // 지도 생성
 
-      getStorys()
+      getStories()
 
       window.kakao.maps.event.addListener(mapInstance, 'dragend', () => {
-        getStorys()
+        getStories()
       })
 
       markers.forEach((marker) => {
@@ -45,7 +49,7 @@ const loadKakaoMap = (container) => {
   }
 }
 
-const getStorys = () => {
+const getStories = () => {
   places.forEach((place) => {
     const markerPosition = new window.kakao.maps.LatLng(place[0], place[1])
 
@@ -60,7 +64,7 @@ const getStorys = () => {
 
 // 지도 높이 구하기
 const customMapHeight = computed(() => {
-  return `--map-height: ${window.innerHeight - 94}px`
+  return `--map-height: ${window.innerHeight - props.navbarHeight}px`
 })
 </script>
 
