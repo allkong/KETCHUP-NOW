@@ -56,8 +56,8 @@ public class StoryServiceImpl implements StoryService {
     private String[] getStoryImageObjectKeys(AuthenticatedUser author, MultipartFile imageFile) {
         UUID fileUuid = UUID.randomUUID();
         Long timestamp = System.currentTimeMillis();
-        String original = String.format("story-images/%s/%s_%s_%s", author.getUuid(), fileUuid, timestamp, imageFile.getOriginalFilename());
-        String thumbnail = String.format("story-thumbnail-images/%s/%s_%s_%s", author.getUuid(), fileUuid, timestamp, imageFile.getOriginalFilename());
+        String original = String.format("images/%s/%s_%s_%s", author.getUuid(), fileUuid, timestamp, imageFile.getOriginalFilename());
+        String thumbnail = String.format("thumbnail-images/%s/%s_%s_%s", author.getUuid(), fileUuid, timestamp, imageFile.getOriginalFilename());
         return new String[]{original, thumbnail};
     }
 }
