@@ -1,21 +1,12 @@
 package com.ssafy.double_bean.auth.controller;
 
 
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseCookie;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.ssafy.double_bean.auth.dto.LoginRequestDto;
 import com.ssafy.double_bean.auth.dto.SingleTokenDto;
 import com.ssafy.double_bean.auth.dto.TokenResponseDto;
 import com.ssafy.double_bean.auth.service.AuthService;
-import com.ssafy.double_bean.exception.ErrorCode;
-import com.ssafy.double_bean.exception.HttpResponseException;
-
+import com.ssafy.double_bean.common.exception.ErrorCode;
+import com.ssafy.double_bean.common.exception.HttpResponseException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -26,14 +17,21 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/v1/auth")
 @Tag(name = "Auth API", description = "회원에 대한 인증, 인가 및 권한 갱신 처리")
 public class AuthController {
-	private final String REFRESH_TOKEN_COOKIE_KEY = "refreshToken";
-	
-	private final AuthService authService;
+    private final String REFRESH_TOKEN_COOKIE_KEY = "refreshToken";
+
+    private final AuthService authService;
 
     public AuthController(AuthService authService) {
         this.authService = authService;
@@ -50,15 +48,15 @@ public class AuthController {
     })
     public ResponseEntity<SingleTokenDto> doLogin(@Valid @RequestBody LoginRequestDto dto, HttpServletResponse response) {
         TokenResponseDto generatedTokens = authService.getTokenWithLoginInfo(dto);
-        
+
         HttpHeaders headers = new HttpHeaders();
 
         // Access token은 header에,
         headers.add("Authorization", "Bearer " + generatedTokens.accessToken());
-        
+
         // Refresh token은 cookie에 써줌
         ResponseCookie refreshTokenCookie = getRefreshTokenResponseCookie(generatedTokens.refreshToken());
-        
+
         return ResponseEntity.ok().headers(headers).header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString()).build();
     }
 
@@ -71,26 +69,26 @@ public class AuthController {
             @ApiResponse(responseCode = "401", description = "인증 실패", content = @Content(schema = @Schema(implementation = Void.class)))
     })
     public ResponseEntity<Void> issueToken(HttpServletRequest request, HttpServletResponse response) {
-    	String token = authService.resolveToken(request);
-    	if (token == null) {
-    		throw new HttpResponseException(ErrorCode.INVALID_TOKEN);
-    	}
-    	
+        String token = authService.resolveToken(request);
+        if (token == null) {
+            throw new HttpResponseException(ErrorCode.INVALID_TOKEN);
+        }
+
         HttpHeaders headers = new HttpHeaders();
         SingleTokenDto result = authService.getTokenWithRefreshToken(token);
         headers.add("Authorization", "Bearer " + result.token());
 
         return ResponseEntity.ok().headers(headers).build();
     }
-    
+
     private ResponseCookie getRefreshTokenResponseCookie(String refreshToken) {
-    	return ResponseCookie
-        		.from(REFRESH_TOKEN_COOKIE_KEY, refreshToken)
-        		.domain("localhost") // TODO : 나중에 프론트 배포하면 바꿔줘야 함
-        		.path("/")
-        		.httpOnly(true)
-        		.maxAge(100000000)
-        		.sameSite("None")
-        		.build();
+        return ResponseCookie
+                .from(REFRESH_TOKEN_COOKIE_KEY, refreshToken)
+                .domain("localhost") // TODO : 나중에 프론트 배포하면 바꿔줘야 함
+                .path("/")
+                .httpOnly(true)
+                .maxAge(100000000)
+                .sameSite("None")
+                .build();
     }
 }
