@@ -18,13 +18,14 @@ public record StoryCreateRequestDto(
         String sido,
         @Schema(description = "군/구 이름")
         String gungu) {
-    public StoryEntity toRequestEntity(URI imageUri) {
+    public StoryEntity toRequestEntity(URI imageUri, URI thumbnailImageUri) {
         StoryEntity requestEntity = new StoryEntity();
         requestEntity.setTitle(title);
         requestEntity.setDescription(description);
         requestEntity.setSido(sido);
         requestEntity.setGungu(gungu);
         requestEntity.setImageUri(imageUri);
+        requestEntity.setThumbnailImageUri(thumbnailImageUri);
         return requestEntity;
     }
 }

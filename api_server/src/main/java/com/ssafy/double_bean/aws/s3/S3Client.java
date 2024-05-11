@@ -10,8 +10,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.net.URI;
-import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Component
 public class S3Client {
@@ -25,27 +23,15 @@ public class S3Client {
         this.s3Client = s3Client;
     }
 
-    public URI uploadFile(String path, MultipartFile file) throws IOException {
+    public void uploadFile(String objectKey, MultipartFile file) throws IOException {
         // 메타 정보 설정
         ObjectMetadata metadata = new ObjectMetadata();
         metadata.setContentType(file.getContentType());
         metadata.setContentLength(file.getSize());
 
-        // 이름을 랜덤하게 만들어서
-        String objectKey = getObjectKey(path, file.getOriginalFilename());
-
         // 업로드
         PutObjectRequest uploadRequest = new PutObjectRequest(BUCKET_NAME, objectKey, file.getInputStream(), metadata);
         s3Client.putObject(uploadRequest);
-
-        // 저장 위치 반환
-        return getUri(objectKey);
-    }
-
-    private String getObjectKey(String path, String originalFileName) {
-        UUID uuid = UUID.randomUUID();
-        LocalDateTime now = LocalDateTime.now();
-        return String.format("%s/%s_%s_%s", path, uuid, now, originalFileName);
     }
 
     public URI getUri(String objectKey) {

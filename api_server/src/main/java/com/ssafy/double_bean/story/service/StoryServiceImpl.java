@@ -15,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.UUID;
 
 @Service
 public class StoryServiceImpl implements StoryService {
@@ -36,17 +37,27 @@ public class StoryServiceImpl implements StoryService {
                 .orElseThrow(() -> new HttpResponseException(ErrorCode.UNKNOWN_USER));
 
         // 이미지 업로드
-        String imagePath = String.format("%s/story-images", author.getUuid());
+        String[] objectKeys = getStoryImageObjectKeys(author, imageFile);
+        String originalKey = objectKeys[0];
+        String thumbnailKey = objectKeys[1];
 
-        URI imageUri = s3Client.uploadFile(imagePath, imageFile);
-        System.out.println(imageUri);
-        StoryEntity requestEntity = createDto.toRequestEntity(imageUri);
+        s3Client.uploadFile(originalKey, imageFile);
+        URI originalUri = s3Client.getUri(originalKey);
+        URI thumbnailUri = s3Client.getUri(thumbnailKey);
+
+        StoryEntity requestEntity = createDto.toRequestEntity(originalUri, thumbnailUri);
         storyRepository.createFirstStory(userEntity.getId(), requestEntity);
 
-        System.out.println(">>> " + requestEntity.getId() + " / ");
-
-        // 전달 받은 id를 토대로 생성된 스토리 정보를 반환
-        return storyRepository.findById(requestEntity.getId())
+        // 전달 받은 id를 토대로 생성된 스토리 정보를 반환 (story base id가 반환됨 ㅠㅠ)
+        return storyRepository.findWritingStoryByStoryBaseId(requestEntity.getId())
                 .orElseThrow(() -> new RuntimeException("Failed to create first story."));
+    }
+
+    private String[] getStoryImageObjectKeys(AuthenticatedUser author, MultipartFile imageFile) {
+        UUID fileUuid = UUID.randomUUID();
+        Long timestamp = System.currentTimeMillis();
+        String original = String.format("story-images/%s/%s_%s_%s", author.getUuid(), fileUuid, timestamp, imageFile.getOriginalFilename());
+        String thumbnail = String.format("story-thumbnail-images/%s/%s_%s_%s", author.getUuid(), fileUuid, timestamp, imageFile.getOriginalFilename());
+        return new String[]{original, thumbnail};
     }
 }

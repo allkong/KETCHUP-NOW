@@ -32,9 +32,15 @@ public interface StoryRepository {
     @ResultMap("storyResult")
     Optional<StoryEntity> findById(int id);
 
+    @Select("SELECT * FROM stories WHERE story_base_id=${storyBaseId} AND status='WRITING'")
+    @ResultMap("storyResult")
+    Optional<StoryEntity> findWritingStoryByStoryBaseId(int storyBaseId);
+
     @Insert("INSERT INTO story_bases(author_id) VALUES (#{authorId});"
             + "INSERT INTO stories(story_base_id, version, status, title, description, sido, gungu, image_uri, thumbnail_image_uri) "
-            + "VALUES (LAST_INSERT_ID(), 1, 'WRITING', #{entity.title}, #{entity.description}, #{entity.sido}, #{entity.gungu}, '', '');")
+            + "VALUES (LAST_INSERT_ID(), 1, 'WRITING', #{entity.title}, #{entity.description}, #{entity.sido}, #{entity.gungu}, " +
+            " #{entity.imageUri, typeHandler=com.ssafy.double_bean.common.model.repository.type_handler.URITypeHandler}," +
+            " #{entity.thumbnailImageUri, typeHandler=com.ssafy.double_bean.common.model.repository.type_handler.URITypeHandler});")
     @Options(useGeneratedKeys = true, keyProperty = "entity.id", keyColumn = "id")
-    void createFirstStory(int authorId, StoryEntity entity);
+    int createFirstStory(int authorId, StoryEntity entity);
 }
