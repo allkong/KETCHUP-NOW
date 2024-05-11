@@ -1,5 +1,5 @@
 <script setup>
-import MenuComponent from '@/components/MenuComponent.vue'
+import MenuComponent from '@/components/desktop/MenuComponent.vue'
 </script>
 
 <!-- 
@@ -12,11 +12,7 @@ import MenuComponent from '@/components/MenuComponent.vue'
     <a-row justify="center" align="middle">
       <a-col :span="10">
         <RouterLink :to="{ name: 'home' }">
-          <img
-            src="@/assets/logo.png"
-            alt=""
-            :style="{ display: 'flex', height: '40px' }"
-          />
+          <img src="@/assets/logo.png" alt="" :style="{ display: 'flex', height: '40px' }" />
         </RouterLink>
       </a-col>
       <a-col :span="10">

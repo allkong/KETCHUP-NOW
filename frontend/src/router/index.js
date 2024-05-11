@@ -1,40 +1,56 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
-import HomeView from '@/views/HomeView.vue'
-import UserView from '@/views/UserView.vue'
-import LoginComponent from '@/components/LoginComponent.vue'
-import SignUpComponent from '@/components/SignUpComponent.vue'
-import CreatorView from '@/views/CreatorView.vue'
+import DesktopHomeView from '@/views/desktop/HomeView.vue'
+import DesktopUserView from '@/views/desktop/UserView.vue'
+import DesktopLoginComponent from '@/components/desktop/LoginComponent.vue'
+import DesktopSignUpComponent from '@/components/desktop/SignUpComponent.vue'
+import DesktopCreatorView from '@/views/desktop/CreatorView.vue'
+import DesktopNotFoundView from '@/views/desktop/NotFoundView.vue'
 
-const webRouter = createRouter({
+import MobileHomeView from '@/views/mobile/HomeView.vue'
+import MobileSearchView from '@/views/mobile/SearchView.vue'
+import MobilePlayView from '@/views/mobile/PlayView.vue'
+import MobileRecordView from '@/views/mobile/StoryRecordView.vue'
+import MobileMyPageView from '@/views/mobile/MyPageView.vue'
+import MobileMyReviewListView from '@/views/mobile/MyReviewListView.vue'
+import MobileNotFoundView from '@/views/mobile/NotFoundView.vue'
+import MobileLoginView from '@/views/mobile/LoginView.vue'
+import MobileSignUpView from '@/views/mobile/SignUpView.vue'
+
+const desktopRouter = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: '/',
       name: 'home',
-      component: HomeView,
+      component: DesktopHomeView,
     },
     {
       path: '/user',
       name: 'user',
-      component: UserView,
+      component: DesktopUserView,
       children: [
         {
           path: 'login',
           name: 'login',
-          component: LoginComponent,
+          component: DesktopLoginComponent,
         },
         {
           path: 'signup',
           name: 'signup',
-          component: SignUpComponent,
+          component: DesktopSignUpComponent,
         },
       ],
     },
     {
       path: '/creator',
       name: 'creator',
-      component: CreatorView,
+      component: DesktopCreatorView,
+    },
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'not-found',
+      component: DesktopNotFoundView,
     },
   ],
 })
@@ -45,24 +61,47 @@ const mobileRouter = createRouter({
     {
       path: '/',
       name: 'home',
-      component: HomeView,
+      component: MobileHomeView,
     },
     {
-      path: '/user',
-      name: 'user',
-      component: UserView,
-      children: [
-        {
-          path: 'login',
-          name: 'login',
-          component: LoginComponent,
-        },
-        {
-          path: 'signup',
-          name: 'signup',
-          component: SignUpComponent,
-        },
-      ],
+      path: '/search',
+      name: 'search',
+      component: MobileSearchView,
+    },
+    {
+      path: '/play',
+      name: 'play',
+      component: MobilePlayView,
+    },
+    {
+      path: '/record',
+      name: 'record',
+      component: MobileRecordView,
+    },
+    {
+      path: '/user/my-page',
+      name: 'user:my-page',
+      component: MobileMyPageView,
+    },
+    {
+      path: '/user/my-reviews',
+      name: 'user:my-reviews',
+      component: MobileMyReviewListView,
+    },
+    {
+      path: '/auth/login',
+      name: 'auth:login',
+      component: MobileLoginView,
+    },
+    {
+      path: '/auth/sign-up',
+      name: 'auth:sign-up',
+      component: MobileSignUpView,
+    },
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'not-found',
+      component: MobileNotFoundView,
     },
   ],
 })
@@ -76,7 +115,7 @@ if (isMobile) {
   router = mobileRouter
 } else {
   console.log('pc')
-  router = webRouter
+  router = desktopRouter
 }
 
 export default router

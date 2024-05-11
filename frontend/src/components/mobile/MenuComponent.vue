@@ -1,9 +1,12 @@
 <script setup>
-import { storeToRefs } from 'pinia'
-import { useUserStore } from '@/stores/user-store'
+import { ref } from 'vue'
 
-const useStore = useUserStore()
-const { menuList } = storeToRefs(useStore)
+const menuList = ref([
+  { name: '검색', routeName: 'search' },
+  { name: '플레이', routeName: 'play' },
+  { name: '스토리', routeName: 'record' },
+  { name: 'MY', routeName: 'user:my-page' },
+])
 </script>
 
 <template>
@@ -15,7 +18,7 @@ const { menuList } = storeToRefs(useStore)
 </template>
 
 <style scoped>
-.menu-items {
+/* .menu-items {
   float: right;
-}
+} */
 </style>
