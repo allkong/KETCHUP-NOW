@@ -29,12 +29,7 @@ const loadKakaoMap = (container) => {
 </script>
 
 <template>
-  <div ref="mapContainer" class="map-box"></div>
+  <div ref="mapContainer"></div>
 </template>
 
-<style scoped>
-.map-box {
-  width: 100%;
-  height: 100%;
-}
-</style>
+<style scoped></style>

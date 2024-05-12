@@ -5,3 +5,19 @@
 #content-container {
   margin-bottom: $footerHeight;
 }
+
+#map-size {
+  height: 100vh - $footerHeight;
+}
+
+#map-wrap {
+  position: relative;
+  overflow: hidden;
+}
+
+.map-button {
+  position: absolute;
+  overflow: hidden;
+  top: 1rem;
+  z-index: 10;
+}

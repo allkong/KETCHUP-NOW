@@ -1,7 +1,10 @@
 <script setup>
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import MapComponent from '@/components/mobile/MapComponent.vue'
 import ReviewList from '@/components/mobile/review/ReviewPreviewElement.vue'
+
+const router = useRouter()
 
 const reviews = ref([
   {
@@ -31,6 +34,7 @@ const activeKey = ref('1')
 
 const handleOk = (e) => {
   console.log(e)
+  router.push({ name: 'play' })
 }
 </script>
 

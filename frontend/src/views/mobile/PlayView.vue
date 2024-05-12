@@ -6,8 +6,7 @@ import NavigationView from '@/views/mobile/includes/NavigationView.vue'
 
 <template>
   <!-- <HeaderView /> -->
-  플레이
-  <MapComponent />
+  <MapComponent id="map-size" />
   <NavigationView />
 </template>
 
