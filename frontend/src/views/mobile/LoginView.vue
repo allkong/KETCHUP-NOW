@@ -29,10 +29,10 @@ function doLogin() {
 
 <template>
   <a-layout-content>
-    <TextLogo />
     <a-form :label-col="{ col: 8 }" @submit.prevent="doLogin">
       <div id="logo-container">
         <img id="logo-img" src="@/assets/logo.png" />
+        <TextLogo align="left" />
       </div>
       <a-form-item label="ID" :rules="[{ required: true, message: 'ID를 입력해 주세요.' }]">
         <a-input v-model:value="loginForm.loginId" />
@@ -60,8 +60,11 @@ function doLogin() {
   min-height: 100vh;
 }
 #logo-container {
+  display: flex;
+  justify-content: center;
   text-align: center;
   margin-top: 1rem;
+  margin-bottom: 1rem;
 }
 #logo-img {
   width: 30%;
@@ -76,6 +79,7 @@ h1 {
   background: $whiteBackgroundColor;
   border: 1px solid silver;
   border-radius: 2%;
+  text-align: center;
 }
 .ant-form-item {
   margin-bottom: 1rem;

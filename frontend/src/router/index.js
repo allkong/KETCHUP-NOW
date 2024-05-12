@@ -10,7 +10,7 @@ import DesktopNotFoundView from '@/views/desktop/NotFoundView.vue'
 import MobileHomeView from '@/views/mobile/HomeView.vue'
 import MobileSearchView from '@/views/mobile/SearchView.vue'
 import MobilePlayView from '@/views/mobile/PlayView.vue'
-import MobileRecordView from '@/views/mobile/StoryRecordView.vue'
+import MobileClearedStoryListView from '@/views/mobile/ClearedStoryListView.vue'
 import MobileMyPageView from '@/views/mobile/MyPageView.vue'
 import MobileMyReviewListView from '@/views/mobile/MyReviewListView.vue'
 import MobileNotFoundView from '@/views/mobile/NotFoundView.vue'
@@ -74,9 +74,9 @@ const mobileRouter = createRouter({
       component: MobilePlayView,
     },
     {
-      path: '/record',
-      name: 'record',
-      component: MobileRecordView,
+      path: '/stories/cleared',
+      name: 'story:cleared-list',
+      component: MobileClearedStoryListView,
     },
     {
       path: '/user/my-page',
