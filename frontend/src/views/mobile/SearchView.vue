@@ -14,8 +14,12 @@ onMounted(() => {
 
 <template>
   <!-- <HeaderView /> -->
-  <SearchMapComponent :navbar-height="navbarHeight" />
+  <SearchMapComponent id="search-map-component" :navbar-height="navbarHeight" />
   <NavigationView ref="navbar" />
 </template>
 
-<style scoped></style>
+<style scoped lang="scss">
+#search-map-component {
+  height: 100vh - $footerHeight;
+}
+</style>

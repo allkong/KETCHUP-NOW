@@ -2,13 +2,23 @@
 import { useRouter } from 'vue-router'
 const router = useRouter()
 
+const props = defineProps({
+  align: {
+    type: String,
+    required: false,
+    default: 'center',
+  },
+})
+
+console.log(props.align)
+
 function goToHome() {
   router.push({ name: 'home' })
 }
 </script>
 
 <template>
-  <div id="logo-text" @click="goToHome">
+  <div id="logo-text" :style="{ 'text-align': props.align }" @click="goToHome">
     <div id="logo-text-ketchup">KETCHUP</div>
     <div id="logo-text-now">NOW</div>
   </div>

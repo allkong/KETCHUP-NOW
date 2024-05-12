@@ -1,6 +1,6 @@
 <script setup>
 import _ from 'lodash'
-import { ref, computed, defineProps, defineEmits } from 'vue'
+import { ref, computed } from 'vue'
 import { PASSWORD_VERIFICATION_STATUS } from './variables'
 
 const props = defineProps({
