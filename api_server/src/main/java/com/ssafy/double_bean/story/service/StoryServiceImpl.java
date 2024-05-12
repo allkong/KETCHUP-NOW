@@ -15,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -68,5 +69,14 @@ public class StoryServiceImpl implements StoryService {
         String original = String.format("images/%s/%s_%s_%s", author.getUuid(), fileUuid, timestamp, imageFile.getOriginalFilename());
         String thumbnail = String.format("thumbnail-images/%s/%s_%s_%s", author.getUuid(), fileUuid, timestamp, imageFile.getOriginalFilename());
         return new String[]{original, thumbnail};
+    }
+
+    public List<StoryEntity> getStoriesOf(AuthenticatedUser author, UUID storyBaseUuid) {
+        return storyRepository.getStoriesOf(author.getUuid(), storyBaseUuid);
+    }
+
+    @Override
+    public List<StoryEntity> getStoryBasesAndWritingStory(AuthenticatedUser requestedUser) {
+        return storyRepository.getAll();
     }
 }

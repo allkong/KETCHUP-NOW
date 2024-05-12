@@ -9,6 +9,7 @@ import java.util.UUID;
 public class StoryEntity {
     private int id;
     private UUID uuid;
+    private UUID storyBaseUuid;
     private int version;
     private StoryStatus status;
     private String title;
@@ -20,8 +21,9 @@ public class StoryEntity {
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
 
-    public StoryEntity(int version, StoryStatus status, String title, String description,
+    public StoryEntity(UUID storyBaseUuid, int version, StoryStatus status, String title, String description,
                        String sido, String gungu, URI imageUri, URI thumbnailImageUri) {
+        this.storyBaseUuid = storyBaseUuid;
         this.version = version;
         this.status = status;
         this.title = title;
@@ -69,6 +71,14 @@ public class StoryEntity {
 
     public void setUuid(UUID uuid) {
         this.uuid = uuid;
+    }
+
+    public UUID getStoryBaseUuid() {
+        return storyBaseUuid;
+    }
+
+    public void setStoryBaseUuid(UUID storyBaseUuid) {
+        this.storyBaseUuid = storyBaseUuid;
     }
 
     public int getVersion() {
@@ -153,10 +163,21 @@ public class StoryEntity {
 
     @Override
     public String toString() {
-        return "StoryEntity [id=" + id + ", uuid=" + uuid + ", version=" + version + ", status=" + status + ", title="
-                + title + ", description=" + description + ", sido=" + sido + ", gungu=" + gungu + ", imageUri="
-                + imageUri + ", thumbnailImageUri=" + thumbnailImageUri + ", createdAt=" + createdAt + ", modifiedAt="
-                + modifiedAt + "]";
+        return "StoryEntity{" +
+                "id=" + id +
+                ", uuid=" + uuid +
+                ", storyBaseUuid=" + storyBaseUuid +
+                ", version=" + version +
+                ", status=" + status +
+                ", title='" + title + '\'' +
+                ", description='" + description + '\'' +
+                ", sido='" + sido + '\'' +
+                ", gungu='" + gungu + '\'' +
+                ", imageUri=" + imageUri +
+                ", thumbnailImageUri=" + thumbnailImageUri +
+                ", createdAt=" + createdAt +
+                ", modifiedAt=" + modifiedAt +
+                '}';
     }
 
     public enum StoryStatus {

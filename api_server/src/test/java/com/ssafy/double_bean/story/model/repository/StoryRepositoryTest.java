@@ -35,7 +35,7 @@ class StoryRepositoryTest {
         UserEntity user = userRepository.getAll().stream().filter(u -> u.getLoginId().equals(loginId)).findFirst().get();
 
         // When
-        StoryEntity requestEntity = new StoryEntity(42, StoryStatus.PUBLISHED, "title", "description", "인천", "서구", null, null);
+        StoryEntity requestEntity = new StoryEntity(null, 42, StoryStatus.PUBLISHED, "title", "description", "인천", "서구", null, null);
         storyRepository.createFirstStory(user.getId(), requestEntity);
         int insertedStoryId = requestEntity.getId();
 

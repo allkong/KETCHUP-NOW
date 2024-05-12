@@ -8,13 +8,17 @@ import org.apache.ibatis.annotations.*;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Mapper
 public interface StoryRepository {
-    @Select("SELECT * FROM stories")
+    @Select("SELECT s.id, s.uuid. sb.uuid, version, status, title, description, " +
+            "sido, gungu, imageUdi, thumbnailImageUdi, createdAt, modifiedAt" +
+            " FROM stories s JOIN story_bases sb;")
     @Results(id = "storyResult", value = {
-            @Result(property = "id", column = "id"),
-            @Result(property = "uuid", column = "uuid", typeHandler = UUIDTypeHandler.class),
+            @Result(property = "id", column = "s.id"),
+            @Result(property = "uuid", column = "s.uuid", typeHandler = UUIDTypeHandler.class),
+            @Result(property = "storyBaseUuid", column = "sb.uuid", typeHandler = UUIDTypeHandler.class),
             @Result(property = "version", column = "version"),
             @Result(property = "status", column = "status", typeHandler = StoryStatusTypeHandler.class),
             @Result(property = "title", column = "title"),
@@ -43,4 +47,11 @@ public interface StoryRepository {
             " #{entity.thumbnailImageUri, typeHandler=com.ssafy.double_bean.common.model.repository.type_handler.URITypeHandler});")
     @Options(useGeneratedKeys = true, keyProperty = "entity.id", keyColumn = "id")
     int createFirstStory(int authorId, StoryEntity entity);
+
+    @Select("SELECT s.id, s.uuid, version, status, title, description, sido, gungu, image_uri, thumbnail_udi " +
+            "FROM story_bases sb JOIN users u ON sb.author_id=u.id JOIN stories s ON story_bases.id=stories.story_base_id " +
+            "WHERE u.uuid=#{authorUuid} AND sb.uuid=#{storyBaseUuid};")
+    List<StoryEntity> getStoriesOf(UUID authorUuid, UUID storyBaseUuid);
+
+    List<StoryEntity> getStoryBasesAndWritingStory(UUID requestedUserUuid);
 }
