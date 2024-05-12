@@ -1,5 +1,6 @@
-package com.ssafy.double_bean.exception;
+package com.ssafy.double_bean.common.exception;
 
+import io.sentry.Sentry;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -49,6 +50,7 @@ public class GlobalExceptionHandler {
     protected ResponseEntity<ErrorResponse> handleUnknownException(Exception e) {
         System.out.println("Unknown exception:::::");
         e.printStackTrace();
+        Sentry.captureException(e);
         ErrorResponse response = new ErrorResponse("", "Unknown exception occurred.");
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }

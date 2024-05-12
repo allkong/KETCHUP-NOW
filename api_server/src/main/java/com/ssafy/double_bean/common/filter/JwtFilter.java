@@ -1,4 +1,4 @@
-package com.ssafy.double_bean.filter;
+package com.ssafy.double_bean.common.filter;
 
 import java.io.IOException;
 import java.util.UUID;
@@ -12,11 +12,11 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.ssafy.double_bean.auth.config.WebSecurityConfig;
 import com.ssafy.double_bean.auth.service.AuthService;
-import com.ssafy.double_bean.config.WebSecurityConfig;
-import com.ssafy.double_bean.exception.ErrorCode;
-import com.ssafy.double_bean.exception.ErrorResponse;
-import com.ssafy.double_bean.exception.HttpResponseException;
+import com.ssafy.double_bean.common.exception.ErrorCode;
+import com.ssafy.double_bean.common.exception.ErrorResponse;
+import com.ssafy.double_bean.common.exception.HttpResponseException;
 import com.ssafy.double_bean.user.dto.AuthenticatedUser;
 
 import jakarta.servlet.FilterChain;

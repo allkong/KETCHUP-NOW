@@ -1,4 +1,4 @@
-package com.ssafy.double_bean.exception;
+package com.ssafy.double_bean.common.exception;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.http.ResponseEntity;
