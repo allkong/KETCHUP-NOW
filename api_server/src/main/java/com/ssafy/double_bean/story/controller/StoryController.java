@@ -1,27 +1,10 @@
 package com.ssafy.double_bean.story.controller;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.List;
-import java.util.UUID;
-
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
-
-import com.ssafy.double_bean.aws.s3.S3Service;
 import com.ssafy.double_bean.story.dto.StoryCreateRequestDto;
 import com.ssafy.double_bean.story.dto.StoryResponseDto;
 import com.ssafy.double_bean.story.model.entity.StoryEntity;
 import com.ssafy.double_bean.story.service.StoryService;
 import com.ssafy.double_bean.user.dto.AuthenticatedUser;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -29,6 +12,15 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -37,7 +29,7 @@ public class StoryController {
     private final StoryService storyService;
     private final AuthenticatedUser requestedUser;
 
-    public StoryController(S3Service s3Client, StoryService storyService, AuthenticatedUser requestedUser) {
+    public StoryController(StoryService storyService, AuthenticatedUser requestedUser) {
         this.storyService = storyService;
         this.requestedUser = requestedUser;
     }
@@ -48,35 +40,35 @@ public class StoryController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "생성 성공",
                     content = @Content(mediaType = "multipart/form-data", schema = @Schema(implementation = StoryResponseDto.class)))})
-    public ResponseEntity<StoryResponseDto> createFirstStory(@Valid StoryCreateRequestDto createDto, @RequestPart MultipartFile imageFile) throws IOException, URISyntaxException {
+    public ResponseEntity<StoryResponseDto> createFirstStory(@Valid StoryCreateRequestDto createDto, @RequestPart(required = false) MultipartFile imageFile) throws IOException, URISyntaxException {
         StoryEntity createdStory = storyService.createFirstStory(requestedUser, createDto, imageFile);
         StoryResponseDto dto = createdStory.toResponseDto();
         return ResponseEntity.status(HttpStatus.CREATED).body(dto);
     }
-    
+
     // 요청한 사용자의 최신 버전 스토리 목록을 가져온다.
     // 즉, 스토리 베이스의 개수와 같아야 한다.
     @GetMapping("/story-bases")
     public ResponseEntity<List<StoryResponseDto>> getLatestStories() {
-    	List<StoryEntity> entities = storyService.getStoryBaseAndLatestStory(requestedUser);
-    	List<StoryResponseDto> dtos = entities.stream().map(StoryResponseDto::fromEntity).toList();
-    	return ResponseEntity.ok(dtos);
+        List<StoryEntity> entities = storyService.getStoryBaseAndLatestStory(requestedUser);
+        List<StoryResponseDto> dtos = entities.stream().map(StoryResponseDto::fromEntity).toList();
+        return ResponseEntity.ok(dtos);
     }
-    
+
     // 주어진 스토리 베이스의 모든 하위 스토리 목록을 가져온다.
     @GetMapping("/story-bases/{story-base-uuid}/stories")
     public ResponseEntity<List<StoryResponseDto>> getStoriesOf(@PathVariable("story-base-uuid") UUID storyBaseUuid) {
-    	List<StoryEntity> entities = storyService.getStoriesOf(storyBaseUuid, requestedUser);
-    	List<StoryResponseDto> dtos = entities.stream().map(StoryResponseDto::fromEntity).toList();
-    	return ResponseEntity.ok(dtos);
+        List<StoryEntity> entities = storyService.getStoriesOf(storyBaseUuid, requestedUser);
+        List<StoryResponseDto> dtos = entities.stream().map(StoryResponseDto::fromEntity).toList();
+        return ResponseEntity.ok(dtos);
     }
-    
+
     // 주어진 UUID를 가지는 스토리를 가져온다.
     // 단, PUBLISHED 되지 않은 경우 소유자만 조회할 수 있다.
     @GetMapping("/story-bases/{story-base-uuid}/stories/{story-uuid}")
     public ResponseEntity<StoryResponseDto> getStory(@PathVariable("story-base-uuid") UUID storyBaseUuid, @PathVariable("story-uuid") UUID storyUuid) {
-    	StoryEntity entity = storyService.getStory(storyBaseUuid, storyUuid, requestedUser);
-    	StoryResponseDto dto = StoryResponseDto.fromEntity(entity);
-    	return ResponseEntity.ok(dto);
+        StoryEntity entity = storyService.getStory(storyBaseUuid, storyUuid, requestedUser);
+        StoryResponseDto dto = StoryResponseDto.fromEntity(entity);
+        return ResponseEntity.ok(dto);
     }
 }

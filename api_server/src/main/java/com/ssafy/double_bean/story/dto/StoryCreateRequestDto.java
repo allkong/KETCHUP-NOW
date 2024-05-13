@@ -28,4 +28,8 @@ public record StoryCreateRequestDto(
         requestEntity.setThumbnailImageUri(thumbnailImageUri);
         return requestEntity;
     }
+
+    public StoryEntity toRequestEntity() {
+        return this.toRequestEntity(null, null);
+    }
 }
