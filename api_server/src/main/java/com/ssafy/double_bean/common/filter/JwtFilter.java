@@ -38,7 +38,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
     @Override
     public void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
-        String jwt = authService.resolveToken(request);
+        String jwt = authService.resolveAccessToken(request);
         String requestUri = request.getRequestURI();
 
         try {
