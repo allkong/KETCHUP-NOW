@@ -4,6 +4,7 @@ import com.ssafy.double_bean.aws.s3.S3Service;
 import com.ssafy.double_bean.common.exception.ErrorCode;
 import com.ssafy.double_bean.common.exception.HttpResponseException;
 import com.ssafy.double_bean.story.dto.StoryCreateRequestDto;
+import com.ssafy.double_bean.story.dto.StoryUpdateRequestDto;
 import com.ssafy.double_bean.story.model.entity.StoryEntity;
 import com.ssafy.double_bean.story.model.entity.StoryEntity.StoryStatus;
 import com.ssafy.double_bean.story.model.repository.StoryRepository;
@@ -15,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
 import java.util.UUID;
 
@@ -22,13 +24,13 @@ import java.util.UUID;
 public class StoryServiceImpl implements StoryService {
     private final StoryRepository storyRepository;
     private final UserRepository userRepository;
-    private final S3Service s3Client;
+    private final S3Service s3Service;
 
 
-    public StoryServiceImpl(StoryRepository storyRepository, UserRepository userRepository, S3Service s3Client) {
+    public StoryServiceImpl(StoryRepository storyRepository, UserRepository userRepository, S3Service s3Service) {
         this.storyRepository = storyRepository;
         this.userRepository = userRepository;
-        this.s3Client = s3Client;
+        this.s3Service = s3Service;
     }
 
     @Override
@@ -46,9 +48,9 @@ public class StoryServiceImpl implements StoryService {
             String originalKey = objectKeys[0];
             String thumbnailKey = objectKeys[1];
 
-            s3Client.uploadFile(originalKey, imageFile);
-            URI originalUri = s3Client.getUri(originalKey);
-            URI thumbnailUri = s3Client.getUri(thumbnailKey);
+            s3Service.uploadFile(originalKey, imageFile);
+            URI originalUri = s3Service.getUri(originalKey);
+            URI thumbnailUri = s3Service.getUri(thumbnailKey);
             requestEntity = createDto.toRequestEntity(originalUri, thumbnailUri);
         }
         storyRepository.createFirstStory(userEntity.getId(), requestEntity);
@@ -57,7 +59,7 @@ public class StoryServiceImpl implements StoryService {
         StoryEntity createdStory = storyRepository.findWritingStoryByStoryBaseId(requestEntity.getId())
                 .orElseThrow(() -> new RuntimeException("Failed to create first story."));
 
-        presignUriFields(createdStory);
+        setPresignedUriFields(createdStory);
 
         return createdStory;
     }
@@ -73,15 +75,15 @@ public class StoryServiceImpl implements StoryService {
     @Override
     public List<StoryEntity> getStoryBaseAndLatestStory(AuthenticatedUser requestedUser) {
         List<StoryEntity> entities = storyRepository.getLatestStoriesOf(requestedUser.getUuid().toString());
-        return entities.stream().map(this::presignUriFields).toList();
+        return entities.stream().map(this::setPresignedUriFields).toList();
     }
 
-    private StoryEntity presignUriFields(StoryEntity entity) {
+    private StoryEntity setPresignedUriFields(StoryEntity entity) {
         if (entity.getImageUri() != null) {
-            entity.setImageUri(s3Client.getPresignedUri(entity.getImageUri()));
+            entity.setImageUri(s3Service.getPresignedUri(entity.getImageUri()));
         }
         if (entity.getThumbnailImageUri() != null) {
-            entity.setThumbnailImageUri(s3Client.getPresignedUri(entity.getThumbnailImageUri()));
+            entity.setThumbnailImageUri(s3Service.getPresignedUri(entity.getThumbnailImageUri()));
         }
         return entity;
     }
@@ -95,7 +97,6 @@ public class StoryServiceImpl implements StoryService {
     public StoryEntity getStory(UUID storyBaseUuid, UUID storyUuid, AuthenticatedUser requestedUser) {
         StoryEntity story = storyRepository.findByUuid(storyUuid.toString())
                 .orElseThrow(() -> new HttpResponseException(ErrorCode.NOT_FOUND));
-        System.out.println(story);
 
         // 작성자가 아닌데 작성중인 스토리에 접근하는 경우
         if (!story.getAuthorUuid().equals(requestedUser.getUuid()) && story.getStatus() == StoryStatus.WRITING) {
@@ -109,5 +110,55 @@ public class StoryServiceImpl implements StoryService {
         }
 
         return story;
+    }
+
+    @Override
+    public StoryEntity updateStory(UUID storyBaseUuid, UUID storyUuid, AuthenticatedUser requestedUser,
+                                   StoryUpdateRequestDto updateDto, MultipartFile newImage) throws IOException, URISyntaxException {
+        StoryEntity targetStory = getStory(storyBaseUuid, storyUuid, requestedUser);
+
+        // 상태가 PUBLISHED이면 수정 불가
+        if (targetStory.getStatus() == StoryStatus.PUBLISHED) {
+            throw new HttpResponseException(ErrorCode.ALREADY_PUBLISHED_STORY);
+        }
+
+        System.out.println(targetStory);
+
+        // 수정 DTO 생성
+        targetStory.setTitle(updateDto.title());
+        targetStory.setDescription(updateDto.description());
+        targetStory.setSido(updateDto.sido());
+        targetStory.setGungu(updateDto.gungu());
+
+        // 이미지 수정이 요청되었다면
+        if (newImage != null) {
+            // 이미 있었던 경우 기존 이미지 삭제해주고
+            if (targetStory.getImageUri() != null) {
+                s3Service.removeItem(targetStory.getImageUri());
+            }
+            if (targetStory.getThumbnailImageUri() != null) {
+                s3Service.removeItem(targetStory.getThumbnailImageUri());
+            }
+
+            // 새 이미지 할당
+            String[] objectKeys = getStoryImageObjectKeys(requestedUser, newImage);
+            String originalKey = objectKeys[0];
+            String thumbnailKey = objectKeys[1];
+
+            s3Service.uploadFile(originalKey, newImage);
+            URI originalUri = s3Service.getUri(originalKey);
+            URI thumbnailUri = s3Service.getUri(thumbnailKey);
+
+            targetStory.setImageUri(originalUri);
+            targetStory.setThumbnailImageUri(thumbnailUri);
+        }
+
+        // 최종 수정 요청
+        storyRepository.updateStory(storyUuid.toString(), targetStory);
+
+        // 수정된 객체에 presign해서 응답
+        setPresignedUriFields(targetStory);
+
+        return targetStory;
     }
 }

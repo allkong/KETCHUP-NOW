@@ -2,6 +2,7 @@ package com.ssafy.double_bean.story.controller;
 
 import com.ssafy.double_bean.story.dto.StoryCreateRequestDto;
 import com.ssafy.double_bean.story.dto.StoryResponseDto;
+import com.ssafy.double_bean.story.dto.StoryUpdateRequestDto;
 import com.ssafy.double_bean.story.model.entity.StoryEntity;
 import com.ssafy.double_bean.story.service.StoryService;
 import com.ssafy.double_bean.user.dto.AuthenticatedUser;
@@ -70,5 +71,15 @@ public class StoryController {
         StoryEntity entity = storyService.getStory(storyBaseUuid, storyUuid, requestedUser);
         StoryResponseDto dto = StoryResponseDto.fromEntity(entity);
         return ResponseEntity.ok(dto);
+    }
+
+    // 주어진 UUID를 가지는 스토리의 정보를 업데이트 한다.
+    // 단, status가 PUBLISHED인 경우 수정할 수 없다.
+    @PutMapping("/story-bases/{story-base-uuid}/stories/{story-uuid}")
+    public ResponseEntity<StoryResponseDto> getStory(
+            @PathVariable("story-base-uuid") UUID storyBaseUuid, @PathVariable("story-uuid") UUID storyUuid,
+            @Valid StoryUpdateRequestDto updateDto, @RequestPart(required = false) MultipartFile imageFile) throws IOException, URISyntaxException {
+        StoryEntity updatedEntity = storyService.updateStory(storyBaseUuid, storyUuid, requestedUser, updateDto, imageFile);
+        return ResponseEntity.ok(StoryResponseDto.fromEntity(updatedEntity));
     }
 }

@@ -3,11 +3,12 @@ package com.ssafy.double_bean.aws.s3;
 
 import com.amazonaws.HttpMethod;
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -15,14 +16,6 @@ import java.net.URI;
 import java.util.Date;
 
 import static com.ssafy.double_bean.common.constant.TimeUnit.HOURS;
-
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-
-import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.PutObjectRequest;
 
 @Service
 public class S3Service {
@@ -66,5 +59,13 @@ public class S3Service {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public void removeItem(URI targetUri) {
+        String bucketName = targetUri.getHost().split("\\.")[0];
+        String objectKey = targetUri.getPath().substring(1);
+
+        DeleteObjectRequest request = new DeleteObjectRequest(bucketName, objectKey);
+        s3Client.deleteObject(request);
     }
 }

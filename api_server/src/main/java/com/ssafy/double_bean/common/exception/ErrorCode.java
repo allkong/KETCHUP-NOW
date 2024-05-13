@@ -8,6 +8,7 @@ public enum ErrorCode {
     NOT_READABLE_REQUEST(HttpStatus.BAD_REQUEST, "E0002", "Not readable request."),
     BAD_TOKEN_TYPE(HttpStatus.BAD_REQUEST, "E0003", "Given token's type is unexpected."),
     INVALID_AUTHORIZATION_HEADER(HttpStatus.BAD_REQUEST, "E0004", "Invalid 'Authorization' header value."),
+    ALREADY_PUBLISHED_STORY(HttpStatus.BAD_REQUEST, "E0005", "Can't modify already published story."),
 
     // 401 Unauthorized
     UNKNOWN_USER(HttpStatus.UNAUTHORIZED, "E0001", "No such user with given credential."),
