@@ -25,7 +25,12 @@ body {
   font-style: normal;
 }
 
-.ant-layout :not(#logo-text-ketchup, #logo-text-now) {
+.ant-layout :not(#logo-text-ketchup, #logo-text-now),
+.ant-modal,
+.ant-col,
+.ant-tabs,
+.ant-card,
+.ant-btn {
   font-family: 'NanumSquareRound';
 }
 

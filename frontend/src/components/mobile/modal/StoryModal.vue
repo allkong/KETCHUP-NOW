@@ -1,6 +1,13 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import {
+  HeartOutlined,
+  HeartFilled,
+  EnvironmentOutlined,
+  StarFilled,
+  CaretRightFilled,
+} from '@ant-design/icons-vue'
 import MapComponent from '@/components/mobile/MapComponent.vue'
 import ReviewList from '@/components/mobile/review/ReviewPreviewElement.vue'
 
@@ -42,17 +49,30 @@ const handleOk = (e) => {
   <div>
     <a-modal
       v-model:open="isOpen"
-      title="Story"
+      title="스토리 보기"
       centered
+      cancelText="닫기"
       okText="PLAY!"
       @cancel="$emit('closeModal')"
       @ok="handleOk"
     >
       <div class="thumnail"></div>
-      <div>
-        <h2 :style="{ display: 'inline' }">싸피산책로</h2>
-      </div>
-      <span>서울시 강남구</span>
+      <a-row align="middle" justify="space-between">
+        <a-col>
+          <h2>싸피산책로</h2>
+          <!-- <span>v1</span> -->
+        </a-col>
+        <a-col>
+          <HeartOutlined />
+        </a-col>
+      </a-row>
+      <a-row align="middle" justify="space-between">
+        <a-col>
+          <EnvironmentOutlined />
+          <span> 서울시 강남구</span>
+        </a-col>
+        <a-col> <StarFilled /><span> 4.2</span> <CaretRightFilled /><span>12</span> </a-col>
+      </a-row>
 
       <a-tabs v-model:activeKey="activeKey" class="tabs-container">
         <a-tab-pane key="1" tab="설명">
@@ -85,14 +105,18 @@ const handleOk = (e) => {
 </template>
 
 <style scoped>
-h2 {
-  margin-bottom: 0.5rem;
-}
-
 .thumnail {
   background-color: #d9d9d9;
   height: 12rem;
   border-radius: 0.5rem;
+}
+
+.anticon-heart {
+  font-size: 1.5rem;
+}
+
+.anticon-caret-right {
+  font-size: 1rem;
 }
 
 .tabs-container {

@@ -1,5 +1,5 @@
 <script setup>
-import { defineProps, ref, computed, reactive } from 'vue'
+import { computed, reactive } from 'vue'
 import { StarFilled, StarOutlined } from '@ant-design/icons-vue'
 
 const props = defineProps({

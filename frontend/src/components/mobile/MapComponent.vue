@@ -23,8 +23,32 @@ const loadKakaoMap = (container) => {
       }
 
       mapInstance = new window.kakao.maps.Map(container, options) // 지도 생성
+
+      // HTML5의 geolocation 사용 가능한지 확인
+      if (navigator.geolocation) {
+        // 접속 위치 얻어오기
+        navigator.geolocation.getCurrentPosition((position) => {
+          let lat = position.coords.latitude
+          let lng = position.coords.longitude
+
+          let currentPosition = new window.kakao.maps.LatLng(lat, lng)
+
+          displayCurrentMarker(currentPosition)
+        })
+      } else {
+        console.log('geolocation 사용 불가')
+      }
     })
   }
+}
+
+const displayCurrentMarker = (currentPosition) => {
+  const marker = new window.kakao.maps.Marker({
+    map: mapInstance,
+    position: currentPosition,
+  })
+
+  mapInstance.setCenter(currentPosition)
 }
 </script>
 
