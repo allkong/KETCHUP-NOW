@@ -56,7 +56,6 @@ public class S3Service {
                     .withExpiration(expiration);
             return s3Client.generatePresignedUrl(request).toURI();
         } catch (Exception e) {
-            e.printStackTrace();
             return null;
         }
     }

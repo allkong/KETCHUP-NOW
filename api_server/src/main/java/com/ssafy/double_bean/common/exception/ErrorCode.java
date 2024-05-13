@@ -9,6 +9,7 @@ public enum ErrorCode {
     BAD_TOKEN_TYPE(HttpStatus.BAD_REQUEST, "E0003", "Given token's type is unexpected."),
     INVALID_AUTHORIZATION_HEADER(HttpStatus.BAD_REQUEST, "E0004", "Invalid 'Authorization' header value."),
     ALREADY_PUBLISHED_STORY(HttpStatus.BAD_REQUEST, "E0005", "Can't modify already published story."),
+    CANNOT_PLAY_WRITING_STORY(HttpStatus.BAD_REQUEST, "E0006", "Can't play story in 'WRITING' status."),
 
     // 401 Unauthorized
     UNKNOWN_USER(HttpStatus.UNAUTHORIZED, "E0001", "No such user with given credential."),
@@ -24,6 +25,7 @@ public enum ErrorCode {
     // 409 Conflict
     DUPLICATED_FIELD_VALUE(HttpStatus.CONFLICT, "E0001", "There is duplicated field value. " +
             "Check duplication checking API result."),
+    USER_ALREADY_PLAYING_GAME(HttpStatus.CONFLICT, "E0002", "Requested player is already playing game."),
     ;
 
     private final HttpStatus httpStatus;
