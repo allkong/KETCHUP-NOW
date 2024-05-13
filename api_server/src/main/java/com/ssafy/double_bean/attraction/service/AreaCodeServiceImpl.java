@@ -17,7 +17,7 @@ import com.ssafy.double_bean.attraction.util.AreaCode;
 public class AreaCodeServiceImpl implements AreaCodeService {
 	private static final String SUB_AREA_API_URL = "https://apis.data.go.kr/B551011/KorService1/areaCode1?serviceKey={serviceKey}&areaCode={areaCode}&numOfRows=10000&pageNo=1&MobileOS=ETC&MobileApp=AppTest&_type=json";
 	@Value("${openapi.service-key}")
-	private static String openApiServiceKey;
+	private String openApiServiceKey;
 
 	@Override
 	public List<String> getSubAreaNames(int areaCode) {
