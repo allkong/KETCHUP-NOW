@@ -15,6 +15,7 @@ public enum ErrorCode {
 
     // 403 Forbidden
     EXPIRED_TOKEN(HttpStatus.FORBIDDEN, "E0001", "Given token is expired."),
+    HAS_NO_OWNERSHIP(HttpStatus.FORBIDDEN, "E0002", "You have no permission to access this object."),
 
     // 404 Not Found
     NOT_FOUND(HttpStatus.NOT_FOUND, "E0001", "Cannot find requested resource"),

@@ -4,6 +4,7 @@ import java.net.URI;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import com.ssafy.double_bean.story.model.entity.StoryEntity;
 import com.ssafy.double_bean.story.model.entity.StoryEntity.StoryStatus;
 
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -12,6 +13,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 public record StoryResponseDto(
 		@Schema(description = "고유 식별자")
 		UUID uuid,
+		UUID storyBaseUuid,
+		String authorNickname,
+		UUID authorUuid,
 		@Schema(description = "버전")
 		int version,
 		@Schema(description = "상태")
@@ -33,5 +37,10 @@ public record StoryResponseDto(
 		@Schema(description = "최종 수정 일시")
 		LocalDateTime modifiedAt
 		) {
-
+	public static StoryResponseDto fromEntity(StoryEntity entity) {
+		return new StoryResponseDto(
+				entity.getUuid(), entity.getStoryBaseUuid(), entity.getAuthorNickname(), entity.getAuthorUuid(), entity.getVersion(),
+				entity.getStatus(), entity.getTitle(), entity.getDescription(), entity.getSido(),entity.getGungu(),
+				entity.getImageUri(), entity.getThumbnailImageUri(), entity.getCreatedAt(), entity.getModifiedAt());
+	}
 }
