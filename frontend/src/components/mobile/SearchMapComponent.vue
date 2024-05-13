@@ -76,7 +76,7 @@ const closeStoryModal = () => {
     :clicked-marker="clickedMarker"
     @close-modal="closeStoryModal"
   />
-  <div id="map-wrap" style="height: inherit">
+  <div id="map-wrap">
     <div ref="mapContainer" style="height: 100%"></div>
     <a-button class="map-button list-button">목록</a-button>
     <a-button class="map-button region-button">

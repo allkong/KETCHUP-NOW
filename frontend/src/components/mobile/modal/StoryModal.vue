@@ -8,7 +8,7 @@ import {
   StarFilled,
   CaretRightFilled,
 } from '@ant-design/icons-vue'
-import MapComponent from '@/components/mobile/MapComponent.vue'
+import PlayMapComponent from '@/components/mobile/PlayMapComponent.vue'
 import ReviewList from '@/components/mobile/review/ReviewPreviewElement.vue'
 
 const router = useRouter()
@@ -86,7 +86,7 @@ const handleOk = (e) => {
         </a-tab-pane>
         <a-tab-pane key="2" tab="지도">
           <div class="tab-map">
-            <MapComponent />
+            <PlayMapComponent />
           </div>
         </a-tab-pane>
         <a-tab-pane key="3" tab="리뷰">
