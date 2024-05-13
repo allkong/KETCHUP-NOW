@@ -1,7 +1,7 @@
 package com.ssafy.double_bean.user.model.repository;
 
+import com.ssafy.double_bean.common.model.repository.type_handler.UUIDTypeHandler;
 import com.ssafy.double_bean.user.model.entity.UserEntity;
-import com.ssafy.double_bean.util.type_handler.UUIDTypeHandler;
 import org.apache.ibatis.annotations.*;
 
 import java.util.List;

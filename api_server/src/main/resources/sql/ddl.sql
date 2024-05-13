@@ -42,3 +42,30 @@ CREATE TABLE attractions
     tel             VARCHAR(300),
     title           VARCHAR(300)
 );
+
+CREATE TABLE story_bases
+(
+    id          INT PRIMARY KEY AUTO_INCREMENT,
+    uuid        VARCHAR(36) NOT NULL DEFAULT (UUID()),
+    author_id	INT			NOT NULL,
+    created_at  TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_story_bases_users_author_id FOREIGN KEY (author_id) REFERENCES users (id) ON DELETE CASCADE
+);
+
+CREATE TABLE stories
+(
+    id          		INT PRIMARY KEY AUTO_INCREMENT,
+    uuid        		VARCHAR(36) NOT NULL DEFAULT (UUID()),
+    story_base_id		INT NOT NULL,
+    version				INT NOT NULL,
+    status				VARCHAR(10) NOT NULL,
+    title				VARCHAR(30) NOT NULL,
+    description			TEXT,
+    sido				VARCHAR(10),
+    gungu				VARCHAR(10),
+    image_uri			VARCHAR(200),
+    thumbnail_image_uri	VARCHAR(200),
+    created_at  TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    modified_at TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_stories_story_bases_story_base_id FOREIGN KEY (story_base_id) REFERENCES story_bases (id) ON DELETE CASCADE
+);

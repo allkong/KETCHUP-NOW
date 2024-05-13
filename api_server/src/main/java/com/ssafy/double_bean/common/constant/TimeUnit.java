@@ -1,4 +1,4 @@
-package com.ssafy.double_bean.util.constant;
+package com.ssafy.double_bean.common.constant;
 
 public class TimeUnit {
     public static final long SECONDS = 1000L;

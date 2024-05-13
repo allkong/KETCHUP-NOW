@@ -1,4 +1,4 @@
-package com.ssafy.double_bean.exception;
+package com.ssafy.double_bean.common.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

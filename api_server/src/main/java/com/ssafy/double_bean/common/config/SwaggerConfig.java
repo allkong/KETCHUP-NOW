@@ -1,4 +1,4 @@
-package com.ssafy.double_bean.config;
+package com.ssafy.double_bean.common.config;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;

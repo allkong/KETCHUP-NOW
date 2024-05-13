@@ -3,7 +3,7 @@ package com.ssafy.double_bean.attraction.model.repository;
 import com.ssafy.double_bean.attraction.dto.CoordinateDto;
 import com.ssafy.double_bean.attraction.model.entity.AttractionEntity;
 import com.ssafy.double_bean.common.dto.ListRequestDto;
-import com.ssafy.double_bean.util.type_handler.URITypeHandler;
+import com.ssafy.double_bean.common.model.repository.type_handler.URITypeHandler;
 import org.apache.ibatis.annotations.*;
 
 import java.util.List;
