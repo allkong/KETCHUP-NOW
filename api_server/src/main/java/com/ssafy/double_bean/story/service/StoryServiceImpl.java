@@ -122,11 +122,10 @@ public class StoryServiceImpl implements StoryService {
             throw new HttpResponseException(ErrorCode.ALREADY_PUBLISHED_STORY);
         }
 
-        System.out.println(targetStory);
-
         // 수정 DTO 생성
         targetStory.setTitle(updateDto.title());
         targetStory.setDescription(updateDto.description());
+        targetStory.setStatus(updateDto.status());
         targetStory.setSido(updateDto.sido());
         targetStory.setGungu(updateDto.gungu());
 
