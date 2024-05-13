@@ -1,6 +1,6 @@
 package com.ssafy.double_bean.story.controller;
 
-import com.ssafy.double_bean.aws.s3.S3Client;
+import com.ssafy.double_bean.aws.s3.S3Service;
 import com.ssafy.double_bean.story.dto.StoryCreateRequestDto;
 import com.ssafy.double_bean.story.dto.StoryResponseDto;
 import com.ssafy.double_bean.story.model.entity.StoryEntity;
@@ -28,11 +28,11 @@ import java.net.URISyntaxException;
 @RequestMapping("/api/v1")
 @Tag(name = "Story API", description = "스토리 관련 API")
 public class StoryController {
-    private final S3Client s3Client;
+    private final S3Service s3Client;
     private final StoryService storyService;
     private final AuthenticatedUser requestedUser;
 
-    public StoryController(S3Client s3Client, StoryService storyService, AuthenticatedUser requestedUser) {
+    public StoryController(S3Service s3Client, StoryService storyService, AuthenticatedUser requestedUser) {
         this.s3Client = s3Client;
         this.storyService = storyService;
         this.requestedUser = requestedUser;

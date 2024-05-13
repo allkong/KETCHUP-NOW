@@ -1,6 +1,6 @@
 package com.ssafy.double_bean.story.service;
 
-import com.ssafy.double_bean.aws.s3.S3Client;
+import com.ssafy.double_bean.aws.s3.S3Service;
 import com.ssafy.double_bean.common.exception.ErrorCode;
 import com.ssafy.double_bean.common.exception.HttpResponseException;
 import com.ssafy.double_bean.story.dto.StoryCreateRequestDto;
@@ -21,10 +21,10 @@ import java.util.UUID;
 public class StoryServiceImpl implements StoryService {
     private final StoryRepository storyRepository;
     private final UserRepository userRepository;
-    private final S3Client s3Client;
+    private final S3Service s3Client;
 
 
-    public StoryServiceImpl(StoryRepository storyRepository, UserRepository userRepository, S3Client s3Client) {
+    public StoryServiceImpl(StoryRepository storyRepository, UserRepository userRepository, S3Service s3Client) {
         this.storyRepository = storyRepository;
         this.userRepository = userRepository;
         this.s3Client = s3Client;

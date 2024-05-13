@@ -1,23 +1,24 @@
 package com.ssafy.double_bean.aws.s3;
 
 
-import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.PutObjectRequest;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-import org.springframework.web.multipart.MultipartFile;
-
 import java.io.IOException;
 import java.net.URI;
 
-@Component
-public class S3Client {
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.PutObjectRequest;
+
+@Service
+public class S3Service {
     private final String BUCKET_NAME;
     private final String REGION;
     private final AmazonS3Client s3Client;
 
-    public S3Client(@Value("${aws.s3.bucket-name}") String bucketName, @Value("${aws.region}") String region, AmazonS3Client s3Client) {
+    public S3Service(@Value("${aws.s3.bucket-name}") String bucketName, @Value("${aws.region}") String region, AmazonS3Client s3Client) {
         this.BUCKET_NAME = bucketName;
         this.REGION = region;
         this.s3Client = s3Client;
