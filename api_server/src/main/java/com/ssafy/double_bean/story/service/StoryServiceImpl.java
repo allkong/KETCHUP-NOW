@@ -49,8 +49,17 @@ public class StoryServiceImpl implements StoryService {
         storyRepository.createFirstStory(userEntity.getId(), requestEntity);
 
         // 전달 받은 id를 토대로 생성된 스토리 정보를 반환 (story base id가 반환됨 ㅠㅠ)
-        return storyRepository.findWritingStoryByStoryBaseId(requestEntity.getId())
+        StoryEntity createdStory = storyRepository.findWritingStoryByStoryBaseId(requestEntity.getId())
                 .orElseThrow(() -> new RuntimeException("Failed to create first story."));
+
+        if (createdStory.getImageUri() != null) {
+            createdStory.setImageUri(s3Client.getPresignedUri(createdStory.getImageUri()));
+        }
+        if (createdStory.getThumbnailImageUri() != null) {
+            createdStory.setThumbnailImageUri(s3Client.getPresignedUri(createdStory.getThumbnailImageUri()));
+        }
+
+        return createdStory;
     }
 
     private String[] getStoryImageObjectKeys(AuthenticatedUser author, MultipartFile imageFile) {
