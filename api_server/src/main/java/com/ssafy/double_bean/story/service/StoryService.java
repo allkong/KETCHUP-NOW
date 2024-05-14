@@ -18,8 +18,8 @@ public interface StoryService {
 
     List<StoryEntity> getStoriesOf(UUID storyBaseUuid, AuthenticatedUser requestedUser);
 
-    StoryEntity getStory(UUID storyBaseUuid, UUID storyUuid, AuthenticatedUser requestedUser);
+    StoryEntity getStory(UUID storyUuid, AuthenticatedUser requestedUser);
 
-    StoryEntity updateStory(UUID storyBaseUuid, UUID storyUuid, AuthenticatedUser requestedUser,
+    StoryEntity updateStory(UUID storyUuid, AuthenticatedUser requestedUser,
                             StoryUpdateRequestDto updateDto, MultipartFile newImage) throws IOException, URISyntaxException;
 }

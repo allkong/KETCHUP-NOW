@@ -94,7 +94,7 @@ public class StoryServiceImpl implements StoryService {
     }
 
     @Override
-    public StoryEntity getStory(UUID storyBaseUuid, UUID storyUuid, AuthenticatedUser requestedUser) {
+    public StoryEntity getStory(UUID storyUuid, AuthenticatedUser requestedUser) {
         StoryEntity story = storyRepository.findByUuid(storyUuid.toString())
                 .orElseThrow(() -> new HttpResponseException(ErrorCode.NOT_FOUND));
 
@@ -103,19 +103,13 @@ public class StoryServiceImpl implements StoryService {
             throw new HttpResponseException(ErrorCode.HAS_NO_OWNERSHIP);
         }
 
-
-        // Story base id가 유효하지 않은 경우
-        else if (!story.getStoryBaseUuid().equals(storyBaseUuid)) {
-            throw new HttpResponseException(ErrorCode.NOT_FOUND);
-        }
-
         return story;
     }
 
     @Override
-    public StoryEntity updateStory(UUID storyBaseUuid, UUID storyUuid, AuthenticatedUser requestedUser,
+    public StoryEntity updateStory(UUID storyUuid, AuthenticatedUser requestedUser,
                                    StoryUpdateRequestDto updateDto, MultipartFile newImage) throws IOException, URISyntaxException {
-        StoryEntity targetStory = getStory(storyBaseUuid, storyUuid, requestedUser);
+        StoryEntity targetStory = getStory(storyUuid, requestedUser);
 
         // 상태가 PUBLISHED이면 수정 불가
         if (targetStory.getStatus() == StoryStatus.PUBLISHED) {
