@@ -20,10 +20,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -65,21 +62,17 @@ public class AttractionController {
     }
 
     @GetMapping("/areas")
-    @Tag(name = "Attraction API")
-    @Operation(summary = "대한민국의 지역 분류 코드 및 코드에 대응되는 지역명(서울, 광주, 경남, ...)을 반환합니다.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "조회 성공",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = AreaCodeListResponseDto.class)))
-    })
-    public ResponseEntity<?> getAreaCodes(@RequestParam(value = "area-name", required = false) String areaName) {
-        if (areaName == null) {
-            List<AreaCode> areaCodes = AreaCode.getAllAreaCodes();
-            List<AreaCodeResponseDto> dtos = areaCodes.stream().map(AreaCodeResponseDto::fromEnum).toList();
-            ListResponseDto<AreaCodeResponseDto> responseDto = new ListResponseDto<>(1, dtos.size(), false, false, dtos);
-            return ResponseEntity.ok(responseDto);
-        }
+    public ResponseEntity<?> getAreaCodes() {
+        List<AreaCode> areaCodes = AreaCode.getAllAreaCodes();
+        List<AreaCodeResponseDto> dtos = areaCodes.stream().map(AreaCodeResponseDto::fromEnum).toList();
+        ListResponseDto<AreaCodeResponseDto> responseDto = new ListResponseDto<>(1, dtos.size(), false, false, dtos);
+        return ResponseEntity.ok(responseDto);
+    }
+
+    @GetMapping("/areas/{area-code}")
+    public ResponseEntity<?> getAreaCodes(@PathVariable("area-code") int areaCode) {
         try {
-            List<String> subAreaNames = areaCodeService.getSubAreaNames(areaName);
+            List<String> subAreaNames = areaCodeService.getSubAreaNames(areaCode);
             ListResponseDto<String> responseDto = new ListResponseDto<>(1, subAreaNames.size(), false, false, subAreaNames);
             return ResponseEntity.ok(responseDto);
         } catch (IllegalArgumentException e) {
