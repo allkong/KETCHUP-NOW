@@ -7,6 +7,7 @@ import com.ssafy.double_bean.story.model.repository.type_handler.SpotEventTypeTy
 import org.apache.ibatis.annotations.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @Mapper
 public interface SpotRepository {
@@ -41,4 +42,16 @@ public interface SpotRepository {
     @Select(SELECT_ALL_SQL + " WHERE story_id=(SELECT story_id FROM stories WHERE uuid=#{storyUuid})")
     @ResultMap("spots")
     List<SpotEntity> getSpotsOf(String storyUuid);
+
+    @Select(SELECT_ALL_SQL + " WHERE id=#{id}")
+    @ResultMap("spots")
+    Optional<SpotEntity> findSpotById(int id);
+
+    @Insert("INSERT INTO spots(story_id, latitude, longitude, order_index, title, description, image_uri, thumbnail_image_uri) " +
+            "VALUES ((SELECT id FROM stories WHERE uuid=#{storyUuid}), #{entity.latitude}, #{entity.longitude}, " +
+            "#{entity.orderIndex}, #{entity.title}, #{entity.description}, " +
+            "#{entity.imageUri, typeHandler=com.ssafy.double_bean.common.model.repository.type_handler.URITypeHandler}, " +
+            "#{entity.thumbnailImageUri, typeHandler=com.ssafy.double_bean.common.model.repository.type_handler.URITypeHandler});")
+    @Options(useGeneratedKeys = true, keyProperty = "entity.id", keyColumn = "id")
+    void insertNewSpot(String storyUuid, SpotEntity entity);
 }

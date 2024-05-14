@@ -9,7 +9,7 @@ import jakarta.validation.constraints.NotNull;
 import java.util.UUID;
 
 public record SpotInsertRequestDto(
-        UUID frontSpotUuid,
+        UUID previousSpotUuid,
         @NotNull(message = "latitude is required.")
         @Min(value = 33, message = "latitude must bigger than 33.0")
         @Max(value = 43, message = "latitude must smaller than 43.0")

@@ -44,7 +44,7 @@ public class StoryServiceImpl implements StoryService {
         if (imageFile == null) {
             requestEntity = createDto.toRequestEntity();
         } else {
-            String[] objectKeys = getStoryImageObjectKeys(author, imageFile);
+            String[] objectKeys = s3Service.getImageObjectKeys(author, imageFile);
             String originalKey = objectKeys[0];
             String thumbnailKey = objectKeys[1];
 
@@ -62,14 +62,6 @@ public class StoryServiceImpl implements StoryService {
         setPresignedUriFields(createdStory);
 
         return createdStory;
-    }
-
-    private String[] getStoryImageObjectKeys(AuthenticatedUser author, MultipartFile imageFile) {
-        UUID fileUuid = UUID.randomUUID();
-        Long timestamp = System.currentTimeMillis();
-        String original = String.format("images/%s/%s_%s_%s", author.getUuid(), fileUuid, timestamp, imageFile.getOriginalFilename());
-        String thumbnail = String.format("thumbnail-images/%s/%s_%s_%s", author.getUuid(), fileUuid, timestamp, imageFile.getOriginalFilename());
-        return new String[]{original, thumbnail};
     }
 
     @Override
@@ -134,7 +126,7 @@ public class StoryServiceImpl implements StoryService {
             }
 
             // 새 이미지 할당
-            String[] objectKeys = getStoryImageObjectKeys(requestedUser, newImage);
+            String[] objectKeys = s3Service.getImageObjectKeys(requestedUser, newImage);
             String originalKey = objectKeys[0];
             String thumbnailKey = objectKeys[1];
 

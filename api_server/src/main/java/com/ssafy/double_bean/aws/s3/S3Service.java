@@ -7,6 +7,7 @@ import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.ssafy.double_bean.user.dto.AuthenticatedUser;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -14,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Date;
+import java.util.UUID;
 
 import static com.ssafy.double_bean.common.constant.TimeUnit.HOURS;
 
@@ -66,5 +68,13 @@ public class S3Service {
 
         DeleteObjectRequest request = new DeleteObjectRequest(bucketName, objectKey);
         s3Client.deleteObject(request);
+    }
+
+    public String[] getImageObjectKeys(AuthenticatedUser author, MultipartFile imageFile) {
+        UUID fileUuid = UUID.randomUUID();
+        Long timestamp = System.currentTimeMillis();
+        String original = String.format("images/%s/%s_%s_%s", author.getUuid(), fileUuid, timestamp, imageFile.getOriginalFilename());
+        String thumbnail = String.format("thumbnail-images/%s/%s_%s_%s", author.getUuid(), fileUuid, timestamp, imageFile.getOriginalFilename());
+        return new String[]{original, thumbnail};
     }
 }

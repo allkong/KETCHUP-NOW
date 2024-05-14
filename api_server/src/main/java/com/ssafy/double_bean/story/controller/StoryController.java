@@ -1,6 +1,7 @@
 package com.ssafy.double_bean.story.controller;
 
 import com.ssafy.double_bean.story.dto.*;
+import com.ssafy.double_bean.story.model.entity.SpotEntity;
 import com.ssafy.double_bean.story.model.entity.StoryEntity;
 import com.ssafy.double_bean.story.service.SpotService;
 import com.ssafy.double_bean.story.service.StoryService;
@@ -86,15 +87,19 @@ public class StoryController {
 
     @GetMapping("/stories/{story-uuid}/spots")
     public ResponseEntity<List<SpotResponseDto>> getSpotsOf(@PathVariable("story-uuid") UUID storyUuid) {
-        System.out.println(spotService.getSpotsOf(storyUuid, requestedUser));
-        return null;
+        List<SpotEntity> entities = spotService.getSpotsOf(storyUuid, requestedUser);
+        List<SpotResponseDto> dtos = entities.stream().map(SpotResponseDto::fromEntity).toList();
+        return ResponseEntity.ok(dtos);
     }
 
+    // 지정한 위치에 spot을 추가한다.
+    // 단, 스토리의 상태가 WRITING일 때에만 가능하다.
     @PostMapping("/stories/{story-uuid}/spots")
     public ResponseEntity<SpotResponseDto> insertSpotTo(@PathVariable("story-uuid") UUID storyUuid,
-                                                        @RequestBody SpotInsertRequestDto requestDto,
-                                                        @RequestParam(required = false) MultipartFile imageFile) {
-        
-        return null;
+                                                        @Valid SpotInsertRequestDto requestDto,
+                                                        @RequestParam(required = false) MultipartFile imageFile) throws IOException {
+        SpotEntity insertedEntity = spotService.insertSpotTo(storyUuid, requestDto, imageFile, requestedUser);
+        SpotResponseDto dto = SpotResponseDto.fromEntity(insertedEntity);
+        return ResponseEntity.status(HttpStatus.CREATED).body(dto);
     }
 }
