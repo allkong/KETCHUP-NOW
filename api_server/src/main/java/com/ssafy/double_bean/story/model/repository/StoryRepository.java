@@ -76,4 +76,8 @@ public interface StoryRepository {
             "modified_at=CURRENT_TIMESTAMP " +
             "WHERE uuid=#{storyUuid}")
     void updateStory(String storyUuid, StoryEntity updated);
+
+    @Select(SELECT_ALL_SQL + " WHERE s.uuid=#{storyUuid}")
+    @ResultMap("storyResult")
+    Optional<StoryEntity> getStoryByUuid(String storyUuid);
 }

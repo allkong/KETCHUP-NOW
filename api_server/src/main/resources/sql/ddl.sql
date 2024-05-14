@@ -34,8 +34,8 @@ CREATE TABLE attractions
     category_2      CHAR(5),
     category_3      CHAR(9),
     content_type_id VARCHAR(50)     NOT NULL,
-    first_image     VARCHAR(200)    NOT NULL DEFAULT '',
-    second_image    VARCHAR(200)    NOT NULL DEFAULT '',
+    first_image     VARCHAR(500)    NOT NULL DEFAULT '',
+    second_image    VARCHAR(500)    NOT NULL DEFAULT '',
     longitude       DOUBLE          NOT NULL,
     latitude        DOUBLE          NOT NULL,
     sigungucode     CHAR(3)         NOT NULL DEFAULT '',
@@ -63,8 +63,8 @@ CREATE TABLE stories
     description         TEXT,
     sido                VARCHAR(10),
     gungu               VARCHAR(10),
-    image_uri           VARCHAR(200),
-    thumbnail_image_uri VARCHAR(200),
+    image_uri           VARCHAR(500),
+    thumbnail_image_uri VARCHAR(500),
     created_at          TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
     modified_at         TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     CONSTRAINT fk_stories_story_bases_story_base_id FOREIGN KEY (story_base_id) REFERENCES story_bases (id) ON DELETE CASCADE
@@ -81,3 +81,24 @@ CREATE TABLE story_playings
     CONSTRAINT fk_story_playings_stories_story_id FOREIGN KEY (story_id) REFERENCES stories (id) ON DELETE CASCADE,
     CONSTRAINT fk_story_playings_users_player_id FOREIGN KEY (player_id) REFERENCES users (id) ON DELETE CASCADE
 );
+
+CREATE TABLE spots
+(
+    id                        INT PRIMARY KEY AUTO_INCREMENT,
+    uuid                      VARCHAR(36) NOT NULL DEFAULT (UUID()),
+    story_id                  INT         NOT NULL,
+    latitude                  DOUBLE      NOT NULL,
+    longitude                 DOUBLE      NOT NULL,
+    order_index               DOUBLE      NOT NULL,
+    title                     VARCHAR(50) NOT NULL,
+    description               TEXT,
+    image_uri                 VARCHAR(500),
+    thumbnail_image_uri       VARCHAR(500),
+    created_at                TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    modified_at               TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    event_type                VARCHAR(10),
+    event_image_uri           VARCHAR(500),
+    event_thumbnail_image_uri VARCHAR(500),
+    json_event_content        TEXT,
+    CONSTRAINT fk_spots_story_story_id FOREIGN KEY (story_id) REFERENCES stories (id) ON DELETE CASCADE
+)

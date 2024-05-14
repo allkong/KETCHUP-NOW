@@ -1,9 +1,8 @@
 package com.ssafy.double_bean.story.controller;
 
-import com.ssafy.double_bean.story.dto.StoryCreateRequestDto;
-import com.ssafy.double_bean.story.dto.StoryResponseDto;
-import com.ssafy.double_bean.story.dto.StoryUpdateRequestDto;
+import com.ssafy.double_bean.story.dto.*;
 import com.ssafy.double_bean.story.model.entity.StoryEntity;
+import com.ssafy.double_bean.story.service.SpotService;
 import com.ssafy.double_bean.story.service.StoryService;
 import com.ssafy.double_bean.user.dto.AuthenticatedUser;
 import io.swagger.v3.oas.annotations.Operation;
@@ -28,10 +27,12 @@ import java.util.UUID;
 @Tag(name = "Story API", description = "스토리 관련 API")
 public class StoryController {
     private final StoryService storyService;
+    private final SpotService spotService;
     private final AuthenticatedUser requestedUser;
 
-    public StoryController(StoryService storyService, AuthenticatedUser requestedUser) {
+    public StoryController(StoryService storyService, SpotService spotService, AuthenticatedUser requestedUser) {
         this.storyService = storyService;
+        this.spotService = spotService;
         this.requestedUser = requestedUser;
     }
 
@@ -81,5 +82,19 @@ public class StoryController {
             @Valid StoryUpdateRequestDto updateDto, @RequestPart(required = false) MultipartFile imageFile) throws IOException, URISyntaxException {
         StoryEntity updatedEntity = storyService.updateStory(storyUuid, requestedUser, updateDto, imageFile);
         return ResponseEntity.ok(StoryResponseDto.fromEntity(updatedEntity));
+    }
+
+    @GetMapping("/stories/{story-uuid}/spots")
+    public ResponseEntity<List<SpotResponseDto>> getSpotsOf(@PathVariable("story-uuid") UUID storyUuid) {
+        System.out.println(spotService.getSpotsOf(storyUuid, requestedUser));
+        return null;
+    }
+
+    @PostMapping("/stories/{story-uuid}/spots")
+    public ResponseEntity<SpotResponseDto> insertSpotTo(@PathVariable("story-uuid") UUID storyUuid,
+                                                        @RequestBody SpotInsertRequestDto requestDto,
+                                                        @RequestParam(required = false) MultipartFile imageFile) {
+        
+        return null;
     }
 }
