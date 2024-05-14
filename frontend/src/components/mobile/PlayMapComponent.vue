@@ -8,7 +8,7 @@ const [messageApi, contextHolder] = message.useMessage()
 const mapContainer = ref(null)
 let mapInstance = null
 let currentPositionMarker = null
-const modalOpen = ref(true)
+const modalOpen = ref(false)
 
 onMounted(() => {
   loadKakaoMap(mapContainer.value)
@@ -73,6 +73,9 @@ const watchCurrentPosition = () => {
         // messageApi.info(`현재 위치: ${lat}, ${lng}`)
         currentPositionMarker.setPosition(newPosition)
         mapInstance.setCenter(newPosition)
+
+        // 이동평균
+        // 마커 부드럽게
       },
       (error) => {
         console.error('위치 업데이트 에러:', error)

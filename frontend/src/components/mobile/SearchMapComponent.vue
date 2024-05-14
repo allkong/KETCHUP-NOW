@@ -1,8 +1,8 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 const { VITE_KAKAO_MAP_KEY } = import.meta.env
-import { SearchOutlined } from '@ant-design/icons-vue'
 import StoryModal from '@/components/mobile/modal/StoryModal.vue'
+import RegionButton from '@/components/mobile/button/RegionButton.vue'
 
 const mapContainer = ref(null)
 let mapInstance = null
@@ -79,19 +79,12 @@ const closeStoryModal = () => {
   <div id="map-wrap">
     <div ref="mapContainer" style="height: 100%"></div>
     <a-button class="map-button list-button">목록</a-button>
-    <a-button class="map-button region-button">
-      <SearchOutlined />
-      지역으로 찾기
-    </a-button>
+    <RegionButton />
   </div>
 </template>
 
 <style scoped>
 .list-button {
   left: 1rem;
-}
-
-.region-button {
-  right: 1rem;
 }
 </style>
