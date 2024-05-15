@@ -32,19 +32,26 @@ public class SpotService {
         this.s3Service = s3Service;
     }
 
-    public List<SpotEntity> getSpotsOf(UUID storyUuid, AuthenticatedUser requestedUser) {
+    private StoryEntity getStoryWithOwnershipCheck(UUID storyUuid, AuthenticatedUser requestedUser, boolean forUpdate) {
+        // 연결된 스토리를 찾아
         StoryEntity targetStory = storyRepository.getStoryByUuid(storyUuid.toString())
                 .orElseThrow(() -> new HttpResponseException(ErrorCode.NOT_FOUND));
 
+        // 소유자가 아닌 경우 반환 거절
         if (!targetStory.getAuthorUuid().equals(requestedUser.getUuid())) {
             throw new HttpResponseException(ErrorCode.HAS_NO_OWNERSHIP);
         }
 
-        List<SpotEntity> spots = spotRepository.getSpotsOf(storyUuid.toString());
-        spots.sort(Comparator.comparingDouble(SpotEntity::getOrderIndex));
+        // 이미 배포된 경우 반환 거절
+        if (forUpdate && targetStory.getStatus() != StoryEntity.StoryStatus.WRITING) {
+            throw new HttpResponseException(ErrorCode.ALREADY_PUBLISHED_STORY);
+        }
 
-        // 이미지 서명 및 반환
-        return spots.stream().map(this::setPresignedUriFields).toList();
+        return targetStory;
+    }
+
+    private StoryEntity getStoryWithOwnershipCheck(UUID storyUuid, AuthenticatedUser requestedUser) {
+        return getStoryWithOwnershipCheck(storyUuid, requestedUser, false);
     }
 
     private double getSpotOrderIndex(List<SpotEntity> spots, UUID prviousSpotUuid) {
@@ -94,54 +101,7 @@ public class SpotService {
         }
     }
 
-    @Transactional
-    public SpotEntity insertSpotTo(UUID storyUuid, SpotInsertRequestDto requestDto, MultipartFile imageFile, AuthenticatedUser requestedUser) throws IOException {
-        StoryEntity targetStory = storyRepository.getStoryByUuid(storyUuid.toString())
-                .orElseThrow(() -> new HttpResponseException(ErrorCode.NOT_FOUND));
-
-        // 소유자가 아닌 경우 갱신 거절
-        if (!targetStory.getAuthorUuid().equals(requestedUser.getUuid())) {
-            throw new HttpResponseException(ErrorCode.HAS_NO_OWNERSHIP);
-        }
-        // 이미 배포된 경우 갱신 거절
-        else if (targetStory.getStatus() != StoryEntity.StoryStatus.WRITING) {
-            throw new HttpResponseException(ErrorCode.ALREADY_PUBLISHED_STORY);
-        }
-
-        // order index 오름차순 정렬
-        List<SpotEntity> spots = spotRepository.getSpotsOf(storyUuid.toString());
-        spots.sort(Comparator.comparingDouble(SpotEntity::getOrderIndex));
-
-        // 삽입 위치를 표현하기 위한 인덱스 받아서 설정
-        SpotEntity requestEntity = requestDto.toRequestEntity();
-        // 인덱스 키 설정
-        requestEntity.setOrderIndex(getSpotOrderIndex(spots, requestDto.previousSpotUuid()));
-
-        // 이미지가 있다면 이미지 업로드
-        if (imageFile != null) {
-            String[] objectKeys = s3Service.getImageObjectKeys(requestedUser, imageFile);
-            String originalKey = objectKeys[0];
-            String thumbnailKey = objectKeys[1];
-
-            s3Service.uploadFile(originalKey, imageFile);
-            URI originalUri = s3Service.getUri(originalKey);
-            URI thumbnailUri = s3Service.getUri(thumbnailKey);
-
-            requestEntity.setImageUri(originalUri);
-            requestEntity.setThumbnailImageUri(thumbnailUri);
-        }
-
-        // 최종 삽입 요청
-        spotRepository.insertNewSpot(storyUuid.toString(), requestEntity);
-        int insertedSpotId = requestEntity.getId();
-        SpotEntity insertedEntity = spotRepository.findSpotById(insertedSpotId)
-                .orElseThrow(() -> new RuntimeException("Failed to insert spot to story."));
-
-        // 이미지 서명 및 반환
-        setPresignedUriFields(insertedEntity);
-        return insertedEntity;
-    }
-
+    // Spot entity에 대해, presign이 필요한 모든 필드에 presign한 값을 넣어 준다.
     private SpotEntity setPresignedUriFields(SpotEntity entity) {
         if (entity.getImageUri() != null) {
             entity.setImageUri(s3Service.getPresignedUri(entity.getImageUri()));
@@ -158,22 +118,78 @@ public class SpotService {
         return entity;
     }
 
-    public SpotEntity updateSpot(UUID storyUuid, UUID spotUuid, SpotUpdateRequestDto requestDto, MultipartFile spotImageFile, MultipartFile eventImageFile, AuthenticatedUser requestedUser) throws IOException {
-        // 연결된 스토리를 찾아
-        StoryEntity targetStory = storyRepository.getStoryByUuid(storyUuid.toString())
-                .orElseThrow(() -> new HttpResponseException(ErrorCode.NOT_FOUND));
+    public List<SpotEntity> getSpotsOf(UUID storyUuid, AuthenticatedUser requestedUser) {
+        StoryEntity targetStory = getStoryWithOwnershipCheck(storyUuid, requestedUser);
 
-        // 소유자가 아닌 경우 갱신 거절
-        if (!targetStory.getAuthorUuid().equals(requestedUser.getUuid())) {
-            throw new HttpResponseException(ErrorCode.HAS_NO_OWNERSHIP);
-        }
-        // 이미 배포된 경우 갱신 거절
-        else if (targetStory.getStatus() != StoryEntity.StoryStatus.WRITING) {
-            throw new HttpResponseException(ErrorCode.ALREADY_PUBLISHED_STORY);
-        }
+        List<SpotEntity> spots = spotRepository.getSpotsOf(targetStory.getUuid().toString());
+        spots.sort(Comparator.comparingDouble(SpotEntity::getOrderIndex));
+
+        // 이미지 서명 및 반환
+        return spots.stream().map(this::setPresignedUriFields).toList();
+    }
+
+    private void uploadAndSetImage(AuthenticatedUser requestedUser, SpotEntity requestEntity, MultipartFile imageFile) throws IOException {
+        String[] objectKeys = s3Service.getImageObjectKeys(requestedUser, imageFile);
+        String originalKey = objectKeys[0];
+        String thumbnailKey = objectKeys[1];
+
+        s3Service.uploadFile(originalKey, imageFile);
+        URI originalUri = s3Service.getUri(originalKey);
+        URI thumbnailUri = s3Service.getUri(thumbnailKey);
+
+        requestEntity.setImageUri(originalUri);
+        requestEntity.setThumbnailImageUri(thumbnailUri);
+    }
+
+    private void uploadAndSetEventImage(AuthenticatedUser requestedUser, SpotEntity requestEntity, MultipartFile eventImageFile) throws IOException {
+        String[] objectKeys = s3Service.getImageObjectKeys(requestedUser, eventImageFile);
+        String originalKey = objectKeys[0];
+        String thumbnailKey = objectKeys[1];
+
+        s3Service.uploadFile(originalKey, eventImageFile);
+        URI originalUri = s3Service.getUri(originalKey);
+        URI thumbnailUri = s3Service.getUri(thumbnailKey);
+
+        requestEntity.setEventImageUri(originalUri);
+        requestEntity.setEventThumbnailImageUri(thumbnailUri);
+    }
+
+    @Transactional
+    public SpotEntity insertSpotTo(UUID storyUuid, SpotInsertRequestDto requestDto, MultipartFile imageFile, AuthenticatedUser requestedUser) throws IOException {
+        StoryEntity targetStory = getStoryWithOwnershipCheck(storyUuid, requestedUser, true);
 
         // order index 오름차순 정렬
-        List<SpotEntity> spots = spotRepository.getSpotsOf(storyUuid.toString());
+        List<SpotEntity> spots = spotRepository.getSpotsOf(targetStory.getUuid().toString());
+        spots.sort(Comparator.comparingDouble(SpotEntity::getOrderIndex));
+
+        // 삽입 위치를 표현하기 위한 인덱스 받아서 설정
+        SpotEntity requestEntity = requestDto.toRequestEntity();
+        // 인덱스 키 설정
+        requestEntity.setOrderIndex(getSpotOrderIndex(spots, requestDto.previousSpotUuid()));
+
+        // 이미지가 있다면 이미지 업로드
+        if (imageFile != null) {
+            uploadAndSetImage(requestedUser, requestEntity, imageFile);
+        }
+
+        // 최종 삽입 요청
+        spotRepository.insertNewSpot(storyUuid.toString(), requestEntity);
+        int insertedSpotId = requestEntity.getId();
+        SpotEntity insertedEntity = spotRepository.findSpotById(insertedSpotId)
+                .orElseThrow(() -> new RuntimeException("Failed to insert spot to story."));
+
+        // 이미지 서명 및 반환
+        setPresignedUriFields(insertedEntity);
+        return insertedEntity;
+    }
+
+
+    public SpotEntity updateSpot(UUID storyUuid, UUID spotUuid, SpotUpdateRequestDto requestDto, MultipartFile spotImageFile, MultipartFile eventImageFile, AuthenticatedUser requestedUser) throws IOException {
+        // 연결된 스토리를 찾아
+        StoryEntity targetStory = getStoryWithOwnershipCheck(storyUuid, requestedUser, true);
+
+        // order index 오름차순 정렬
+        List<SpotEntity> spots = spotRepository.getSpotsOf(targetStory.getUuid().toString());
         spots.sort(Comparator.comparingDouble(SpotEntity::getOrderIndex));
 
         // 요청된 스토리 하위 스팟 중에서 주어진 uuid를 가지는 스팟을 찾고
@@ -213,17 +229,7 @@ public class SpotService {
                 s3Service.removeItem(targetSpot.getImageUri());
                 s3Service.removeItem(targetSpot.getThumbnailImageUri());
             }
-
-            String[] objectKeys = s3Service.getImageObjectKeys(requestedUser, spotImageFile);
-            String originalKey = objectKeys[0];
-            String thumbnailKey = objectKeys[1];
-
-            s3Service.uploadFile(originalKey, spotImageFile);
-            URI originalUri = s3Service.getUri(originalKey);
-            URI thumbnailUri = s3Service.getUri(thumbnailKey);
-
-            requestEntity.setImageUri(originalUri);
-            requestEntity.setThumbnailImageUri(thumbnailUri);
+            uploadAndSetImage(requestedUser, requestEntity, spotImageFile);
         }
 
         // 이벤트 이미지 파일이 있는 경우 이미지 할당
@@ -233,22 +239,13 @@ public class SpotService {
                 s3Service.removeItem(targetSpot.getEventImageUri());
                 s3Service.removeItem(targetSpot.getEventThumbnailImageUri());
             }
-
-            String[] objectKeys = s3Service.getImageObjectKeys(requestedUser, eventImageFile);
-            String originalKey = objectKeys[0];
-            String thumbnailKey = objectKeys[1];
-
-            s3Service.uploadFile(originalKey, eventImageFile);
-            URI originalUri = s3Service.getUri(originalKey);
-            URI thumbnailUri = s3Service.getUri(thumbnailKey);
-
-            requestEntity.setEventImageUri(originalUri);
-            requestEntity.setEventThumbnailImageUri(thumbnailUri);
+            uploadAndSetEventImage(requestedUser, requestEntity, eventImageFile);
         }
 
         // 갱신 요청 및 Presign
         spotRepository.updateSpot(targetSpot.getId(), requestEntity);
-        SpotEntity updatedEntity = spotRepository.findSpotById(targetSpot.getId()).get();
+        SpotEntity updatedEntity = spotRepository.findSpotById(targetSpot.getId())
+                .orElseThrow(() -> new RuntimeException("Failed to update spot."));
         setPresignedUriFields(updatedEntity);
 
         // 갱신된 객체를 반환
