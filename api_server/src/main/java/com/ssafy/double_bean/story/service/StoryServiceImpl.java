@@ -5,9 +5,11 @@ import com.ssafy.double_bean.common.exception.ErrorCode;
 import com.ssafy.double_bean.common.exception.HttpResponseException;
 import com.ssafy.double_bean.story.dto.StoryCreateRequestDto;
 import com.ssafy.double_bean.story.dto.StoryUpdateRequestDto;
+import com.ssafy.double_bean.story.model.entity.SpotEntity;
 import com.ssafy.double_bean.story.model.entity.StoryEntity;
 import com.ssafy.double_bean.story.model.entity.StoryEntity.StoryStatus;
 import com.ssafy.double_bean.story.model.repository.StoryRepository;
+import com.ssafy.double_bean.story_play.service.StoryPlayingService;
 import com.ssafy.double_bean.user.dto.AuthenticatedUser;
 import com.ssafy.double_bean.user.model.entity.UserEntity;
 import com.ssafy.double_bean.user.model.repository.UserRepository;
@@ -24,12 +26,16 @@ import java.util.UUID;
 public class StoryServiceImpl implements StoryService {
     private final StoryRepository storyRepository;
     private final UserRepository userRepository;
+    private final SpotService spotService;
+    private final StoryPlayingService storyPlayingService;
     private final S3Service s3Service;
 
 
-    public StoryServiceImpl(StoryRepository storyRepository, UserRepository userRepository, S3Service s3Service) {
+    public StoryServiceImpl(StoryRepository storyRepository, UserRepository userRepository, SpotService spotService, StoryPlayingService storyPlayingService, S3Service s3Service) {
         this.storyRepository = storyRepository;
         this.userRepository = userRepository;
+        this.spotService = spotService;
+        this.storyPlayingService = storyPlayingService;
         this.s3Service = s3Service;
     }
 
@@ -118,12 +124,8 @@ public class StoryServiceImpl implements StoryService {
         // 이미지 수정이 요청되었다면
         if (newImage != null) {
             // 이미 있었던 경우 기존 이미지 삭제해주고
-            if (targetStory.getImageUri() != null) {
-                s3Service.removeItem(targetStory.getImageUri());
-            }
-            if (targetStory.getThumbnailImageUri() != null) {
-                s3Service.removeItem(targetStory.getThumbnailImageUri());
-            }
+            s3Service.removeItem(targetStory.getImageUri());
+            s3Service.removeItem(targetStory.getThumbnailImageUri());
 
             // 새 이미지 할당
             String[] objectKeys = s3Service.getImageObjectKeys(requestedUser, newImage);
@@ -145,5 +147,32 @@ public class StoryServiceImpl implements StoryService {
         setPresignedUriFields(targetStory);
 
         return targetStory;
+    }
+
+    @Override
+    public void deleteStory(UUID storyUuid, AuthenticatedUser requestedUser) {
+        StoryEntity targetStory = getStory(storyUuid, requestedUser);
+
+        // 해당 스토리를 플레이했거나 플레이하고 있는 기록이 있으면 삭제 불가
+        if (!storyPlayingService.getStoryPlayingsOf(targetStory.getId()).isEmpty()) {
+            throw new HttpResponseException(ErrorCode.CANNOT_DELETE_STORY_WITH_PLAYER);
+        }
+
+        // 이외의 경우, 스토리 삭제 가능
+        List<SpotEntity> spots = spotService.getSpotsOf(targetStory.getUuid(), requestedUser);
+        for (SpotEntity spot : spots) {
+            // 일단 스토리에 연결된 스팟의 이미지 파일을 모두 삭제
+            s3Service.removeItem(spot.getImageUri());
+            s3Service.removeItem(spot.getThumbnailImageUri());
+            s3Service.removeItem(spot.getEventImageUri());
+            s3Service.removeItem(spot.getEventThumbnailImageUri());
+        }
+
+        // 스토리 이미지 삭제
+        s3Service.removeItem(targetStory.getImageUri());
+        s3Service.removeItem(targetStory.getThumbnailImageUri());
+
+        // 스토리 삭제(스팟은 CASCADE로 연쇄 삭제됨)
+        storyRepository.deleteById(targetStory.getId());
     }
 }

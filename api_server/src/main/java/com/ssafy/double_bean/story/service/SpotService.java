@@ -225,20 +225,16 @@ public class SpotService {
         // 이미지 파일이 있는 경우 이미지 할당
         if (spotImageFile != null) {
             // 원래 이미지가 있었다면 삭제
-            if (targetSpot.getImageUri() != null) {
-                s3Service.removeItem(targetSpot.getImageUri());
-                s3Service.removeItem(targetSpot.getThumbnailImageUri());
-            }
+            s3Service.removeItem(targetSpot.getImageUri());
+            s3Service.removeItem(targetSpot.getThumbnailImageUri());
             uploadAndSetImage(requestedUser, requestEntity, spotImageFile);
         }
 
         // 이벤트 이미지 파일이 있는 경우 이미지 할당
         if (eventImageFile != null) {
             // 원래 이미지가 있었다면 삭제
-            if (targetSpot.getEventImageUri() != null) {
-                s3Service.removeItem(targetSpot.getEventImageUri());
-                s3Service.removeItem(targetSpot.getEventThumbnailImageUri());
-            }
+            s3Service.removeItem(targetSpot.getEventImageUri());
+            s3Service.removeItem(targetSpot.getEventThumbnailImageUri());
             uploadAndSetEventImage(requestedUser, requestEntity, eventImageFile);
         }
 
@@ -252,7 +248,7 @@ public class SpotService {
         return updatedEntity;
     }
 
-    public void delteSpot(UUID storyUuid, UUID spotUuid, AuthenticatedUser requestedUser) {
+    public void deleteSpot(UUID storyUuid, UUID spotUuid, AuthenticatedUser requestedUser) {
         // 스토리 및 스팟 검색
         StoryEntity story = getStoryWithOwnershipCheck(storyUuid, requestedUser, true);
         List<SpotEntity> spots = spotRepository.getSpotsOf(storyUuid.toString());
@@ -261,14 +257,10 @@ public class SpotService {
                 .findFirst().orElseThrow(() -> new HttpResponseException(ErrorCode.NOT_FOUND));
 
         // 이미지가 있었으면 삭제
-        if (targetSpot.getImageUri() != null) {
-            s3Service.removeItem(targetSpot.getImageUri());
-            s3Service.removeItem(targetSpot.getThumbnailImageUri());
-        }
-        if (targetSpot.getEventImageUri() != null) {
-            s3Service.removeItem(targetSpot.getEventImageUri());
-            s3Service.removeItem(targetSpot.getEventThumbnailImageUri());
-        }
+        s3Service.removeItem(targetSpot.getImageUri());
+        s3Service.removeItem(targetSpot.getThumbnailImageUri());
+        s3Service.removeItem(targetSpot.getEventImageUri());
+        s3Service.removeItem(targetSpot.getEventThumbnailImageUri());
 
         spotRepository.deleteSpot(targetSpot.getId());
     }

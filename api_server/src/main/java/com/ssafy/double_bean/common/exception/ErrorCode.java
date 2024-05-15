@@ -27,7 +27,7 @@ public enum ErrorCode {
     DUPLICATED_FIELD_VALUE(HttpStatus.CONFLICT, "E0001", "There is duplicated field value. " +
             "Check duplication checking API result."),
     USER_ALREADY_PLAYING_GAME(HttpStatus.CONFLICT, "E0002", "Requested player is already playing game."),
-    ;
+    CANNOT_DELETE_STORY_WITH_PLAYER(HttpStatus.CONFLICT, "E0003", "Failed to do job because of requested story have playing records.");
 
     private final HttpStatus httpStatus;
     private final String detailCode;

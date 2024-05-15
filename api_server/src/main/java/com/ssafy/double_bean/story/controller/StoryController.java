@@ -85,6 +85,15 @@ public class StoryController {
         return ResponseEntity.ok(StoryResponseDto.fromEntity(updatedEntity));
     }
 
+    // 스토리를 삭제한다.
+    // 단, 해당 스토리를 플레이한 기록이 남아 있다면 삭제할 수 없다.
+    @DeleteMapping("/stories/{story-uuid}")
+    public ResponseEntity<Void> deleteStory(@PathVariable("story-uuid") UUID storyUuid) {
+        storyService.deleteStory(storyUuid, requestedUser);
+        return ResponseEntity.noContent().build();
+    }
+
+    // 특정 스토리에 등록된 스팟의 목록을 조회한다.
     @GetMapping("/stories/{story-uuid}/spots")
     public ResponseEntity<List<SpotResponseDto>> getSpotsOf(@PathVariable("story-uuid") UUID storyUuid) {
         List<SpotEntity> entities = spotService.getSpotsOf(storyUuid, requestedUser);
@@ -121,7 +130,7 @@ public class StoryController {
     @DeleteMapping("/stories/{story-uuid}/spots/{spot-uuid}")
     public ResponseEntity<SpotResponseDto> updateSpot(@PathVariable("story-uuid") UUID storyUuid,
                                                       @PathVariable("spot-uuid") UUID spotUuid) {
-        spotService.delteSpot(storyUuid, spotUuid, requestedUser);
+        spotService.deleteSpot(storyUuid, spotUuid, requestedUser);
         return ResponseEntity.noContent().build();
     }
 }

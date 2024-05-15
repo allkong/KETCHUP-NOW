@@ -63,6 +63,10 @@ public class S3Service {
     }
 
     public void removeItem(URI targetUri) {
+        if (targetUri == null || targetUri.toString().isBlank()) {
+            return;
+        }
+        
         String bucketName = targetUri.getHost().split("\\.")[0];
         String objectKey = targetUri.getPath().substring(1);
 
