@@ -55,6 +55,18 @@ public interface SpotRepository {
     @Options(useGeneratedKeys = true, keyProperty = "entity.id", keyColumn = "id")
     void insertNewSpot(String storyUuid, SpotEntity entity);
 
+    @Insert({"<script>",
+            "INSERT INTO spots(story_id, latitude, longitude, order_index, title, description, image_uri, thumbnail_image_uri) ",
+            "VALUES ",
+            "<foreach collection='entities' item='entity' open='(' separator='), (' close=')'>",
+            "(SELECT id FROM stories WHERE uuid=#{storyUuid}), #{entity.latitude}, #{entity.longitude}, ",
+            "#{entity.orderIndex}, #{entity.title}, #{entity.description}, ",
+            "#{entity.imageUri, typeHandler=com.ssafy.double_bean.common.model.repository.type_handler.URITypeHandler}, ",
+            "#{entity.thumbnailImageUri, typeHandler=com.ssafy.double_bean.common.model.repository.type_handler.URITypeHandler}",
+            "</foreach>",
+            "</script>"})
+    void insertBulk(String storyUuid, List<SpotEntity> entities);
+
     @Update("UPDATE spots SET latitude=#{dto.latitude}, longitude=#{dto.longitude}, order_index=#{dto.orderIndex}, " +
             "title=#{dto.title}, description=#{dto.description}, modified_at=CURRENT_TIMESTAMP, " +
             "event_type=#{dto.eventType, typeHandler=com.ssafy.double_bean.story.model.repository.type_handler.SpotEventTypeTypeHandler}, " +

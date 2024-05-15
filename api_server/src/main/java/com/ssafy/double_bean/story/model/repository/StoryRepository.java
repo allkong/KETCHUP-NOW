@@ -51,6 +51,15 @@ public interface StoryRepository {
     @Options(useGeneratedKeys = true, keyProperty = "entity.id", keyColumn = "id")
     int createFirstStory(int authorId, StoryEntity entity);
 
+    @Insert("INSERT INTO stories(story_base_id, version, status, title, description, sido, gungu, image_uri, thumbnail_image_uri) "
+            + "VALUES (" +
+            "(SELECT id FROM story_bases WHERE uuid=#{storyBaseUuid, typeHandler=com.ssafy.double_bean.common.model.repository.type_handler.UUIDTypeHandler}), " +
+            "#{version}, 'WRITING', #{title}, #{description}, #{sido}, #{gungu}, " +
+            " #{imageUri, typeHandler=com.ssafy.double_bean.common.model.repository.type_handler.URITypeHandler}," +
+            " #{thumbnailImageUri, typeHandler=com.ssafy.double_bean.common.model.repository.type_handler.URITypeHandler});")
+    @Options(useGeneratedKeys = true, keyProperty = "id", keyColumn = "id")
+    void createStory(StoryEntity entity);
+
     // 스토리 베이스별 최신 스토리만 들고 와서 join 해주는 방식
     @Select("WITH s AS ("
             + "SELECT * "

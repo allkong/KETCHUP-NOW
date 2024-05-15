@@ -11,6 +11,7 @@ public enum ErrorCode {
     ALREADY_PUBLISHED_STORY(HttpStatus.BAD_REQUEST, "E0005", "Can't modify already published story."),
     CANNOT_PLAY_WRITING_STORY(HttpStatus.BAD_REQUEST, "E0006", "Can't play story in 'WRITING' status."),
     SPOT_MODIFY_FAILED(HttpStatus.BAD_REQUEST, "E0007", "Given request to modify spot is invalid."),
+    ONLY_ONE_WRITING_STORY(HttpStatus.BAD_REQUEST, "E0008", "Can't duplicate story with status 'WRITING'."),
 
     // 401 Unauthorized
     UNKNOWN_USER(HttpStatus.UNAUTHORIZED, "E0001", "No such user with given credential."),

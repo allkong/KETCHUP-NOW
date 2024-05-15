@@ -264,4 +264,9 @@ public class SpotService {
 
         spotRepository.deleteSpot(targetSpot.getId());
     }
+
+    @Transactional
+    public void insertBulk(UUID storyUuid, List<SpotEntity> spotEntities) {
+        spotRepository.insertBulk(storyUuid.toString(), spotEntities);
+    }
 }

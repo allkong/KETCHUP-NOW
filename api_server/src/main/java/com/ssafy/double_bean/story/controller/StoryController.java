@@ -93,6 +93,15 @@ public class StoryController {
         return ResponseEntity.noContent().build();
     }
 
+    // 기존의 스토리 하나를 복제한다.
+    // 단, 해당 스토리가 소속된 스토리 베이스의 하위 스토리 중 WRITING 상태인 스토리가 있는 경우 복제가 불가능하다.
+    @PostMapping("/stories/{story-uuid}/duplicate")
+    public ResponseEntity<StoryResponseDto> duplicateStory(@PathVariable("story-uuid") UUID storyUuid) throws URISyntaxException {
+        StoryEntity duplicatedEntity = storyService.duplicateStory(storyUuid, requestedUser);
+        StoryResponseDto dto = StoryResponseDto.fromEntity(duplicatedEntity);
+        return ResponseEntity.ok(dto);
+    }
+
     // 특정 스토리에 등록된 스팟의 목록을 조회한다.
     @GetMapping("/stories/{story-uuid}/spots")
     public ResponseEntity<List<SpotResponseDto>> getSpotsOf(@PathVariable("story-uuid") UUID storyUuid) {

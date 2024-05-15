@@ -14,11 +14,14 @@ import com.ssafy.double_bean.user.dto.AuthenticatedUser;
 import com.ssafy.double_bean.user.model.entity.UserEntity;
 import com.ssafy.double_bean.user.model.repository.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
@@ -174,5 +177,110 @@ public class StoryServiceImpl implements StoryService {
 
         // 스토리 삭제(스팟은 CASCADE로 연쇄 삭제됨)
         storyRepository.deleteById(targetStory.getId());
+    }
+
+    @Override
+    @Transactional
+    public StoryEntity duplicateStory(UUID storyUuid, AuthenticatedUser requestedUser) throws URISyntaxException {
+        // 스토리 검색
+        StoryEntity targetStory = getStory(storyUuid, requestedUser);
+
+        // WRITING 상태인 스토리가 있으면 복제 불가
+        List<StoryEntity> stories = getStoriesOf(targetStory.getStoryBaseUuid(), requestedUser);
+        if (stories.stream().anyMatch(story -> story.getStatus() == StoryStatus.WRITING)) {
+            throw new HttpResponseException(ErrorCode.ONLY_ONE_WRITING_STORY);
+        }
+
+        StoryEntity requestEntity = targetStory.clone();
+        // 단, 버전은 이때까지 만들어진 스토리의 가장 높은 버전보다 1 크게
+        int largestVersion = stories.stream()
+                .max(Comparator.comparingInt(StoryEntity::getVersion)).get().getVersion();
+        requestEntity.setVersion(largestVersion + 1);
+
+        // 이미지 파일 복사
+        if (targetStory.getImageUri() != null) {
+            String newRandomFilename = getRandomFilenameFromUri(requestEntity.getImageUri());
+            String[] objectKeys = s3Service.getImageObjectKeys(requestedUser, newRandomFilename);
+            String originalKey = objectKeys[0];
+            String thumbnailKey = objectKeys[1];
+
+            s3Service.duplicateFileIfExists(requestEntity.getImageUri(), originalKey);
+//            s3Service.duplicateFileIfExists(requestEntity.getThumbnailImageUri(), thumbnailKey);
+
+            requestEntity.setImageUri(s3Service.getUri(originalKey));
+            requestEntity.setThumbnailImageUri(s3Service.getUri(thumbnailKey));
+        }
+
+        // 스토리 삽입
+        storyRepository.createStory(requestEntity);
+
+        // 연결된 스팟 정보도 모두 복사하여 삽입
+        List<SpotEntity> originalSpots = spotService.getSpotsOf(targetStory.getUuid(), requestedUser);
+        List<SpotEntity> copiedSpots = new ArrayList<>();
+        for (SpotEntity originalSpot : originalSpots) {
+            // 원본 객체 복사
+            SpotEntity cloned = originalSpot.clone();
+
+            // 복제된 스토리로 연결
+
+            // 원본 이미지 파일이 있었으면
+            if (originalSpot.getImageUri() != null) {
+                // 랜덤하게 이름을 만들어서
+                String newRandomFilename = getRandomFilenameFromUri(originalSpot.getImageUri());
+                String[] objectKeys = s3Service.getImageObjectKeys(requestedUser, newRandomFilename);
+                String originalKey = objectKeys[0];
+                String thumbnailKey = objectKeys[1];
+
+                // S3에서 복제해주고
+                s3Service.duplicateFileIfExists(originalSpot.getImageUri(), originalKey);
+//                s3Service.duplicateFileIfExists(originalSpot.getThumbnailImageUri(), thumbnailKey);
+
+                // 연결 정보 설정
+                cloned.setImageUri(s3Service.getUri(originalKey));
+                cloned.setThumbnailImageUri(s3Service.getUri(thumbnailKey));
+            }
+            // 이벤트 이미지도 동일하게 처리
+            if (originalSpot.getEventImageUri() != null) {
+                // 랜덤하게 이름을 만들어서
+                String newRandomFilename = getRandomFilenameFromUri(originalSpot.getEventImageUri());
+                String[] objectKeys = s3Service.getImageObjectKeys(requestedUser, newRandomFilename);
+                String originalKey = objectKeys[0];
+                String thumbnailKey = objectKeys[1];
+
+                // S3에서 복제해주고
+                s3Service.duplicateFileIfExists(originalSpot.getEventImageUri(), originalKey);
+//                s3Service.duplicateFileIfExists(originalSpot.getEventThumbnailImageUri(), thumbnailKey);
+
+                // 연결 정보 설정
+                cloned.setEventImageUri(s3Service.getUri(originalKey));
+                cloned.setEventThumbnailImageUri(s3Service.getUri(thumbnailKey));
+            }
+            // 스팟 목록에 넣어주고
+            copiedSpots.add(cloned);
+        }
+
+        // 복제본 검색
+        StoryEntity duplicated = storyRepository.findById(requestEntity.getId())
+                .orElseThrow(() -> new RuntimeException("Failed to duplicate story."));
+
+        // 스팟 복사본 삽입
+        if (!copiedSpots.isEmpty()) {
+            spotService.insertBulk(duplicated.getUuid(), copiedSpots);
+        }
+
+
+        // Presign 및 반환
+        setPresignedUriFields(duplicated);
+
+        return duplicated;
+    }
+
+    private String getRandomFilenameFromUri(URI uri) {
+        String stringUri = uri.toString();
+        String[] tokens = stringUri.split("/");
+        String fileName = tokens[tokens.length - 1];
+        String[] filenameTokens = fileName.split("\\.");
+        String extension = filenameTokens[filenameTokens.length - 1];
+        return UUID.randomUUID() + "." + extension;
     }
 }

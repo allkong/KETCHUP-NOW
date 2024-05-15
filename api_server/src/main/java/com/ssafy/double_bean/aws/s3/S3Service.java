@@ -66,7 +66,7 @@ public class S3Service {
         if (targetUri == null || targetUri.toString().isBlank()) {
             return;
         }
-        
+
         String bucketName = targetUri.getHost().split("\\.")[0];
         String objectKey = targetUri.getPath().substring(1);
 
@@ -75,10 +75,25 @@ public class S3Service {
     }
 
     public String[] getImageObjectKeys(AuthenticatedUser author, MultipartFile imageFile) {
+        return getImageObjectKeys(author, imageFile.getOriginalFilename());
+    }
+
+    public String[] getImageObjectKeys(AuthenticatedUser author, String originalFilename) {
         UUID fileUuid = UUID.randomUUID();
         Long timestamp = System.currentTimeMillis();
-        String original = String.format("images/%s/%s_%s_%s", author.getUuid(), fileUuid, timestamp, imageFile.getOriginalFilename());
-        String thumbnail = String.format("thumbnail-images/%s/%s_%s_%s", author.getUuid(), fileUuid, timestamp, imageFile.getOriginalFilename());
+        String original = String.format("images/%s/%s_%s_%s", author.getUuid(), fileUuid, timestamp, originalFilename);
+        String thumbnail = String.format("thumbnail-images/%s/%s_%s_%s", author.getUuid(), fileUuid, timestamp, originalFilename);
         return new String[]{original, thumbnail};
+    }
+
+    public void duplicateFileIfExists(URI sourceUri, String destObjectKey) {
+        if (sourceUri == null || sourceUri.toString().isBlank()) {
+            return;
+        }
+
+        String bucketName = sourceUri.getHost().split("\\.")[0];
+        String sourceObjectKey = sourceUri.getPath().substring(1);
+
+        s3Client.copyObject(bucketName, sourceObjectKey, bucketName, destObjectKey);
     }
 }

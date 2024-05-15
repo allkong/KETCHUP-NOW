@@ -4,7 +4,7 @@ import java.net.URI;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-public class SpotEntity {
+public class SpotEntity implements Cloneable {
     private int id;
     private UUID uuid;
     private double latitude;
@@ -161,6 +161,24 @@ public class SpotEntity {
 
     public void setJsonEventContent(String jsonEventContent) {
         this.jsonEventContent = jsonEventContent;
+    }
+
+    @Override
+    public SpotEntity clone() {
+        try {
+            SpotEntity clone = (SpotEntity) super.clone();
+            clone.setUuid(null);
+            clone.setLatitude(latitude);
+            clone.setLongitude(longitude);
+            clone.setOrderIndex(orderIndex);
+            clone.setTitle(title);
+            clone.setDescription(description);
+            clone.setCreatedAt(LocalDateTime.now());
+            clone.setModifiedAt(null);
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
     }
 
     public enum EventType {
