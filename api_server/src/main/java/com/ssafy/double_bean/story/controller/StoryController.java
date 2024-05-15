@@ -102,4 +102,26 @@ public class StoryController {
         SpotResponseDto dto = SpotResponseDto.fromEntity(insertedEntity);
         return ResponseEntity.status(HttpStatus.CREATED).body(dto);
     }
+
+    // 특정 스팟에 대한 정보를 수정한다.
+    // 단, 스토리의 상태가 WRITING일 때에만 가능하다.
+    @PutMapping("/stories/{story-uuid}/spots/{spot-uuid}")
+    public ResponseEntity<SpotResponseDto> updateSpot(@PathVariable("story-uuid") UUID storyUuid,
+                                                      @PathVariable("spot-uuid") UUID spotUuid,
+                                                      @Valid SpotUpdateRequestDto requestDto,
+                                                      @RequestParam(required = false) MultipartFile spotImageFile,
+                                                      @RequestParam(required = false) MultipartFile eventImageFile) throws IOException {
+        SpotEntity updatedEntity = spotService.updateSpot(storyUuid, spotUuid, requestDto, spotImageFile, eventImageFile, requestedUser);
+        SpotResponseDto dto = SpotResponseDto.fromEntity(updatedEntity);
+        return ResponseEntity.ok(dto);
+    }
+
+    // 특정 스팟을 삭제한다.
+    // 단, 스토리의 상태가 WRITING일 때에만 가능하다.
+    @DeleteMapping("/stories/{story-uuid}/spots/{spot-uuid}")
+    public ResponseEntity<SpotResponseDto> updateSpot(@PathVariable("story-uuid") UUID storyUuid,
+                                                      @PathVariable("spot-uuid") UUID spotUuid) {
+        spotService.delteSpot(storyUuid, spotUuid, requestedUser);
+        return ResponseEntity.noContent().build();
+    }
 }
