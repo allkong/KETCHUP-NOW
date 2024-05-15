@@ -22,4 +22,6 @@ public interface StoryService {
 
     StoryEntity updateStory(UUID storyUuid, AuthenticatedUser requestedUser,
                             StoryUpdateRequestDto updateDto, MultipartFile newImage) throws IOException, URISyntaxException;
+
+    void deleteStory(UUID storyUuid, AuthenticatedUser requestedUser);
 }

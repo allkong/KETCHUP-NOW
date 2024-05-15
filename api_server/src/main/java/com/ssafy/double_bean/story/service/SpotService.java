@@ -248,7 +248,7 @@ public class SpotService {
         return updatedEntity;
     }
 
-    public void delteSpot(UUID storyUuid, UUID spotUuid, AuthenticatedUser requestedUser) {
+    public void deleteSpot(UUID storyUuid, UUID spotUuid, AuthenticatedUser requestedUser) {
         // 스토리 및 스팟 검색
         StoryEntity story = getStoryWithOwnershipCheck(storyUuid, requestedUser, true);
         List<SpotEntity> spots = spotRepository.getSpotsOf(storyUuid.toString());

@@ -80,4 +80,7 @@ public interface StoryRepository {
     @Select(SELECT_ALL_SQL + " WHERE s.uuid=#{storyUuid}")
     @ResultMap("storyResult")
     Optional<StoryEntity> getStoryByUuid(String storyUuid);
+
+    @Delete("DELETE FROM stories WHERE id=#{id}")
+    void deleteById(int id);
 }
