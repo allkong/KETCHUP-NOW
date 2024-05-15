@@ -85,6 +85,6 @@ const closeStoryModal = () => {
 
 <style scoped>
 .list-button {
-  left: 1rem;
+  right: 1rem;
 }
 </style>
