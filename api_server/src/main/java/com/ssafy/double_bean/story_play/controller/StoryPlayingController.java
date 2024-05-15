@@ -30,8 +30,7 @@ public class StoryPlayingController {
     // 이미 플레이 중인 스토리가 있는 경우 플레이 할 수 없다.
     @PostMapping("/stories/{story-uuid}/play")
     public ResponseEntity<StoryPlayingResponseDto> startPlayingStory(@PathVariable("story-uuid") UUID storyUuid) {
-        int insertedPlayingId = storyPlayingService.startPlaying(storyUuid, requestedUser);
-        StoryPlayingEntity entity = storyPlayingService.findById(insertedPlayingId);
+        StoryPlayingEntity entity = storyPlayingService.startPlaying(storyUuid, requestedUser);
         return ResponseEntity.status(HttpStatus.CREATED).body(StoryPlayingResponseDto.fromEntity(entity));
     }
 }

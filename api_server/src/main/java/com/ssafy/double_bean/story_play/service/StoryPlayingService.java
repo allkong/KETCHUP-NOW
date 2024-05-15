@@ -8,11 +8,9 @@ import com.ssafy.double_bean.story_play.model.entity.StoryPlayingEntity;
 import com.ssafy.double_bean.story_play.model.repository.StoryPlayingRepository;
 import com.ssafy.double_bean.user.dto.AuthenticatedUser;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
-
-import static org.springframework.transaction.annotation.Propagation.REQUIRES_NEW;
 
 @Service
 public class StoryPlayingService {
@@ -24,8 +22,7 @@ public class StoryPlayingService {
         this.storyRepository = storyRepository;
     }
 
-    @Transactional(propagation = REQUIRES_NEW)
-    public int startPlaying(UUID storyUuid, AuthenticatedUser requestedUser) {
+    public StoryPlayingEntity startPlaying(UUID storyUuid, AuthenticatedUser requestedUser) {
         // 이미 플레이 중인 스토리가 있는 경우 플레이 불가
         if (storyPlayingRepository.hasPlayingGame(requestedUser.getUuid().toString())) {
             throw new HttpResponseException(ErrorCode.USER_ALREADY_PLAYING_GAME);
@@ -43,15 +40,16 @@ public class StoryPlayingService {
         StoryPlayingEntity requestEntity = StoryPlayingEntity
                 .getStartRequestEntity(story.getId(), requestedUser.getUuid());
         storyPlayingRepository.createGamePlaying(requestEntity);
-        System.out.println(requestEntity);
 
-        return requestEntity.getId();
+        return this.findById(requestEntity.getId());
     }
 
-    @Transactional(propagation = REQUIRES_NEW)
     public StoryPlayingEntity findById(int id) {
-        System.out.println(id);
         return storyPlayingRepository.findById(id)
                 .orElseThrow(() -> new HttpResponseException(ErrorCode.NOT_FOUND));
+    }
+
+    public List<StoryPlayingEntity> getStoryPlayingsOf(int storyId) {
+        return storyPlayingRepository.getByStoryId(storyId);
     }
 }
