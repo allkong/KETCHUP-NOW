@@ -54,4 +54,14 @@ public interface SpotRepository {
             "#{entity.thumbnailImageUri, typeHandler=com.ssafy.double_bean.common.model.repository.type_handler.URITypeHandler});")
     @Options(useGeneratedKeys = true, keyProperty = "entity.id", keyColumn = "id")
     void insertNewSpot(String storyUuid, SpotEntity entity);
+
+    @Update("UPDATE spots SET latitude=#{dto.latitude}, longitude=#{dto.longitude}, order_index=#{dto.orderIndex}, " +
+            "title=#{dto.title}, description=#{dto.description}, modified_at=CURRENT_TIMESTAMP, " +
+            "event_type=#{dto.eventType, typeHandler=com.ssafy.double_bean.story.model.repository.type_handler.SpotEventTypeTypeHandler}, " +
+            "image_uri=#{dto.imageUri, typeHandler=com.ssafy.double_bean.common.model.repository.type_handler.URITypeHandler}, " +
+            "thumbnail_image_uri=#{dto.thumbnailImageUri, typeHandler=com.ssafy.double_bean.common.model.repository.type_handler.URITypeHandler}, " +
+            "event_image_uri=#{dto.eventImageUri, typeHandler=com.ssafy.double_bean.common.model.repository.type_handler.URITypeHandler}, " +
+            "event_thumbnail_image_uri=#{dto.eventThumbnailImageUri, typeHandler=com.ssafy.double_bean.common.model.repository.type_handler.URITypeHandler} " +
+            "WHERE id=#{targetId}")
+    void updateSpot(int targetId, SpotEntity dto);
 }

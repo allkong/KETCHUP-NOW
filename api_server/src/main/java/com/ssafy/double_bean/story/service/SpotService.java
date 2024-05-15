@@ -4,6 +4,7 @@ import com.ssafy.double_bean.aws.s3.S3Service;
 import com.ssafy.double_bean.common.exception.ErrorCode;
 import com.ssafy.double_bean.common.exception.HttpResponseException;
 import com.ssafy.double_bean.story.dto.SpotInsertRequestDto;
+import com.ssafy.double_bean.story.dto.SpotUpdateRequestDto;
 import com.ssafy.double_bean.story.model.entity.SpotEntity;
 import com.ssafy.double_bean.story.model.entity.StoryEntity;
 import com.ssafy.double_bean.story.model.repository.SpotRepository;
@@ -155,5 +156,102 @@ public class SpotService {
             entity.setEventThumbnailImageUri(s3Service.getPresignedUri(entity.getEventThumbnailImageUri()));
         }
         return entity;
+    }
+
+    public SpotEntity updateSpot(UUID storyUuid, UUID spotUuid, SpotUpdateRequestDto requestDto, MultipartFile spotImageFile, MultipartFile eventImageFile, AuthenticatedUser requestedUser) throws IOException {
+        // 연결된 스토리를 찾아
+        StoryEntity targetStory = storyRepository.getStoryByUuid(storyUuid.toString())
+                .orElseThrow(() -> new HttpResponseException(ErrorCode.NOT_FOUND));
+
+        // 소유자가 아닌 경우 갱신 거절
+        if (!targetStory.getAuthorUuid().equals(requestedUser.getUuid())) {
+            throw new HttpResponseException(ErrorCode.HAS_NO_OWNERSHIP);
+        }
+        // 이미 배포된 경우 갱신 거절
+        else if (targetStory.getStatus() != StoryEntity.StoryStatus.WRITING) {
+            throw new HttpResponseException(ErrorCode.ALREADY_PUBLISHED_STORY);
+        }
+
+        // order index 오름차순 정렬
+        List<SpotEntity> spots = spotRepository.getSpotsOf(storyUuid.toString());
+        spots.sort(Comparator.comparingDouble(SpotEntity::getOrderIndex));
+
+        // 요청된 스토리 하위 스팟 중에서 주어진 uuid를 가지는 스팟을 찾고
+        int targetIdx = 0;
+        while (targetIdx < spots.size()) {
+            if (spots.get(targetIdx).getUuid().equals(spotUuid)) {
+                break;
+            } else {
+                targetIdx++;
+            }
+        }
+        // 만약 요청된 스토리에 해당 스팟이 등록되어 있지 않다면 자원을 찾을 수 없음을 반환
+        if (targetIdx == spots.size()) {
+            throw new HttpResponseException(ErrorCode.NOT_FOUND);
+        }
+
+        SpotEntity targetSpot = spots.get(targetIdx);
+        SpotEntity requestEntity = requestDto.toRequestEntity();
+        // 순서가 바뀌었다면 (업데이트 요청된 내 앞의 스팟이 다른 것으로 바뀌었다면)
+        if (
+            // 1. 원래는 맨 앞이었는데 내 앞에 다른 스팟이 생겼거나
+                (targetIdx == 0 && requestDto.previousSpotUuid() != null)
+                        // 2. 내 앞의 스팟이 바뀌었거나
+                        || (targetIdx > 0 && !spots.get(targetIdx - 1).getUuid().equals(requestDto.previousSpotUuid()))) {
+            // 새 위치 할당
+            requestEntity.setOrderIndex(getSpotOrderIndex(spots, requestDto.previousSpotUuid()));
+        }
+        // 순서가 안바뀌었으면 그대로 유지
+        else {
+            requestEntity.setOrderIndex(targetSpot.getOrderIndex());
+        }
+
+        // 이미지 파일이 있는 경우 이미지 할당
+        if (spotImageFile != null) {
+            // 원래 이미지가 있었다면 삭제
+            if (targetSpot.getImageUri() != null) {
+                s3Service.removeItem(targetSpot.getImageUri());
+                s3Service.removeItem(targetSpot.getThumbnailImageUri());
+            }
+
+            String[] objectKeys = s3Service.getImageObjectKeys(requestedUser, spotImageFile);
+            String originalKey = objectKeys[0];
+            String thumbnailKey = objectKeys[1];
+
+            s3Service.uploadFile(originalKey, spotImageFile);
+            URI originalUri = s3Service.getUri(originalKey);
+            URI thumbnailUri = s3Service.getUri(thumbnailKey);
+
+            requestEntity.setImageUri(originalUri);
+            requestEntity.setThumbnailImageUri(thumbnailUri);
+        }
+
+        // 이벤트 이미지 파일이 있는 경우 이미지 할당
+        if (eventImageFile != null) {
+            // 원래 이미지가 있었다면 삭제
+            if (targetSpot.getEventImageUri() != null) {
+                s3Service.removeItem(targetSpot.getEventImageUri());
+                s3Service.removeItem(targetSpot.getEventThumbnailImageUri());
+            }
+
+            String[] objectKeys = s3Service.getImageObjectKeys(requestedUser, eventImageFile);
+            String originalKey = objectKeys[0];
+            String thumbnailKey = objectKeys[1];
+
+            s3Service.uploadFile(originalKey, eventImageFile);
+            URI originalUri = s3Service.getUri(originalKey);
+            URI thumbnailUri = s3Service.getUri(thumbnailKey);
+
+            requestEntity.setEventImageUri(originalUri);
+            requestEntity.setEventThumbnailImageUri(thumbnailUri);
+        }
+
+        // 갱신 요청 및 Presign
+        spotRepository.updateSpot(targetSpot.getId(), requestEntity);
+        SpotEntity updatedEntity = spotRepository.findSpotById(targetSpot.getId()).get();
+        setPresignedUriFields(updatedEntity);
+
+        // 갱신된 객체를 반환
+        return updatedEntity;
     }
 }
