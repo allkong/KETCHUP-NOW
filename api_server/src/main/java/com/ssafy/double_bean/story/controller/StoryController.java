@@ -115,4 +115,13 @@ public class StoryController {
         SpotResponseDto dto = SpotResponseDto.fromEntity(updatedEntity);
         return ResponseEntity.ok(dto);
     }
+
+    // 특정 스팟을 삭제한다.
+    // 단, 스토리의 상태가 WRITING일 때에만 가능하다.
+    @DeleteMapping("/stories/{story-uuid}/spots/{spot-uuid}")
+    public ResponseEntity<SpotResponseDto> updateSpot(@PathVariable("story-uuid") UUID storyUuid,
+                                                      @PathVariable("spot-uuid") UUID spotUuid) {
+        spotService.delteSpot(storyUuid, spotUuid, requestedUser);
+        return ResponseEntity.noContent().build();
+    }
 }

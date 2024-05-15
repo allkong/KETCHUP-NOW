@@ -64,4 +64,7 @@ public interface SpotRepository {
             "event_thumbnail_image_uri=#{dto.eventThumbnailImageUri, typeHandler=com.ssafy.double_bean.common.model.repository.type_handler.URITypeHandler} " +
             "WHERE id=#{targetId}")
     void updateSpot(int targetId, SpotEntity dto);
+
+    @Delete("DELETE FROM spots WHERE id=#{id}")
+    void deleteSpot(int id);
 }
