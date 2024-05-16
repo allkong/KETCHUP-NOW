@@ -30,6 +30,14 @@ export const useUserStore = defineStore('userStore', () => {
     )
   }
 
+  const signUp = async ({ loginId, password, nickname }) => {
+    return axios.post('/users/sign-up', {
+      loginId,
+      password,
+      nickname,
+    })
+  }
+
   function setAccessToken(accessToken) {
     // 모든 요청에 Access token이 포함되도록 함
     axios.defaults.headers.common['Authorization'] = accessToken
@@ -41,5 +49,6 @@ export const useUserStore = defineStore('userStore', () => {
     userInfo,
     isLoggedIn,
     login,
+    signUp,
   }
 })
