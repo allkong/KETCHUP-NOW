@@ -39,7 +39,7 @@ public interface SpotRepository {
     })
     List<SpotEntity> getAll();
 
-    @Select(SELECT_ALL_SQL + " WHERE story_id=(SELECT story_id FROM stories WHERE uuid=#{storyUuid})")
+    @Select(SELECT_ALL_SQL + " WHERE story_id=(SELECT id FROM stories WHERE uuid=#{storyUuid})")
     @ResultMap("spots")
     List<SpotEntity> getSpotsOf(String storyUuid);
 
