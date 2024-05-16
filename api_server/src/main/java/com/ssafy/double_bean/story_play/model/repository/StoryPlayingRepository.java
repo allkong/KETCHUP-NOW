@@ -42,4 +42,12 @@ public interface StoryPlayingRepository {
     @Select(SELECT_ALL_SQL + " WHERE s.id=#{storyId}")
     @ResultMap("storyPlayingResult")
     List<StoryPlayingEntity> getByStoryId(int storyId);
+
+    @Select(SELECT_ALL_SQL + " WHERE u.uuid=#{playerUuid}")
+    @ResultMap("storyPlayingResult")
+    List<StoryPlayingEntity> getByPlayerUuid(String playerUuid);
+
+    @Select(SELECT_ALL_SQL + " WHERE u.uuid=#{playerUuid} AND cleared_at IS NULL")
+    @ResultMap("storyPlayingResult")
+    Optional<StoryPlayingEntity> getPlaying(String playerUuid);
 }

@@ -10,6 +10,7 @@ import com.ssafy.double_bean.user.dto.AuthenticatedUser;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -51,5 +52,13 @@ public class StoryPlayingService {
 
     public List<StoryPlayingEntity> getStoryPlayingsOf(int storyId) {
         return storyPlayingRepository.getByStoryId(storyId);
+    }
+
+    public List<StoryPlayingEntity> getStoryPlayingsOf(AuthenticatedUser requestedUser) {
+        return storyPlayingRepository.getByPlayerUuid(requestedUser.getUuid().toString());
+    }
+
+    public Optional<StoryPlayingEntity> getPlayingOne(AuthenticatedUser requestedUser) {
+        return storyPlayingRepository.getPlaying(requestedUser.getUuid().toString());
     }
 }
