@@ -60,7 +60,6 @@ export const useUserStore = defineStore('userStore', () => {
     sessionStorage.removeItem('accessToken')
   }
 
-  fetchUserInfo()
   return {
     userInfo,
     isLoggedIn,

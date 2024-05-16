@@ -57,7 +57,6 @@ instance.interceptors.response.use(
       }
     } else if (response.status === HttpStatus.UNAUTHORIZED) {
       router.push({ name: 'auth:login' })
-      alert()
     }
 
     return Promise.reject(error)
