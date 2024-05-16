@@ -22,8 +22,10 @@ import MenuComponent from '@/components/desktop/MenuComponent.vue'
   </a-layout-header>
 </template>
 
-<style scoped>
+<style scoped lang="scss">
 .header {
   background-color: #ffffff;
+  height: $headerHeight;
+  line-height: $headerHeight;
 }
 </style>

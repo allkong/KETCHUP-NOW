@@ -15,8 +15,13 @@ const mapInfo = {
 
 const mapContainer = ref(null)
 let mapInstance = null
-let markers = []
+let attractionMarkers = []
+let keywordMarkers = []
 const selectTag = ref(false)
+
+const props = defineProps({
+  keyword: String,
+})
 
 onMounted(() => {
   loadKakaoMap(mapContainer.value)
@@ -61,7 +66,7 @@ const getAttractions = () => {
     .get('/attractions', { params: mapInfo }, { withCredentials: true })
     .then((response) => response.data.data)
     .then((attractions) => {
-      // 받아온 관광지들로 마커 생성하여 markers 배열에 추가
+      // 받아온 관광지들로 마커 생성하여 attractionsMarkers 배열에 추가
       attractions.forEach((attraction) => {
         const markerPosition = new window.kakao.maps.LatLng(
           attraction.latitude,
@@ -71,7 +76,7 @@ const getAttractions = () => {
           position: markerPosition,
           title: attraction.title,
         })
-        markers.push(marker)
+        attractionMarkers.push(marker)
         marker.setMap(mapInstance)
       })
     })
@@ -79,7 +84,7 @@ const getAttractions = () => {
 }
 
 // 모든 마커 지도에서 없애기
-const removeAllMarkers = () => {
+const removeAllMarkers = (markers) => {
   markers.forEach((marker) => marker.setMap(null))
   markers = []
 }
@@ -89,14 +94,37 @@ const handleChange = () => {
   if (selectTag.value) {
     getAttractions()
   } else {
-    removeAllMarkers()
+    removeAllMarkers(attractionMarkers)
   }
+}
+
+// 키워드 검색
+const searchByKeyword = (keyword) => {
+  const places = new window.kakao.maps.services.Places()
+
+  places.keywordSearch(keyword, (result, status) => {
+    if (status === window.kakao.maps.services.Status.OK) {
+      removeAllMarkers() // 기존 마커 제거
+      // 검색 결과 마커 생성
+      result.forEach((attraction) => {
+        const markerPosition = new window.kakao.maps.LatLng(attraction.y, attraction.x)
+        const marker = new window.kakao.maps.Marker({
+          position: markerPosition,
+          title: attraction.place_name,
+        })
+        keywordMarkers.push(marker) // 마커 배열에 추가
+        marker.setMap(mapInstance) // 지도에 마커 표시
+      })
+    } else {
+      console.error('키워드 검색 실패:', status)
+    }
+  })
 }
 </script>
 
 <template>
   <div id="map-wrap">
-    <div ref="mapContainer" style="width: 100%; height: 70vh"></div>
+    <div ref="mapContainer" style="width: 100%; height: 100vh"></div>
     <a-checkable-tag
       class="map-button attraction-button"
       v-model:checked="selectTag"
@@ -110,5 +138,9 @@ const handleChange = () => {
 <style scoped>
 .attraction-button {
   left: 1rem;
+}
+
+.keyword-box {
+  top: 3rem;
 }
 </style>
