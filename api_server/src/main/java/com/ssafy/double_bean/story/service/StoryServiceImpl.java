@@ -291,13 +291,4 @@ public class StoryServiceImpl implements StoryService {
         String extension = filenameTokens[filenameTokens.length - 1];
         return UUID.randomUUID() + "." + extension;
     }
-
-    public List<StoryEntity> getStoriesOf(AuthenticatedUser author, UUID storyBaseUuid) {
-        return storyRepository.getStoriesOf(author.getUuid(), storyBaseUuid);
-    }
-
-    @Override
-    public List<StoryEntity> getStoryBasesAndWritingStory(AuthenticatedUser requestedUser) {
-        return storyRepository.getAll();
-    }
 }
