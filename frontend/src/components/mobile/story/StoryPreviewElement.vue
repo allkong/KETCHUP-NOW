@@ -14,7 +14,7 @@ const story = ref(props.story)
 <template>
   <a-card class="cleared-story-preview-card">
     <template #cover>
-      <img class="story-thumbnail-img" :src="story.thumbnailImageUrl" />
+      <img class="story-thumbnail-img" :src="story.thumbnailImageUri" />
     </template>
     <a-card-meta :title="story.title">
       <template #description>

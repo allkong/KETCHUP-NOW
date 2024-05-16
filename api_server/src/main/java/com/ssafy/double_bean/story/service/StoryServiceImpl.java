@@ -105,6 +105,8 @@ public class StoryServiceImpl implements StoryService {
             throw new HttpResponseException(ErrorCode.HAS_NO_OWNERSHIP);
         }
 
+        setPresignedUriFields(story);
+
         return story;
     }
 
