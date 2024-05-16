@@ -54,6 +54,12 @@ export const useUserStore = defineStore('userStore', () => {
     sessionStorage.setItem('accessToken', accessToken)
   }
 
+  function logout() {
+    axios.post('/auth/logout')
+    axios.defaults.headers.common['Authorization'] = null
+    sessionStorage.removeItem('accessToken')
+  }
+
   fetchUserInfo()
   return {
     userInfo,
@@ -61,5 +67,6 @@ export const useUserStore = defineStore('userStore', () => {
     login,
     signUp,
     fetchUserInfo,
+    logout,
   }
 })
