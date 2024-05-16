@@ -11,6 +11,7 @@ import MobileHomeView from '@/views/mobile/HomeView.vue'
 import MobileSearchView from '@/views/mobile/SearchView.vue'
 import MobilePlayView from '@/views/mobile/PlayView.vue'
 import MobileClearedStoryListView from '@/views/mobile/ClearedStoryListView.vue'
+import MobileStoryRecordView from '@/views/mobile/MobileStoryRecordView.vue'
 import MobileMyPageView from '@/views/mobile/MyPageView.vue'
 import MobileMyReviewListView from '@/views/mobile/MyReviewListView.vue'
 import MobileNotFoundView from '@/views/mobile/NotFoundView.vue'
@@ -77,6 +78,11 @@ const mobileRouter = createRouter({
       path: '/stories/cleared',
       name: 'story:cleared-list',
       component: MobileClearedStoryListView,
+    },
+    {
+      path: '/stories/cleared/tmp',
+      name: 'story:cleared-record',
+      component: MobileStoryRecordView,
     },
     {
       path: '/user/my-page',

@@ -1,11 +1,8 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 const { VITE_KAKAO_MAP_KEY } = import.meta.env
 import StoryModal from '@/components/mobile/modal/StoryModal.vue'
-
-const props = defineProps({
-  navbarHeight: Number,
-})
+import RegionButton from '@/components/mobile/button/RegionButton.vue'
 
 const mapContainer = ref(null)
 let mapInstance = null
@@ -67,11 +64,6 @@ const getStories = () => {
   })
 }
 
-// 지도 높이 구하기
-const customMapHeight = computed(() => {
-  return `--map-height: ${window.innerHeight - props.navbarHeight}px`
-})
-
 const closeStoryModal = () => {
   modalOpen.value = false
 }
@@ -84,13 +76,15 @@ const closeStoryModal = () => {
     :clicked-marker="clickedMarker"
     @close-modal="closeStoryModal"
   />
-  <div :style="customMapHeight" class="map-style">
+  <div id="map-wrap">
     <div ref="mapContainer" style="height: 100%"></div>
+    <a-button class="map-button list-button">목록</a-button>
+    <RegionButton />
   </div>
 </template>
 
 <style scoped>
-.map-style {
-  height: var(--map-height);
+.list-button {
+  right: 1rem;
 }
 </style>

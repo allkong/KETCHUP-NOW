@@ -14,10 +14,7 @@ import MenuComponent from '@/components/mobile/MenuComponent.vue'
   bottom: 0;
   width: 100%;
   height: $footerHeight;
-}
-
-.navbar-footer {
-  background-color: #fff;
+  background-color: white;
   border-top: 1px solid #eaeaea;
 }
 </style>
