@@ -8,6 +8,10 @@ public enum ErrorCode {
     NOT_READABLE_REQUEST(HttpStatus.BAD_REQUEST, "E0002", "Not readable request."),
     BAD_TOKEN_TYPE(HttpStatus.BAD_REQUEST, "E0003", "Given token's type is unexpected."),
     INVALID_AUTHORIZATION_HEADER(HttpStatus.BAD_REQUEST, "E0004", "Invalid 'Authorization' header value."),
+    ALREADY_PUBLISHED_STORY(HttpStatus.BAD_REQUEST, "E0005", "Can't modify already published story."),
+    CANNOT_PLAY_WRITING_STORY(HttpStatus.BAD_REQUEST, "E0006", "Can't play story in 'WRITING' status."),
+    SPOT_MODIFY_FAILED(HttpStatus.BAD_REQUEST, "E0007", "Given request to modify spot is invalid."),
+    ONLY_ONE_WRITING_STORY(HttpStatus.BAD_REQUEST, "E0008", "Can't duplicate story with status 'WRITING'."),
 
     // 401 Unauthorized
     UNKNOWN_USER(HttpStatus.UNAUTHORIZED, "E0001", "No such user with given credential."),
@@ -15,6 +19,7 @@ public enum ErrorCode {
 
     // 403 Forbidden
     EXPIRED_TOKEN(HttpStatus.FORBIDDEN, "E0001", "Given token is expired."),
+    HAS_NO_OWNERSHIP(HttpStatus.FORBIDDEN, "E0002", "You have no permission to access this object."),
 
     // 404 Not Found
     NOT_FOUND(HttpStatus.NOT_FOUND, "E0001", "Cannot find requested resource"),
@@ -22,7 +27,8 @@ public enum ErrorCode {
     // 409 Conflict
     DUPLICATED_FIELD_VALUE(HttpStatus.CONFLICT, "E0001", "There is duplicated field value. " +
             "Check duplication checking API result."),
-    ;
+    USER_ALREADY_PLAYING_GAME(HttpStatus.CONFLICT, "E0002", "Requested player is already playing game."),
+    CANNOT_DELETE_STORY_WITH_PLAYER(HttpStatus.CONFLICT, "E0003", "Failed to do job because of requested story have playing records.");
 
     private final HttpStatus httpStatus;
     private final String detailCode;

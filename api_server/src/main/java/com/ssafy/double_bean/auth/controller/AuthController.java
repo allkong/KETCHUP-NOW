@@ -69,7 +69,7 @@ public class AuthController {
             @ApiResponse(responseCode = "401", description = "인증 실패", content = @Content(schema = @Schema(implementation = Void.class)))
     })
     public ResponseEntity<Void> issueToken(HttpServletRequest request, HttpServletResponse response) {
-        String token = authService.resolveToken(request);
+        String token = authService.resolveRefreshToken(request);
         if (token == null) {
             throw new HttpResponseException(ErrorCode.INVALID_TOKEN);
         }

@@ -1,8 +1,13 @@
 <script setup>
 import _ from 'lodash'
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
 import TextLogo from '@/components/mobile/TextLogo.vue'
+import { useUserStore } from '@/stores/user-store'
+
+const router = useRouter()
+const userStore = useUserStore()
 
 const loginForm = ref({
   loginId: '',
@@ -19,11 +24,18 @@ function doLogin() {
   }
 
   isProcessingLogin.value = true
-  setTimeout(() => {
-    // 로그인 처리
-    isProcessingLogin.value = false
-    message.success('로그인 성공!')
-  }, 1000)
+  userStore
+    .login(loginForm.value)
+    .then(() => {
+      message.success('로그인 성공!')
+      router.push({ name: 'search' })
+    })
+    .catch((error) => {
+      message.error('ID와 비밀번호를 다시 확인해 주세요.')
+    })
+    .finally(() => {
+      isProcessingLogin.value = false
+    })
 }
 </script>
 

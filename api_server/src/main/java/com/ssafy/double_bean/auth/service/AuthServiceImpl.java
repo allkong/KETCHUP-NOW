@@ -12,6 +12,7 @@ import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -24,7 +25,6 @@ import org.springframework.util.StringUtils;
 import javax.crypto.SecretKey;
 import java.util.*;
 
-import static com.ssafy.double_bean.common.constant.TimeUnit.HOURS;
 import static com.ssafy.double_bean.common.constant.TimeUnit.MONTHS;
 
 @Service
@@ -59,7 +59,8 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public SingleTokenDto getTokenWithRefreshToken(String token) {
         UUID uuid = parseUuidFrom(token);
-        TokenType type = getClaims(token).get("type", TokenType.class);
+        String stringType = getClaims(token).get("type", String.class);
+        TokenType type = TokenType.valueOf(stringType);
         if (type == TokenType.ACCESS) {
             throw new HttpResponseException(ErrorCode.BAD_TOKEN_TYPE);
         }
@@ -101,8 +102,8 @@ public class AuthServiceImpl implements AuthService {
     public String createToken(String identifier, TokenType type) {
         JsonClaim claim = new JsonClaim(identifier, type);
         return switch (type) {
-            case ACCESS -> createToken(claim, HOURS);
-            case REFRESH -> createToken(claim, MONTHS);
+            case ACCESS -> createToken(claim, 3 * MONTHS);
+            case REFRESH -> createToken(claim, 12 * MONTHS);
             default -> throw new IllegalStateException("Unknown token type : " + type);
         };
     }
@@ -118,10 +119,27 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public String resolveToken(HttpServletRequest request) {
+    public String resolveAccessToken(HttpServletRequest request) {
         String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(TOKEN_PREFIX)) {
             return bearerToken.substring(TOKEN_PREFIX.length());
+        }
+        return null;
+    }
+
+    @Override
+    public String resolveRefreshToken(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies == null) {
+            return null;
+        }
+
+        Cookie refreshTokenCookie = Arrays.stream(cookies)
+                .filter(cookie -> cookie.getName().equals("refreshToken"))
+                .findFirst().orElseThrow(() -> new HttpResponseException(ErrorCode.INVALID_TOKEN));
+        String refreshToken = refreshTokenCookie.getValue();
+        if (StringUtils.hasText(refreshToken)) {
+            return refreshToken;
         }
         return null;
     }

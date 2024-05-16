@@ -24,8 +24,10 @@ public interface AuthService {
 
     UUID validateAndGetUuid(String token, TokenType requiredType);
 
-    String resolveToken(HttpServletRequest request);
+    String resolveAccessToken(HttpServletRequest request);
 
+    String resolveRefreshToken(HttpServletRequest request);
+    
     enum TokenType {
         ACCESS, REFRESH
     }

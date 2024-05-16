@@ -15,4 +15,8 @@ public interface UserService {
 
     // UUID로 사용자를 찾는다.
     Optional<UserEntity> findUserByUuid(UUID uuid);
+
+    Boolean isUsedLoginId(String loginId);
+
+    Boolean isUsedNickname(String nickname);
 }

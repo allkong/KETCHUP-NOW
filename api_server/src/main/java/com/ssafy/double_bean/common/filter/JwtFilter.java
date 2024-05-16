@@ -1,15 +1,5 @@
 package com.ssafy.double_bean.common.filter;
 
-import java.io.IOException;
-import java.util.UUID;
-
-import org.springframework.http.MediaType;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
-import org.springframework.web.filter.OncePerRequestFilter;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.ssafy.double_bean.auth.config.WebSecurityConfig;
@@ -18,11 +8,19 @@ import com.ssafy.double_bean.common.exception.ErrorCode;
 import com.ssafy.double_bean.common.exception.ErrorResponse;
 import com.ssafy.double_bean.common.exception.HttpResponseException;
 import com.ssafy.double_bean.user.dto.AuthenticatedUser;
-
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.MediaType;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
+import org.springframework.web.filter.OncePerRequestFilter;
+
+import java.io.IOException;
+import java.util.UUID;
 
 @Component
 public class JwtFilter extends OncePerRequestFilter {
@@ -38,10 +36,9 @@ public class JwtFilter extends OncePerRequestFilter {
 
     @Override
     public void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
-        String jwt = authService.resolveToken(request);
-        String requestUri = request.getRequestURI();
-
         try {
+            String jwt = authService.resolveAccessToken(request);
+            String requestUri = request.getRequestURI();
             if (!webSecurityConfig.isAnonymousAllowed(requestUri) && StringUtils.hasText(jwt)) {
                 // Request scoped Bean으로 간편하게 사용자 정보에 접근하기 위해 사용
                 UUID uuid = authService.validateAndGetUuid(jwt, AuthService.TokenType.ACCESS);

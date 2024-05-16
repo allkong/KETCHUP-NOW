@@ -38,4 +38,10 @@ public interface UserRepository {
     @Insert({"INSERT INTO users(login_id, nickname) VALUES (#{loginId}, #{nickname}); ",
             "INSERT INTO passwords(user_id, password, salt) VALUES (LAST_INSERT_ID(), #{password}, #{salt});"})
     void insert(UserEntity dto);
+
+    @Select("SELECT IF(COUNT(*)=1, 1, 0) FROM users WHERE login_id=#{loginId}")
+    boolean isUsedLoginId(String loginId);
+
+    @Select("SELECT IF(COUNT(*)=1, 1, 0) FROM users WHERE nickname=#{nickname}")
+    boolean isUsedNickname(String nickname);
 }

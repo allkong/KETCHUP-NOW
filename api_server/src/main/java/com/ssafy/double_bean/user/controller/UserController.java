@@ -1,5 +1,6 @@
 package com.ssafy.double_bean.user.controller;
 
+import com.ssafy.double_bean.common.dto.DuplicationCheckResponseDto;
 import com.ssafy.double_bean.common.exception.ErrorCode;
 import com.ssafy.double_bean.common.exception.ErrorResponse;
 import com.ssafy.double_bean.common.exception.HttpResponseException;
@@ -55,5 +56,22 @@ public class UserController {
     public ResponseEntity<UserResponseDto> getRequestedUserInfo() {
         UserEntity userEntity = userService.findUserByUuid(requestedUser.getUuid()).orElseThrow(() -> new HttpResponseException(ErrorCode.UNKNOWN_USER));
         return ResponseEntity.ok(UserResponseDto.fromEntity(userEntity));
+    }
+
+    @GetMapping("/duplication-check")
+    public ResponseEntity<DuplicationCheckResponseDto> isDuplicatedLoginId(@RequestParam("key") String key, @RequestParam("value") String value) {
+        if (key.equals("loginId")) {
+            DuplicationCheckResponseDto result = new DuplicationCheckResponseDto(
+                    "loginId", value, userService.isUsedLoginId(value)
+            );
+            return ResponseEntity.ok(result);
+        } else if (key.equals("nickname")) {
+            DuplicationCheckResponseDto result = new DuplicationCheckResponseDto(
+                    "nickname", value, userService.isUsedNickname(value)
+            );
+            return ResponseEntity.ok(result);
+        } else {
+            throw new HttpResponseException(ErrorCode.INVALID_REQUEST);
+        }
     }
 }

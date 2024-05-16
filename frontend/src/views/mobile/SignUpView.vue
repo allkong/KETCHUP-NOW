@@ -1,13 +1,17 @@
 <script setup>
 import _ from 'lodash'
-import { computed, ref } from 'vue'
+import { computed, inject, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import TextLogo from '@/components/mobile/TextLogo.vue'
 import PasswordCheckingInput from '@/components/mobile/auth/PasswordCheckingInput.vue'
 import { PASSWORD_VERIFICATION_STATUS } from '@/components/mobile/auth/variables'
 import { message } from 'ant-design-vue'
+import { useUserStore } from '@/stores/user-store'
+
+const axios = inject('axios')
 
 const router = useRouter()
+const userStore = useUserStore()
 
 const signUpForm = ref({
   loginId: '',
@@ -47,10 +51,29 @@ function onPasswordFormChange(updatedPasswordForm, updatedPasswordVerificationSt
   passwordVerificationStatus.value = updatedPasswordVerificationStatus
 }
 
+const isDuplicatedLoginId = ref(false)
+const isDuplicatedNickname = ref(false)
+async function checkFieldDuplication(key, value) {
+  await axios
+    .get('/users/duplication-check', {
+      params: {
+        key,
+        value,
+      },
+    })
+    .then((resp) => {
+      if (key === 'loginId') {
+        isDuplicatedLoginId.value = resp.data.isDuplicated
+      } else if (key === 'nickname') {
+        isDuplicatedNickname.value = resp.data.isDuplicated
+      }
+    })
+}
+
 const isProcessingSignUp = ref(false)
 const signUpBtn = ref(null)
 
-function doSignUp() {
+async function doSignUp() {
   if (
     isLoginIdValidated.value &&
     passwordVerificationStatus.value !== PASSWORD_VERIFICATION_STATUS.VERIFIED &&
@@ -60,12 +83,33 @@ function doSignUp() {
     return
   }
 
+  await checkFieldDuplication('loginId', signUpForm.value.loginId)
+  await checkFieldDuplication('nickname', signUpForm.value.nickname)
+
+  if (isDuplicatedLoginId.value) {
+    message.error('이미 사용중인 ID입니다 ㅠㅠ')
+    return
+  } else if (isDuplicatedNickname.value) {
+    message.error('이미 사용중인 닉네임입니다 ㅠㅠ')
+    return
+  }
+
   isProcessingSignUp.value = true
-  setTimeout(() => {
-    message.success('회원 가입 성공!')
-    isProcessingSignUp.value = false
-    router.push({ name: 'auth:login' })
-  }, 1000)
+  userStore
+    .signUp({
+      password: passwordForm.value.password,
+      ...signUpForm.value,
+    })
+    .then(() => {
+      message.success('회원 가입 완료!')
+      router.push({ name: 'auth:login' })
+    })
+    .catch((error) => {
+      message.error('회원 가입에 실패했어요 ㅠㅠ')
+    })
+    .finally(() => {
+      isProcessingSignUp.value = false
+    })
 }
 </script>
 
@@ -75,9 +119,15 @@ function doSignUp() {
     <a-form :label-col="{ col: 8 }" @submit.prevent="doSignUp" autocomplete="off">
       <h1>Sign Up</h1>
       <a-form-item label="ID" :rules="[{ required: true, message: 'ID를 입력해 주세요.' }]">
-        <a-input v-model:value="signUpForm.loginId" />
+        <a-input
+          v-model:value="signUpForm.loginId"
+          @keyup="() => checkFieldDuplication('loginId', signUpForm.loginId)"
+        />
         <div class="verification-failed-msg" v-show="!isLoginIdValidated">
           {{ loginValidationMessage }}
+        </div>
+        <div class="verification-failed-msg" v-show="isDuplicatedLoginId">
+          이미 사용 중인 ID입니다.
         </div>
       </a-form-item>
       <a-form-item label="PW" :rules="[{ required: true, message: '비밀번호를 입력해 주세요.' }]">
@@ -96,9 +146,15 @@ function doSignUp() {
         label="Nickname"
         :rules="[{ required: true, message: '닉네임을 입력해 주세요.' }]"
       >
-        <a-input v-model:value="signUpForm.nickname" />
+        <a-input
+          v-model:value="signUpForm.nickname"
+          @keyup="() => checkFieldDuplication('nickname', signUpForm.nickname)"
+        />
         <div class="verification-failed-msg" v-show="!isNicknameValidated">
           {{ nicknameValidationMessage }}
+        </div>
+        <div class="verification-failed-msg" v-show="isDuplicatedNickname">
+          이미 사용 중인 닉네임입니다.
         </div>
       </a-form-item>
       <a-form-item>
