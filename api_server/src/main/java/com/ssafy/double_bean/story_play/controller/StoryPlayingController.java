@@ -50,4 +50,10 @@ public class StoryPlayingController {
         StoryPlayingResponseDto dto = StoryPlayingResponseDto.fromEntity(entity);
         return ResponseEntity.ok(dto);
     }
+
+    @DeleteMapping("/playings/now")
+    public ResponseEntity<Void> deleteCurrentPlaying() {
+        storyPlayingService.deleteCurrentPlay(requestedUser);
+        return ResponseEntity.noContent().build();
+    }
 }

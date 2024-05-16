@@ -59,6 +59,12 @@ public class StoryPlayingService {
     }
 
     public Optional<StoryPlayingEntity> getPlayingOne(AuthenticatedUser requestedUser) {
-        return storyPlayingRepository.getPlaying(requestedUser.getUuid().toString());
+        return storyPlayingRepository.getCurrentPlaying(requestedUser.getUuid().toString());
+    }
+
+    public void deleteCurrentPlay(AuthenticatedUser requestedUser) {
+        StoryPlayingEntity entity = getPlayingOne(requestedUser)
+                .orElseThrow(() -> new HttpResponseException(ErrorCode.NOT_FOUND));
+        storyPlayingRepository.deleteCurrentPlaying(requestedUser.getUuid().toString());
     }
 }
