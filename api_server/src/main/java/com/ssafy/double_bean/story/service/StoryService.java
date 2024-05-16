@@ -1,5 +1,6 @@
 package com.ssafy.double_bean.story.service;
 
+import com.ssafy.double_bean.attraction.dto.CoordinateDto;
 import com.ssafy.double_bean.story.dto.StoryCreateRequestDto;
 import com.ssafy.double_bean.story.dto.StoryUpdateRequestDto;
 import com.ssafy.double_bean.story.model.entity.StoryEntity;
@@ -26,4 +27,6 @@ public interface StoryService {
     void deleteStory(UUID storyUuid, AuthenticatedUser requestedUser);
 
     StoryEntity duplicateStory(UUID storyUuid, AuthenticatedUser requestedUser) throws URISyntaxException;
+
+    List<StoryEntity> getStoriesWithin(CoordinateDto leftBottom, CoordinateDto rightBottom);
 }

@@ -1,5 +1,6 @@
 package com.ssafy.double_bean.story.service;
 
+import com.ssafy.double_bean.attraction.dto.CoordinateDto;
 import com.ssafy.double_bean.aws.s3.S3Service;
 import com.ssafy.double_bean.common.exception.ErrorCode;
 import com.ssafy.double_bean.common.exception.HttpResponseException;
@@ -273,6 +274,13 @@ public class StoryServiceImpl implements StoryService {
         setPresignedUriFields(duplicated);
 
         return duplicated;
+    }
+
+    @Override
+    public List<StoryEntity> getStoriesWithin(CoordinateDto leftBottom, CoordinateDto rightBottom) {
+        List<StoryEntity> entities = storyRepository.getStoriesWithin(leftBottom, rightBottom);
+        entities.stream().forEach(e -> setPresignedUriFields(e));
+        return entities;
     }
 
     private String getRandomFilenameFromUri(URI uri) {

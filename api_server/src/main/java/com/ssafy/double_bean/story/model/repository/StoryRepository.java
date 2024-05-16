@@ -1,5 +1,6 @@
 package com.ssafy.double_bean.story.model.repository;
 
+import com.ssafy.double_bean.attraction.dto.CoordinateDto;
 import com.ssafy.double_bean.common.model.repository.type_handler.URITypeHandler;
 import com.ssafy.double_bean.common.model.repository.type_handler.UUIDTypeHandler;
 import com.ssafy.double_bean.story.model.entity.StoryEntity;
@@ -92,4 +93,33 @@ public interface StoryRepository {
 
     @Delete("DELETE FROM stories WHERE id=#{id}")
     void deleteById(int id);
+
+    @Select({
+            "WITH in_bound_bases AS (",
+            "   SELECT story_base_id FROM spots JOIN stories ON spots.story_id=stories.id",
+            "   WHERE",
+            "   (",
+            "       (latitude BETWEEN #{leftBottom.latitude} AND #{rightTop.latitude})",
+            "       AND",
+            "       (longitude BETWEEN #{leftBottom.longitude} AND #{rightTop.longitude})",
+            "   )",
+            "   AND",
+            "   (status='PUBLISHED')",
+            "   GROUP BY story_base_id",
+            ")",
+            "SELECT s.id, s.uuid, sb.uuid AS sb_uuid, u.nickname AS author_nickname, ",
+            "u.uuid AS author_uuid, version, status, title, description, sido, gungu, image_uri, thumbnail_image_uri, s.created_at, s.modified_at ",
+            "FROM stories s",
+            "JOIN in_bound_bases ON in_bound_bases.story_base_id=s.story_base_id ",
+            "JOIN story_bases sb ON s.story_base_id=sb.id ",
+            "JOIN users u ON sb.author_id=u.id ",
+            "WHERE version=",
+            "(",
+            "   SELECT MAX(version)",
+            "   FROM stories",
+            "   WHERE story_base_id=in_bound_bases.story_base_id AND status='PUBLISHED'",
+            ")"
+    })
+    @ResultMap("storyResult")
+    List<StoryEntity> getStoriesWithin(CoordinateDto leftBottom, CoordinateDto rightTop);
 }

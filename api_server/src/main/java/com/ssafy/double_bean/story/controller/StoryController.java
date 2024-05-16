@@ -1,5 +1,6 @@
 package com.ssafy.double_bean.story.controller;
 
+import com.ssafy.double_bean.attraction.dto.CoordinateDto;
 import com.ssafy.double_bean.story.dto.*;
 import com.ssafy.double_bean.story.model.entity.SpotEntity;
 import com.ssafy.double_bean.story.model.entity.StoryEntity;
@@ -100,6 +101,20 @@ public class StoryController {
         StoryEntity duplicatedEntity = storyService.duplicateStory(storyUuid, requestedUser);
         StoryResponseDto dto = StoryResponseDto.fromEntity(duplicatedEntity);
         return ResponseEntity.ok(dto);
+    }
+
+    // 2개의 위경도 좌표로 표현된 사각형 구역 안에 1개 이상의 스팟이 포함된 스토리 목록을 조회한다.
+    // 단, 여러 개의 버전이 있는 경우 배포된 스토리 중 가장 최신의 스토리를 반환한다.
+    @GetMapping("/stories")
+    public ResponseEntity<List<StoryResponseDto>> getStoriesBetween(@RequestParam("left-bottom-latitude") double leftBottomLatitude,
+                                                                    @RequestParam("left-bottom-longitude") double leftBottomLongitude,
+                                                                    @RequestParam("right-top-latitude") double rightTopLatitude,
+                                                                    @RequestParam("right-top-longitude") double rightTopLongitude) {
+        CoordinateDto leftBottom = new CoordinateDto(leftBottomLatitude, leftBottomLongitude);
+        CoordinateDto rightTop = new CoordinateDto(rightTopLatitude, rightTopLongitude);
+        List<StoryEntity> entities = storyService.getStoriesWithin(leftBottom, rightTop);
+        List<StoryResponseDto> dtos = entities.stream().map(StoryResponseDto::fromEntity).toList();
+        return ResponseEntity.ok(dtos);
     }
 
     // 특정 스토리에 등록된 스팟의 목록을 조회한다.

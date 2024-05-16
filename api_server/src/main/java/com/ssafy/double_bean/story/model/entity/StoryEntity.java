@@ -197,8 +197,8 @@ public class StoryEntity implements Cloneable {
             clone.setDescription(description == null ? null : description);
             clone.setSido(sido == null ? null : sido);
             clone.setGungu(gungu == null ? null : gungu);
-            clone.setImageUri(new URI(imageUri.toString()));
-            clone.setThumbnailImageUri(new URI(thumbnailImageUri.toString()));
+            clone.setImageUri(imageUri == null ? null : new URI(imageUri.toString()));
+            clone.setThumbnailImageUri(thumbnailImageUri == null ? null : new URI(thumbnailImageUri.toString()));
             // 생성/수정 일시는 새로 할당
             clone.setCreatedAt(LocalDateTime.now());
             clone.setModifiedAt(null);
