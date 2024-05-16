@@ -10,8 +10,8 @@ import PasswordCheckingInput from '@/components/mobile/auth/PasswordCheckingInpu
 import { PASSWORD_VERIFICATION_STATUS } from '@/components/mobile/auth/variables'
 import { useUserStore } from '@/stores/user-store'
 
-const router = useRouter()
 const userStore = useUserStore()
+const router = useRouter()
 
 const passwordForm = ref({
   password: '',

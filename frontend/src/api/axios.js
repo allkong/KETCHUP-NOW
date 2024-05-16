@@ -1,69 +1,63 @@
 import axios from 'axios'
-import { useRouter } from 'vue-router'
-
-import HttpStatus from './http-status'
 import { message } from 'ant-design-vue'
 
-const { VITE_SERVER_URL } = import.meta.env
+import HttpStatus from './http-status'
+import router from '@/router'
 
-const router = useRouter()
+const { VITE_SERVER_URL } = import.meta.env
 
 export const instance = axios.create({
   baseURL: VITE_SERVER_URL,
   withCredentials: true,
 })
-
-// Request 발생 시 적용할 기본 속성 설정
+// Request 발생 시 적용할 기본 속성 설정.
 instance.defaults.headers.post['Content-Type'] = 'application/json'
 instance.defaults.headers.put['Content-Type'] = 'application/json'
-instance.defaults.headers.patch['Content-Type'] = 'application/json'
+
+instance.interceptors.request.use(
+  (request) => {
+    return request
+  },
+  (error) => {
+    return Promise.reject(error)
+  },
+)
 
 let isTokenRefreshing = false
+
 instance.interceptors.response.use(
   (response) => {
     return response
   },
   async (error) => {
-    // 에러가 발생한 요청과 응답 객체 저장
-    const { prevRequest, response } = error
+    // 에러가 발생했던 요청과 그 응답 객체를 저장.
+    const { config, response } = error
 
-    // 토큰 만료 감지
+    // 응답으로 Unauthorized가 발생한 경우.
+    // -> 새로고침으로 토큰이 사라졌거나, 만료, 조작된 경우.
+    // -> RefreshToken을 이용하여 재발급 진행.
     if (response.status === HttpStatus.FORBIDDEN) {
-      if (response.status === HttpStatus.FORBIDDEN) {
-        // 토큰 재발급이 이루어지는 도중에 새로운 요청이 들어오는 것을 방지
-        if (!isTokenRefreshing) {
-          // Lock
-          isTokenRefreshing = true
-          // Refresh token은 쿠키에 저장되므로 withCredentials 필요
-          return await instance
-            .post('/auth/token', {}, { withCredentials: true })
-            // 재발급 성공
-            .then((response) => {
-              // Access token 갱신
-              const newAccessToken = response.headers.getAuthorization()
-              instance.defaults.headers.common['Authorization'] = newAccessToken
-              // 이전에 시도하려던 요청에 새 Access token을 넣어서
-              prevRequest.headers.setAuthorization(newAccessToken)
-              sessionStorage.setItem('accessToken', newAccessToken)
-              // 다시 요청
-              return instance(prevRequest)
-            })
-            // 재발급 실패
-            .catch((error) => {
-              router.push({ name: 'auth:login' })
-              return Promise.reject(error)
-            })
-            .finally(() => {
-              // Lock release
-              isTokenRefreshing = false
-            })
-        }
+      // /auth/refresh로 요청을 진행해야 하므로, 기존의 요청을 저장.
+      const prevRequest = config
+
+      // 토큰 재발급이 이루어지는 중간에 새로운 요청이 들어오는 것을 방지.
+      if (!isTokenRefreshing) {
+        isTokenRefreshing = true
+
+        return await instance.post('/auth/token', { withCredentials: true }).then((response) => {
+          const newAccessToken = response.headers.authorization
+
+          instance.defaults.headers.common['Authorization'] = newAccessToken
+          prevRequest.headers.authorization = newAccessToken
+
+          isTokenRefreshing = false
+
+          return instance(prevRequest)
+        })
       }
-    }
-    // 아예 Access token도 없는 경우
-    else if (response.status === HttpStatus.UNKNOWN_USER && response.data.detailCode === 'E0001') {
-      // 로그인 페이지로 이동
-      router.replace('login')
+    } else if (response.status === HttpStatus.UNAUTHORIZED) {
+      router.push({ name: 'auth:login' })
+      alert()
     }
 
     return Promise.reject(error)

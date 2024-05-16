@@ -4,7 +4,11 @@ import { defineStore } from 'pinia'
 export const useUserStore = defineStore('userStore', () => {
   const axios = inject('axios') // Provide한 axios
 
-  const userInfo = ref(null)
+  const userInfo = ref({
+    nickname: '',
+    loginId: '',
+    createdAt: '',
+  })
   const isLoggedIn = computed(() => userInfo.value !== null)
 
   axios.post('/auth/token').then((resp) => {
@@ -23,7 +27,8 @@ export const useUserStore = defineStore('userStore', () => {
           const newAccessToken = response.headers.getAuthorization()
           setAccessToken(axios, newAccessToken)
           // 사용자 정보 state 갱신
-          userInfo.value = (await axios.get('/users/me')).data
+          // userInfo.value = (await axios.get('/users/me')).data
+          fetchUserInfo()
         })
     )
   }
@@ -36,6 +41,12 @@ export const useUserStore = defineStore('userStore', () => {
     })
   }
 
+  const fetchUserInfo = async () => {
+    return axios.get('/users/me').then((resp) => {
+      userInfo.value = resp.data
+    })
+  }
+
   function setAccessToken(axios, accessToken) {
     // 모든 요청에 Access token이 포함되도록 함
     axios.defaults.headers.common['Authorization'] = accessToken
@@ -43,10 +54,12 @@ export const useUserStore = defineStore('userStore', () => {
     sessionStorage.setItem('accessToken', accessToken)
   }
 
+  fetchUserInfo()
   return {
     userInfo,
     isLoggedIn,
     login,
     signUp,
+    fetchUserInfo,
   }
 })

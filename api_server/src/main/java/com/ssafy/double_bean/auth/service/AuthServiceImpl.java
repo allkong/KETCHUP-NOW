@@ -25,8 +25,7 @@ import org.springframework.util.StringUtils;
 import javax.crypto.SecretKey;
 import java.util.*;
 
-import static com.ssafy.double_bean.common.constant.TimeUnit.MONTHS;
-import static com.ssafy.double_bean.common.constant.TimeUnit.SECONDS;
+import static com.ssafy.double_bean.common.constant.TimeUnit.*;
 
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -105,7 +104,7 @@ public class AuthServiceImpl implements AuthService {
     public String createToken(String identifier, TokenType type) {
         JsonClaim claim = new JsonClaim(identifier, type);
         return switch (type) {
-            case ACCESS -> createToken(claim, 1 * HOURS);
+            case ACCESS -> createToken(claim, 3 * SECONDS);
             case REFRESH -> createToken(claim, 3 * MONTHS);
             default -> throw new IllegalStateException("Unknown token type : " + type);
         };
