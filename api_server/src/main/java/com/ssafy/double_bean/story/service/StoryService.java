@@ -17,6 +17,8 @@ public interface StoryService {
 
     List<StoryEntity> getStoryBaseAndLatestStory(AuthenticatedUser requestedUser);
 
+    StoryEntity setPresignedUriFields(StoryEntity entity);
+
     List<StoryEntity> getStoriesOf(UUID storyBaseUuid, AuthenticatedUser requestedUser);
 
     StoryEntity getStory(UUID storyUuid, AuthenticatedUser requestedUser);
