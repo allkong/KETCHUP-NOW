@@ -8,7 +8,8 @@ const { VITE_SERVER_URL } = import.meta.env
 const router = useRouter()
 
 export const instance = axios.create({
-  baseURL: VITE_SERVER_URL
+  baseURL: VITE_SERVER_URL,
+  withCredentials: true,
 })
 
 // Request 발생 시 적용할 기본 속성 설정
@@ -43,6 +44,8 @@ instance.interceptors.response.use(
 
             // 이전에 시도하려던 요청에 새 Access token을 넣어서
             prevRequest.headers.setAuthorization(newAccessToken)
+            sessionStorage.setItem('accessToken', newAccessToken)
+
             // 다시 요청
             return instance(prevRequest)
           })
@@ -64,5 +67,5 @@ instance.interceptors.response.use(
     }
 
     return Promise.reject(error)
-  }
+  },
 )
