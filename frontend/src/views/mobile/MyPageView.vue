@@ -8,8 +8,10 @@ import NavigationView from '@/views/mobile/includes/NavigationView.vue'
 import GoBackIcon from '@/components/mobile/functional-icons/GoBackIcon.vue'
 import PasswordCheckingInput from '@/components/mobile/auth/PasswordCheckingInput.vue'
 import { PASSWORD_VERIFICATION_STATUS } from '@/components/mobile/auth/variables'
+import { useUserStore } from '@/stores/user-store'
 
 const router = useRouter()
+const userStore = useUserStore()
 
 const passwordForm = ref({
   password: '',
@@ -38,6 +40,9 @@ function onPasswordFormChange(updatedPasswordForm, updatedPasswordVerificationSt
 }
 
 function doPasswordChange() {
+  message.warning('준비 중인 기능입니다...')
+  return
+
   switch (passwordVerificationStatus.value) {
     case PASSWORD_VERIFICATION_STATUS.NOT_YET:
       message.warning('비밀번호를 입력해 주세요.')
@@ -72,7 +77,10 @@ function goMyReviewListPage() {
     <GoBackIcon />
     <div id="greeting-container">
       <img id="logo-img" src="@/assets/logo.png" alt="logo-img" />
-      <h1>여행자 <span id="heading-nickname">팔척장신</span>님!</h1>
+      <h1>
+        여행자 <span id="heading-nickname">{{ userStore.userInfo.nickname }}</span
+        >님!
+      </h1>
       <img id="logo-img" class="flip-horizontally" src="@/assets/logo.png" alt="logo-img" />
     </div>
     <a-card title="회원 정보">
@@ -80,19 +88,19 @@ function goMyReviewListPage() {
         <a-row>
           <a-col :span="5" class="input-label">ID</a-col>
           <a-col :span="19">
-            <a-input value="pcjs156" readonly />
+            <a-input :value="userStore.userInfo.loginId" readonly />
           </a-col>
         </a-row>
         <a-row>
           <a-col :span="5" class="input-label">닉네임</a-col>
           <a-col :span="19">
-            <a-input value="팔척장신" readonly />
+            <a-input :value="userStore.userInfo.nickname" readonly />
           </a-col>
         </a-row>
         <a-row>
           <a-col :span="5" class="input-label">가입일</a-col>
           <a-col :span="19">
-            <a-input value="2024-05-10" readonly />
+            <a-input :value="userStore.userInfo.createdAt.split('T')[0]" readonly />
           </a-col>
         </a-row>
         <a-collapse :bordered="false">
