@@ -122,6 +122,7 @@ if (isMobile) {
   router = mobileRouter
 
   const LOGIN_REQUIRED_ROUTE_NAMES = [
+    'search',
     'play',
     'story:cleared-list',
     'story:cleared-record',
@@ -129,7 +130,7 @@ if (isMobile) {
     'user:my-reviews',
   ]
 
-  const ANONYMOUS_ONLY_ROUTE_NAMES = ['auth:login', 'auth:sign-up']
+  const ANONYMOUS_ONLY_ROUTE_NAMES = ['not-found', 'home', 'auth:login', 'auth:sign-up']
 
   router.beforeEach((to, from, next) => {
     const isLoggedIn = sessionStorage.getItem('accessToken') !== null
