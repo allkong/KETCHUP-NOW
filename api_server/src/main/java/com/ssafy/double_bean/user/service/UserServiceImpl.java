@@ -44,4 +44,14 @@ public class UserServiceImpl implements UserService {
     public Optional<UserEntity> findUserByUuid(UUID uuid) {
         return userRepository.findByUuid(uuid);
     }
+
+    @Override
+    public Boolean isUsedLoginId(String loginId) {
+        return userRepository.isUsedLoginId(loginId);
+    }
+
+    @Override
+    public Boolean isUsedNickname(String nickname) {
+        return userRepository.isUsedNickname(nickname);
+    }
 }
