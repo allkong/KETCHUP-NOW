@@ -76,6 +76,10 @@ function doLogout() {
   message.info('로그아웃 되었습니다.')
   router.push({ name: 'home' })
 }
+
+if (!userStore.userInfo.loginId) {
+  userStore.fetchUserInfo()
+}
 </script>
 
 <template>
