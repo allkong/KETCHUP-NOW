@@ -1,5 +1,5 @@
 <script setup>
-import { defineProps, ref, computed, reactive } from 'vue'
+import { computed, reactive } from 'vue'
 import { StarFilled, StarOutlined } from '@ant-design/icons-vue'
 
 const props = defineProps({
@@ -31,11 +31,11 @@ const concatenatedReviewContent = computed(() =>
 
 <template>
   <a-card
-    :title="props.renderHeader ? review.title : null"
+    :title="props.renderHeader ? review.storyTitle : null"
     :headStyle="{ backgroundColor: 'silver', color: 'white' }"
   >
     <div class="review-header" @click="showStarPoint" :star="review.star">
-      <span class="review-title">{{ review.storyTitle }}</span>
+      <span class="review-title">{{ review.title }}</span>
       <div class="review-start-container">
         <StarFilled
           class="review-star review-filled-star"

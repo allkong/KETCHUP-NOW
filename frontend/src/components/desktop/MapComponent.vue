@@ -95,10 +95,10 @@ const handleChange = () => {
 </script>
 
 <template>
-  <div id="mapwrap">
+  <div id="map-wrap">
     <div ref="mapContainer" style="width: 100%; height: 70vh"></div>
     <a-checkable-tag
-      class="attraction-check"
+      class="map-button attraction-button"
       v-model:checked="selectTag"
       @change="() => handleChange()"
     >
@@ -108,16 +108,7 @@ const handleChange = () => {
 </template>
 
 <style scoped>
-#mapwrap {
-  position: relative;
-  overflow: hidden;
-}
-
-.attraction-check {
-  position: absolute;
-  overflow: hidden;
-  top: 10px;
-  left: 10px;
-  z-index: 10;
+.attraction-button {
+  left: 1rem;
 }
 </style>

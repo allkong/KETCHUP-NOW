@@ -1,6 +1,37 @@
 <script setup>
 import { ref } from 'vue'
-import MapComponent from '@/components/mobile/MapComponent.vue'
+import { useRouter } from 'vue-router'
+import {
+  HeartOutlined,
+  HeartFilled,
+  EnvironmentOutlined,
+  StarFilled,
+  CaretRightFilled,
+} from '@ant-design/icons-vue'
+import PlayMapComponent from '@/components/mobile/PlayMapComponent.vue'
+import ReviewList from '@/components/mobile/review/ReviewPreviewElement.vue'
+
+const router = useRouter()
+
+const reviews = ref([
+  {
+    uuid: crypto.randomUUID(),
+    title: '기타에 불 붙혀보셨나요?',
+    star: 4.3,
+    content:
+      '세상 머리가 해맑던 어린 내가 떠올라. 장래 희망을 물으면 10개를 답했던 아이. 대통령, 선생님, 때론 문방구 주인, 때론 아름다운 할머니 된대!',
+    createdAt: '2024-05-10',
+  },
+  {
+    uuid: crypto.randomUUID(),
+    title: '바퀴벌레 나왔어요',
+    star: 2.2,
+    content:
+      '마마 왜 내 심장은 가짜야? 나는 왜 찢겨도 붉은 피 하나 나지 않는 가짜야? 다들 물어본다고요. 너도 겨울을 아냐고. 마른 가지 같은 손가락이 왜 슬픈 줄 아냐고. 그럼 당연히 알지 왜 몰라, 그 잔가지 위에 업힌 나의 생. 그럼 당연히 알지 왜 몰라, 그 잔가지 위에 업힌 나의 생.',
+    createdAt: '2024-05-10',
+  },
+])
+
 const props = defineProps({
   modalOpen: Boolean,
 })
@@ -10,6 +41,7 @@ const activeKey = ref('1')
 
 const handleOk = (e) => {
   console.log(e)
+  router.push({ name: 'play' })
 }
 </script>
 
@@ -17,15 +49,30 @@ const handleOk = (e) => {
   <div>
     <a-modal
       v-model:open="isOpen"
-      title="Story"
+      title="스토리 보기"
       centered
-      width="25rem"
+      cancelText="닫기"
+      okText="PLAY!"
       @cancel="$emit('closeModal')"
       @ok="handleOk"
     >
       <div class="thumnail"></div>
-      <h2>싸피산책로</h2>
-      <span>서울시 강남구</span>
+      <a-row align="middle" justify="space-between">
+        <a-col>
+          <h2>싸피산책로</h2>
+          <!-- <span>v1</span> -->
+        </a-col>
+        <a-col>
+          <HeartOutlined />
+        </a-col>
+      </a-row>
+      <a-row align="middle" justify="space-between">
+        <a-col>
+          <EnvironmentOutlined />
+          <span> 서울시 강남구</span>
+        </a-col>
+        <a-col> <StarFilled /><span> 4.2</span> <CaretRightFilled /><span>12</span> </a-col>
+      </a-row>
 
       <a-tabs v-model:activeKey="activeKey" class="tabs-container">
         <a-tab-pane key="1" tab="설명">
@@ -39,24 +86,37 @@ const handleOk = (e) => {
         </a-tab-pane>
         <a-tab-pane key="2" tab="지도">
           <div class="tab-map">
-            <MapComponent />
+            <PlayMapComponent />
           </div>
         </a-tab-pane>
-        <a-tab-pane key="3" tab="리뷰">Content of Tab Pane 3</a-tab-pane>
+        <a-tab-pane key="3" tab="리뷰">
+          <div class="tab-review">
+            <ReviewList
+              :review="review"
+              :render-footer="false"
+              v-for="review in reviews"
+              :key="review.uuid"
+            />
+          </div>
+        </a-tab-pane>
       </a-tabs>
     </a-modal>
   </div>
 </template>
 
 <style scoped>
-h2 {
-  margin-bottom: 0.5rem;
-}
-
 .thumnail {
   background-color: #d9d9d9;
   height: 12rem;
   border-radius: 0.5rem;
+}
+
+.anticon-heart {
+  font-size: 1.5rem;
+}
+
+.anticon-caret-right {
+  font-size: 1rem;
 }
 
 .tabs-container {
@@ -74,5 +134,10 @@ h2 {
   border-radius: 0.5rem;
   overflow: hidden;
   margin: 1rem 0 1rem 0;
+}
+
+.tab-review {
+  max-height: 17rem;
+  overflow: auto;
 }
 </style>

@@ -4,6 +4,9 @@ import { ref, computed } from 'vue'
 import { TrophyFilled, CaretUpFilled, CaretDownFilled } from '@ant-design/icons-vue'
 import NavigationView from '@/views/mobile/includes/NavigationView.vue'
 import StoryPreviewElement from '@/components/mobile/story/StoryPreviewElement.vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 const _clearedStories = ref([
   {
@@ -48,6 +51,10 @@ const clearedStories = computed(() => {
   const ascSorted = _.sortBy(_clearedStories.value, 'clearedAt')
   return clearedAtOrderingDirection.value === 'ASC' ? ascSorted : ascSorted.reverse()
 })
+
+const goToStoryRecord = () => {
+  router.push({ name: 'story:cleared-record' })
+}
 </script>
 
 <template>
@@ -70,7 +77,7 @@ const clearedStories = computed(() => {
           </a-radio-group>
         </div>
       </div>
-      <article id="cleared-story-preview-cards-container">
+      <article id="cleared-story-preview-cards-container" @click="goToStoryRecord">
         <StoryPreviewElement :story="story" v-for="story in clearedStories" :key="story.uuid" />
       </article>
     </article>
