@@ -10,12 +10,14 @@ public record StoryUpdateRequestDto(
         String title,
         @NotBlank(message = "description cannot be blank.")
         String description,
+        StoryEntity.StoryStatus status,
         String sido,
         String gungu) {
     public StoryEntity toRequestEntity(URI imageUri, URI thumbnailImageUri) {
         StoryEntity requestEntity = new StoryEntity();
         requestEntity.setTitle(title);
         requestEntity.setDescription(description);
+        requestEntity.setStatus(status);
         requestEntity.setSido(sido);
         requestEntity.setGungu(gungu);
         requestEntity.setImageUri(imageUri);

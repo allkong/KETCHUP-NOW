@@ -1,12 +1,13 @@
 package com.ssafy.double_bean.story.model.entity;
 
+import com.ssafy.double_bean.story.dto.StoryResponseDto;
+
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import com.ssafy.double_bean.story.dto.StoryResponseDto;
-
-public class StoryEntity {
+public class StoryEntity implements Cloneable {
     private int id;
     private UUID uuid;
     private UUID storyBaseUuid;
@@ -24,27 +25,27 @@ public class StoryEntity {
     private LocalDateTime modifiedAt;
 
     public StoryEntity(int id, UUID uuid, UUID storyBaseUuid, String authorNickname, UUID authorUuid, int version,
-			StoryStatus status, String title, String description, String sido, String gungu, URI imageUri,
-			URI thumbnailImageUri, LocalDateTime createdAt, LocalDateTime modifiedAt) {
-		super();
-		this.id = id;
-		this.uuid = uuid;
-		this.storyBaseUuid = storyBaseUuid;
-		this.authorNickname = authorNickname;
-		this.authorUuid = authorUuid;
-		this.version = version;
-		this.status = status;
-		this.title = title;
-		this.description = description;
-		this.sido = sido;
-		this.gungu = gungu;
-		this.imageUri = imageUri;
-		this.thumbnailImageUri = thumbnailImageUri;
-		this.createdAt = createdAt;
-		this.modifiedAt = modifiedAt;
-	}
+                       StoryStatus status, String title, String description, String sido, String gungu, URI imageUri,
+                       URI thumbnailImageUri, LocalDateTime createdAt, LocalDateTime modifiedAt) {
+        super();
+        this.id = id;
+        this.uuid = uuid;
+        this.storyBaseUuid = storyBaseUuid;
+        this.authorNickname = authorNickname;
+        this.authorUuid = authorUuid;
+        this.version = version;
+        this.status = status;
+        this.title = title;
+        this.description = description;
+        this.sido = sido;
+        this.gungu = gungu;
+        this.imageUri = imageUri;
+        this.thumbnailImageUri = thumbnailImageUri;
+        this.createdAt = createdAt;
+        this.modifiedAt = modifiedAt;
+    }
 
-	public StoryEntity() {
+    public StoryEntity() {
     }
 
     public StoryResponseDto toResponseDto() {
@@ -67,32 +68,32 @@ public class StoryEntity {
     public void setUuid(UUID uuid) {
         this.uuid = uuid;
     }
-    
+
     public UUID getStoryBaseUuid() {
-		return storyBaseUuid;
-	}
+        return storyBaseUuid;
+    }
 
-	public void setStoryBaseUuid(UUID storyBaseUuid) {
-		this.storyBaseUuid = storyBaseUuid;
-	}
-	
-	public String getAuthorNickname() {
-		return authorNickname;
-	}
+    public void setStoryBaseUuid(UUID storyBaseUuid) {
+        this.storyBaseUuid = storyBaseUuid;
+    }
 
-	public void setAuthorNickname(String authorNickname) {
-		this.authorNickname = authorNickname;
-	}
+    public String getAuthorNickname() {
+        return authorNickname;
+    }
 
-	public UUID getAuthorUuid() {
-		return authorUuid;
-	}
+    public void setAuthorNickname(String authorNickname) {
+        this.authorNickname = authorNickname;
+    }
 
-	public void setAuthorUuid(UUID authorUuid) {
-		this.authorUuid = authorUuid;
-	}
+    public UUID getAuthorUuid() {
+        return authorUuid;
+    }
 
-	public int getVersion() {
+    public void setAuthorUuid(UUID authorUuid) {
+        this.authorUuid = authorUuid;
+    }
+
+    public int getVersion() {
         return version;
     }
 
@@ -171,17 +172,45 @@ public class StoryEntity {
     public void setModifiedAt(LocalDateTime modifiedAt) {
         this.modifiedAt = modifiedAt;
     }
-    
-	@Override
-	public String toString() {
-		return "StoryEntity [id=" + id + ", uuid=" + uuid + ", storyBaseUuid=" + storyBaseUuid + ", authorNickname="
-				+ authorNickname + ", authorUuid=" + authorUuid + ", version=" + version + ", status=" + status
-				+ ", title=" + title + ", description=" + description + ", sido=" + sido + ", gungu=" + gungu
-				+ ", imageUri=" + imageUri + ", thumbnailImageUri=" + thumbnailImageUri + ", createdAt=" + createdAt
-				+ ", modifiedAt=" + modifiedAt + "]";
-	}
 
-	public enum StoryStatus {
+    @Override
+    public String toString() {
+        return "StoryEntity [id=" + id + ", uuid=" + uuid + ", storyBaseUuid=" + storyBaseUuid + ", authorNickname="
+                + authorNickname + ", authorUuid=" + authorUuid + ", version=" + version + ", status=" + status
+                + ", title=" + title + ", description=" + description + ", sido=" + sido + ", gungu=" + gungu
+                + ", imageUri=" + imageUri + ", thumbnailImageUri=" + thumbnailImageUri + ", createdAt=" + createdAt
+                + ", modifiedAt=" + modifiedAt + "]";
+    }
+
+    @Override
+    public StoryEntity clone() {
+        try {
+            StoryEntity clone = (StoryEntity) super.clone();
+            clone.setId(id);
+            // UUID는 새로 할당 필요
+            clone.setUuid(null);
+            clone.setStoryBaseUuid(UUID.fromString(storyBaseUuid.toString()));
+            clone.setAuthorNickname(authorNickname);
+            clone.setAuthorUuid(UUID.fromString(uuid.toString()));
+            clone.setStatus(status);
+            clone.setTitle(title == null ? null : title);
+            clone.setDescription(description == null ? null : description);
+            clone.setSido(sido == null ? null : sido);
+            clone.setGungu(gungu == null ? null : gungu);
+            clone.setImageUri(new URI(imageUri.toString()));
+            clone.setThumbnailImageUri(new URI(thumbnailImageUri.toString()));
+            // 생성/수정 일시는 새로 할당
+            clone.setCreatedAt(LocalDateTime.now());
+            clone.setModifiedAt(null);
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public enum StoryStatus {
         WRITING, PUBLISHED
     }
 }

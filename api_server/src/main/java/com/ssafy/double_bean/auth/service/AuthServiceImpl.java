@@ -1,17 +1,19 @@
 package com.ssafy.double_bean.auth.service;
 
-import static com.ssafy.double_bean.common.constant.TimeUnit.HOURS;
-import static com.ssafy.double_bean.common.constant.TimeUnit.MONTHS;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
-import javax.crypto.SecretKey;
-
+import com.ssafy.double_bean.auth.dto.LoginRequestDto;
+import com.ssafy.double_bean.auth.dto.SingleTokenDto;
+import com.ssafy.double_bean.auth.dto.TokenResponseDto;
+import com.ssafy.double_bean.common.exception.ErrorCode;
+import com.ssafy.double_bean.common.exception.HttpResponseException;
+import com.ssafy.double_bean.user.model.entity.UserEntity;
+import com.ssafy.double_bean.user.service.UserService;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -20,21 +22,11 @@ import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import com.ssafy.double_bean.auth.dto.LoginRequestDto;
-import com.ssafy.double_bean.auth.dto.SingleTokenDto;
-import com.ssafy.double_bean.auth.dto.TokenResponseDto;
-import com.ssafy.double_bean.common.exception.ErrorCode;
-import com.ssafy.double_bean.common.exception.HttpResponseException;
-import com.ssafy.double_bean.user.model.entity.UserEntity;
-import com.ssafy.double_bean.user.service.UserService;
+import javax.crypto.SecretKey;
+import java.util.*;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
+import static com.ssafy.double_bean.common.constant.TimeUnit.HOURS;
+import static com.ssafy.double_bean.common.constant.TimeUnit.MONTHS;
 
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -70,7 +62,6 @@ public class AuthServiceImpl implements AuthService {
         UUID uuid = parseUuidFrom(token);
         String stringType = getClaims(token).get("type", String.class);
         TokenType type = TokenType.valueOf(stringType);
-        System.out.println(type);
         if (type == TokenType.ACCESS) {
             throw new HttpResponseException(ErrorCode.BAD_TOKEN_TYPE);
         }
@@ -136,14 +127,14 @@ public class AuthServiceImpl implements AuthService {
         }
         return null;
     }
-    
+
     @Override
     public String resolveRefreshToken(HttpServletRequest request) {
-    	Cookie[] cookies = request.getCookies();
-    	Cookie refreshTokenCookie = Arrays.stream(cookies)
-    			.filter(cookie -> cookie.getName().equals("refreshToken"))
-    			.findFirst().orElseThrow(() -> new HttpResponseException(ErrorCode.INVALID_TOKEN));
-    	String refreshToken = refreshTokenCookie.getValue();
+        Cookie[] cookies = request.getCookies();
+        Cookie refreshTokenCookie = Arrays.stream(cookies)
+                .filter(cookie -> cookie.getName().equals("refreshToken"))
+                .findFirst().orElseThrow(() -> new HttpResponseException(ErrorCode.INVALID_TOKEN));
+        String refreshToken = refreshTokenCookie.getValue();
         if (StringUtils.hasText(refreshToken)) {
             return refreshToken;
         }
