@@ -29,38 +29,35 @@ instance.interceptors.response.use(
 
     // 토큰 만료 감지
     if (response.status === HttpStatus.FORBIDDEN) {
-      message.error('로그인이 필요합니다.')
-      router.push({ name: 'auth:login' })
-
-      // if (response.status === HttpStatus.FORBIDDEN) {
-      // 토큰 재발급이 이루어지는 도중에 새로운 요청이 들어오는 것을 방지
-      if (!isTokenRefreshing) {
-        // // Lock
-        // isTokenRefreshing = true
-        // // Refresh token은 쿠키에 저장되므로 withCredentials 필요
-        // return await instance
-        //   .post('/auth/token', {}, { withCredentials: true })
-        //   // 재발급 성공
-        //   .then((response) => {
-        //     // Access token 갱신
-        //     const newAccessToken = response.headers.getAuthorization()
-        //     instance.defaults.headers.common['Authorization'] = newAccessToken
-        //     // 이전에 시도하려던 요청에 새 Access token을 넣어서
-        //     prevRequest.headers.setAuthorization(newAccessToken)
-        //     sessionStorage.setItem('accessToken', newAccessToken)
-        //     // 다시 요청
-        //     return instance(prevRequest)
-        //   })
-        //   // 재발급 실패
-        //   .catch((error) => {
-        //     message.error('다시 로그인 해주세요.')
-        //     router.push({ name: 'auth:login' })
-        //     return Promise.reject(error)
-        //   })
-        //   .finally(() => {
-        //     // Lock release
-        //     isTokenRefreshing = false
-        //   })
+      if (response.status === HttpStatus.FORBIDDEN) {
+        // 토큰 재발급이 이루어지는 도중에 새로운 요청이 들어오는 것을 방지
+        if (!isTokenRefreshing) {
+          // Lock
+          isTokenRefreshing = true
+          // Refresh token은 쿠키에 저장되므로 withCredentials 필요
+          return await instance
+            .post('/auth/token', {}, { withCredentials: true })
+            // 재발급 성공
+            .then((response) => {
+              // Access token 갱신
+              const newAccessToken = response.headers.getAuthorization()
+              instance.defaults.headers.common['Authorization'] = newAccessToken
+              // 이전에 시도하려던 요청에 새 Access token을 넣어서
+              prevRequest.headers.setAuthorization(newAccessToken)
+              sessionStorage.setItem('accessToken', newAccessToken)
+              // 다시 요청
+              return instance(prevRequest)
+            })
+            // 재발급 실패
+            .catch((error) => {
+              router.push({ name: 'auth:login' })
+              return Promise.reject(error)
+            })
+            .finally(() => {
+              // Lock release
+              isTokenRefreshing = false
+            })
+        }
       }
     }
     // 아예 Access token도 없는 경우

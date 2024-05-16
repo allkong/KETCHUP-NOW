@@ -8,7 +8,7 @@ export const useUserStore = defineStore('userStore', () => {
   const isLoggedIn = computed(() => userInfo.value !== null)
 
   axios.post('/auth/token').then((resp) => {
-    setAccessToken(resp.headers.getAuthorization())
+    setAccessToken(axios, resp.headers.getAuthorization())
   })
 
   /**
@@ -20,10 +20,8 @@ export const useUserStore = defineStore('userStore', () => {
         .post('/auth/login', loginInfo, { withCredentials: true })
         // 로그인 성공시
         .then(async (response) => {
-          console.log(response.headers)
-
           const newAccessToken = response.headers.getAuthorization()
-          setAccessToken(newAccessToken)
+          setAccessToken(axios, newAccessToken)
           // 사용자 정보 state 갱신
           userInfo.value = (await axios.get('/users/me')).data
         })
@@ -38,7 +36,7 @@ export const useUserStore = defineStore('userStore', () => {
     })
   }
 
-  function setAccessToken(accessToken) {
+  function setAccessToken(axios, accessToken) {
     // 모든 요청에 Access token이 포함되도록 함
     axios.defaults.headers.common['Authorization'] = accessToken
     // Pinia 바깥에서 로그인 여부를 확인하기 위해 세션 스토리지에도 써줌

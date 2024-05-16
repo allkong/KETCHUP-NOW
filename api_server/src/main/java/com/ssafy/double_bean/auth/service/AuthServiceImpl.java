@@ -26,6 +26,7 @@ import javax.crypto.SecretKey;
 import java.util.*;
 
 import static com.ssafy.double_bean.common.constant.TimeUnit.MONTHS;
+import static com.ssafy.double_bean.common.constant.TimeUnit.SECONDS;
 
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -92,6 +93,8 @@ public class AuthServiceImpl implements AuthService {
         } catch (ExpiredJwtException e) {
             // 토큰 만료
             throw new HttpResponseException(ErrorCode.EXPIRED_TOKEN);
+        } catch (HttpResponseException e) {
+            throw e;
         } catch (Exception e) {
             e.printStackTrace();
             // 토큰 파싱 실패
@@ -102,8 +105,8 @@ public class AuthServiceImpl implements AuthService {
     public String createToken(String identifier, TokenType type) {
         JsonClaim claim = new JsonClaim(identifier, type);
         return switch (type) {
-            case ACCESS -> createToken(claim, 3 * MONTHS);
-            case REFRESH -> createToken(claim, 12 * MONTHS);
+            case ACCESS -> createToken(claim, 1 * HOURS);
+            case REFRESH -> createToken(claim, 3 * MONTHS);
             default -> throw new IllegalStateException("Unknown token type : " + type);
         };
     }
@@ -149,6 +152,9 @@ public class AuthServiceImpl implements AuthService {
             return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload();
         } catch (ExpiredJwtException e) {
             throw new HttpResponseException(ErrorCode.EXPIRED_TOKEN);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
         }
     }
 
