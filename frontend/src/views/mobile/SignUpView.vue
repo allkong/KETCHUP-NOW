@@ -118,8 +118,6 @@ function doSignUp() {
 </template>
 
 <style scoped lang="scss">
-.ant-layout {
-}
 .ant-layout-content {
   display: flex;
   flex-direction: column;
