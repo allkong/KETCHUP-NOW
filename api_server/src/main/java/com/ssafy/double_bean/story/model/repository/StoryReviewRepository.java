@@ -61,7 +61,7 @@ public interface StoryReviewRepository {
     @ResultMap("storyReviewResult")
     Optional<StoryReviewEntity> getReviewByUuid(String reviewUuid);
 
-    @Update("UPDATE story_reviews SET title=#{dto.title}, content=#{dto}, score=#{dto} WHERE uuid=#{reviewUuid}")
+    @Update("UPDATE story_reviews SET title=#{dto.title}, content=#{dto.content}, score=#{dto.score} WHERE uuid=#{reviewUuid}")
     void update(String reviewUuid, StoryReviewCreateRequestDto dto);
 
     @Delete("DELETE FROM story_reviews WHERE uuid=#{reviewUuid}")
