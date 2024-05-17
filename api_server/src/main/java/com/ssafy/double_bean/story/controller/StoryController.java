@@ -108,14 +108,17 @@ public class StoryController {
 
     // 2개의 위경도 좌표로 표현된 사각형 구역 안에 1개 이상의 스팟이 포함된 스토리 목록을 조회한다.
     // 단, 여러 개의 버전이 있는 경우 배포된 스토리 중 가장 최신의 스토리를 반환한다.
+    // 시/도, 군/구 데이터가 있는 경우 필터링 검색이 가능하다.
     @GetMapping("/stories")
     public ResponseEntity<List<StoryResponseDto>> getStoriesBetween(@RequestParam("left-bottom-latitude") double leftBottomLatitude,
                                                                     @RequestParam("left-bottom-longitude") double leftBottomLongitude,
                                                                     @RequestParam("right-top-latitude") double rightTopLatitude,
-                                                                    @RequestParam("right-top-longitude") double rightTopLongitude) {
+                                                                    @RequestParam("right-top-longitude") double rightTopLongitude,
+                                                                    @RequestParam(value = "sido", required = false) String sido,
+                                                                    @RequestParam(value = "gungu", required = false) String gungu) {
         CoordinateDto leftBottom = new CoordinateDto(leftBottomLatitude, leftBottomLongitude);
         CoordinateDto rightTop = new CoordinateDto(rightTopLatitude, rightTopLongitude);
-        List<StoryEntity> entities = storyService.getStoriesWithin(leftBottom, rightTop);
+        List<StoryEntity> entities = storyService.getStoriesWithin(leftBottom, rightTop, sido, gungu);
         List<StoryResponseDto> dtos = entities.stream().map(StoryResponseDto::fromEntity).toList();
         return ResponseEntity.ok(dtos);
     }

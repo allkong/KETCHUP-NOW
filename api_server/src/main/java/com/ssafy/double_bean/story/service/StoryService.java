@@ -30,5 +30,5 @@ public interface StoryService {
 
     StoryEntity duplicateStory(UUID storyUuid, AuthenticatedUser requestedUser) throws URISyntaxException;
 
-    List<StoryEntity> getStoriesWithin(CoordinateDto leftBottom, CoordinateDto rightBottom);
+    List<StoryEntity> getStoriesWithin(CoordinateDto leftBottom, CoordinateDto rightBottom, String sido, String gungu);
 }
