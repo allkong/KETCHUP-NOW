@@ -4,6 +4,8 @@ const { VITE_KAKAO_MAP_KEY } = import.meta.env
 import StoryModal from '@/components/mobile/modal/StoryModal.vue'
 import RegionButton from '@/components/mobile/button/RegionButton.vue'
 
+import latLngByArea from '@/assets/data/latlng-by-area.json'
+
 const axios = inject('axios')
 
 const mapInfo = {
@@ -95,7 +97,6 @@ async function fetchStories() {
       },
     })
     .then((resp) => {
-      console.log(resp.data)
       stories.value = resp.data
     })
 }
@@ -177,6 +178,15 @@ function onAreaFilterUpdate(...args) {
   // 해당 지역으로 다시 필터링하여 결과를 갱신해줌
   sido.value = args[0]
   gungu.value = args[1]
+
+  // 위치 옮겨주기
+  let centerInfo = latLngByArea[sido.value].filter((info) => info.gungu === gungu.value)
+  if (centerInfo.length > 0) {
+    centerInfo = centerInfo[0]
+    mapInstance.setCenter(new window.kakao.maps.LatLng(centerInfo.latitude, centerInfo.longitude))
+    mapInstance.setLevel(5)
+  }
+
   fetchStories()
 }
 </script>
