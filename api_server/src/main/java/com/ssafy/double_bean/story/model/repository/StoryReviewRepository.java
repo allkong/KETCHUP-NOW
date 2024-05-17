@@ -1,6 +1,7 @@
 package com.ssafy.double_bean.story.model.repository;
 
 import com.ssafy.double_bean.common.model.repository.type_handler.UUIDTypeHandler;
+import com.ssafy.double_bean.story.dto.StoryReviewCreateRequestDto;
 import com.ssafy.double_bean.story.model.entity.StoryReviewEntity;
 import org.apache.ibatis.annotations.*;
 
@@ -59,4 +60,7 @@ public interface StoryReviewRepository {
     @Select(SELECT_ALL_SQL + "WHERE sr.uuid=#{reviewUuid}")
     @ResultMap("storyReviewResult")
     Optional<StoryReviewEntity> getReviewByUuid(String reviewUuid);
+
+    @Update("UPDATE story_reviews SET title=#{dto.title}, content=#{dto}, score=#{dto} WHERE uuid=#{reviewUuid}")
+    void update(String reviewUuid, StoryReviewCreateRequestDto dto);
 }

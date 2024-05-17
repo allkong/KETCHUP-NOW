@@ -69,4 +69,19 @@ public class StoryReviewService {
     public Optional<StoryReviewEntity> getReview(UUID reviewUuid) {
         return storyReviewRepository.getReviewByUuid(reviewUuid.toString());
     }
+
+    public StoryReviewEntity updateReview(UUID reviewUuid, StoryReviewCreateRequestDto requestDto, AuthenticatedUser requestedUser) {
+        StoryReviewEntity entity = getReview(reviewUuid)
+                .orElseThrow(() -> new HttpResponseException(ErrorCode.NOT_FOUND));
+
+        // 소유자가 아니면 수정 불가
+        if (!entity.getUserUuid().equals(requestedUser.getUuid())) {
+            throw new HttpResponseException(ErrorCode.NOT_FOUND);
+        }
+
+        storyReviewRepository.update(reviewUuid.toString(), requestDto);
+
+        return storyReviewRepository.getReviewByUuid(reviewUuid.toString())
+                .orElseThrow(() -> new RuntimeException("Failed to update review."));
+    }
 }

@@ -60,4 +60,12 @@ public class ReviewController {
         List<StoryReviewResponseDto> dtos = entities.stream().map(StoryReviewResponseDto::fromEntity).toList();
         return ResponseEntity.ok(dtos);
     }
+
+    // 작성한 리뷰를 수정한다.
+    @PutMapping("/reviews/{review-uuid}")
+    public ResponseEntity<?> updateReview(@PathVariable("review-uuid") UUID reviewUuid, @Valid @RequestBody StoryReviewCreateRequestDto requestDto) {
+        StoryReviewEntity entity = storyReviewService.updateReview(reviewUuid, requestDto, requestedUser);
+        StoryReviewResponseDto dto = StoryReviewResponseDto.fromEntity(entity);
+        return ResponseEntity.ok(dto);
+    }
 }
