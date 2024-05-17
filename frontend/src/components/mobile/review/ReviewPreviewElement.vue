@@ -1,5 +1,5 @@
 <script setup>
-import { computed, reactive } from 'vue'
+import { computed, ref } from 'vue'
 import { StarFilled, StarOutlined } from '@ant-design/icons-vue'
 
 const props = defineProps({
@@ -19,43 +19,38 @@ const props = defineProps({
   },
 })
 
-const review = reactive(props.review)
+const emit = defineEmits(['reviewModifyBtnClick', 'reviewDeleteBtnClick'])
 
 const MAX_DISPLAYING_REVIEW_CONTENT_LENGTH = 100
 const concatenatedReviewContent = computed(() =>
-  review.content.length > MAX_DISPLAYING_REVIEW_CONTENT_LENGTH
-    ? review.content.slice(0, MAX_DISPLAYING_REVIEW_CONTENT_LENGTH) + ' ...'
-    : review.content,
+  props.review.content.length > MAX_DISPLAYING_REVIEW_CONTENT_LENGTH
+    ? props.review.content.slice(0, MAX_DISPLAYING_REVIEW_CONTENT_LENGTH) + ' ...'
+    : props.review.content,
 )
 </script>
 
 <template>
   <a-card
-    :title="props.renderHeader ? review.storyTitle : null"
+    :title="props.renderHeader ? props.review.storyTitle : null"
     :headStyle="{ backgroundColor: 'silver', color: 'white' }"
   >
-    <div class="review-header" @click="showStarPoint" :star="review.star">
+    <div class="review-header" @click="showStarPoint" :point="review.point">
       <span class="review-title">{{ review.title }}</span>
       <div class="review-start-container">
-        <StarFilled
-          class="review-star review-filled-star"
-          v-for="starIdx in Math.floor(review.star)"
-          :key="review.uuid + '_filled_star_' + starIdx"
-        />
-        <StarOutlined
-          class="review-star review-outlined-star"
-          v-for="starIdx in 5 - Math.floor(review.star)"
-          :key="review.uuid + '_unfilled_star_' + starIdx"
-        />
-        <span> ({{ review.star }})</span>
+        <a-rate :value="props.review.score" disabled />
+        <span> ({{ props.review.score }})</span>
       </div>
     </div>
     <div class="review-content-container">
       {{ concatenatedReviewContent }}
     </div>
     <div class="review-btn-container" v-if="renderFooter">
-      <a-button class="review-update-btn">수정</a-button>
-      <a-button class="review-delete-btn">삭제</a-button>
+      <a-button class="review-update-btn" @click="$emit('reviewModifyBtnClick', review)">
+        수정
+      </a-button>
+      <a-button class="review-delete-btn" @click="$emit('reviewDeleteBtnClick', review)"
+        >삭제</a-button
+      >
     </div>
   </a-card>
 </template>
@@ -71,12 +66,6 @@ const concatenatedReviewContent = computed(() =>
   font-size: large;
   font-weight: bold;
   padding-right: 0.3rem;
-}
-.review-filled-star {
-  color: tomato;
-}
-.review-outlined-star {
-  color: silver;
 }
 .review-content-container {
   border: 1px solid rgb(230, 230, 230);
@@ -102,5 +91,8 @@ const concatenatedReviewContent = computed(() =>
   color: white;
   border-color: tomato;
   background-color: tomato;
+}
+.ant-rate {
+  color: tomato;
 }
 </style>
