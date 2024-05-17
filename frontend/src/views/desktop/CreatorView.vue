@@ -1,12 +1,13 @@
 <script setup>
 import { ref, onMounted, inject } from 'vue'
 import { SearchOutlined, FlagOutlined } from '@ant-design/icons-vue'
+import defaultImage from '@/assets/default-image.jpg'
 const { VITE_KAKAO_MAP_KEY } = import.meta.env
 
 const axios = inject('axios')
 
 const leftCollapsed = ref(false)
-const rightCollapsed = ref(false)
+const rightCollapsed = ref(true)
 const selectedKeys = ref(['1'])
 const keyword = ref('')
 
@@ -22,16 +23,27 @@ const mapInfo = {
 const mapContainer = ref(null)
 let mapInstance = null
 let places = null
+let placeList = ref([])
+let attractionList = ref([])
 let attractionMarkers = []
 let keywordMarkers = []
 const selectTag = ref(false)
 
 onMounted(() => {
+  onRightCollapse(true)
   loadKakaoMap(mapContainer.value)
 })
 
-const onRightCollapse = (collapsedValue) => {
-  rightCollapsed.value = collapsedValue
+const onLeftCollapse = (collapsed) => {
+  leftCollapsed.value = collapsed
+}
+
+const onRightCollapse = (collapsed) => {
+  rightCollapsed.value = collapsed
+}
+
+const openLeftSider = () => {
+  leftCollapsed.value = false
 }
 
 const loadKakaoMap = (container) => {
@@ -75,6 +87,8 @@ const getAttractions = () => {
     .get('/attractions', { params: mapInfo }, { withCredentials: true })
     .then((response) => response.data.data)
     .then((attractions) => {
+      attractionList.value = attractions
+      console.log(attractionList.value)
       // 받아온 관광지들로 마커 생성하여 attractionsMarkers 배열에 추가
       removeAllMarkers(attractionMarkers)
       attractions.forEach((attraction) => {
@@ -105,19 +119,20 @@ const handleChange = () => {
     getAttractions()
   } else {
     removeAllMarkers(attractionMarkers)
+    attractionList.value = []
   }
 }
 
 // 키워드 검색
 const searchByKeyword = () => {
-  places.keywordSearch(keyword.value, (result, status) => {
-    console.log(result)
+  places.keywordSearch(keyword.value, (data, status, pagination) => {
     if (status === window.kakao.maps.services.Status.OK) {
+      placeList.value = data
       removeAllMarkers(keywordMarkers)
 
       let bounds = new window.kakao.maps.LatLngBounds()
 
-      result.forEach((place) => {
+      data.forEach((place) => {
         const placePosition = new window.kakao.maps.LatLng(place.y, place.x)
         const marker = new window.kakao.maps.Marker({
           position: placePosition,
@@ -133,10 +148,19 @@ const searchByKeyword = () => {
         // 지도 범위 재설정
         mapInstance.setBounds(bounds)
       })
-    } else {
-      console.error(status)
+    } else if (status === kakao.maps.services.Status.ZERO_RESULT) {
+      alert('검색 결과가 존재하지 않습니다.')
+      return
+    } else if (status === kakao.maps.services.Status.ERROR) {
+      alert('검색 결과 중 오류가 발생했습니다.')
+      return
     }
   })
+}
+
+const replaceDefaultImage = (e) => {
+  console.log(e.target.src)
+  e.target.src = defaultImage
 }
 </script>
 
@@ -149,30 +173,74 @@ const searchByKeyword = () => {
     </a-row> -->
   </a-layout-header>
   <a-layout>
-    <a-layout-sider v-model:collapsed="leftCollapsed" width="20rem" class="left-sider-shadow">
+    <a-layout-sider width="4rem" class="left-inner-side">
       <a-menu v-model:selectedKeys="selectedKeys" theme="light" mode="inline">
-        <a-menu-item key="1">
+        <a-menu-item key="1" @click="openLeftSider">
           <SearchOutlined />
-          <span>키워드</span>
         </a-menu-item>
-        <a-menu-item key="2">
+        <a-menu-item key="2" @click="openLeftSider">
           <FlagOutlined />
-          <span>관광지</span>
         </a-menu-item>
       </a-menu>
-      <!-- <div v-show="!leftCollapsed">
+    </a-layout-sider>
+    <a-layout-sider
+      breakpoint="lg"
+      collapsed-width="0"
+      width="20rem"
+      :collapsed="leftCollapsed"
+      @collapse="onLeftCollapse"
+      collapsible
+      class="left-sider-shadow"
+    >
+      <div v-show="selectedKeys[0] === '1'">
         <a-row justify="center">
           <a-col>
-            <a-input v-model:value="keyword" placeholder="키워드 검색" />
-          </a-col>
-          <a-col>
-            <a-button type="primary" ghost @click="searchByKeyword">검색</a-button>
+            <div>
+              <a-input
+                v-model:value="keyword"
+                placeholder="키워드 검색"
+                @keyup.enter="searchByKeyword"
+              >
+                <template #prefix>
+                  <SearchOutlined
+                    style="color: tomato; margin-right: 0.5rem"
+                    @click="searchByKeyword"
+                  />
+                </template>
+              </a-input>
+            </div>
           </a-col>
         </a-row>
         <a-row>
-          <ul id="placesList"></ul>
+          <a-card>
+            <a-card-grid v-for="place in placeList" :key="place.id" class="attraction-item">
+              <h3>{{ place.place_name }}</h3>
+              <p>{{ place.address_name }}</p>
+              <p>{{ place.road_address_name }}</p>
+              <p>{{ place.phone }}</p>
+            </a-card-grid>
+          </a-card>
         </a-row>
-      </div> -->
+      </div>
+      <div v-show="selectedKeys[0] === '2'">
+        <h2>관광지 목록</h2>
+        <p v-show="attractionList.length === 0">관광지 버튼을 클릭해 주세요!</p>
+        <a-card>
+          <a-card-grid
+            v-for="attraction in attractionList"
+            :key="attraction.id"
+            class="attraction-item"
+          >
+            <img
+              :src="attraction.secondImageUrl"
+              @error="replaceDefaultImage"
+              style="width: 10rem"
+            />
+            <h3>{{ attraction.title }}</h3>
+            <p>{{ attraction.address }}</p>
+          </a-card-grid>
+        </a-card>
+      </div>
     </a-layout-sider>
 
     <a-layout-content>
@@ -207,16 +275,25 @@ const searchByKeyword = () => {
   height: 6vh;
 }
 
-.a-layout-sider {
-  z-index: 10;
-}
-
 .ant-layout-header {
   background: lightgray;
 }
 
+.a-layout-sider {
+  z-index: 10;
+}
+
 .ant-layout-sider {
   background: white;
+  height: 100vh;
+}
+
+.left-inner-side {
+  border-inline-end: 1px solid rgba(5, 5, 5, 0.06);
+}
+
+.ant-menu-light.ant-menu-root.ant-menu-inline {
+  border-inline-end: none;
 }
 
 .left-sider-shadow {
@@ -235,5 +312,9 @@ const searchByKeyword = () => {
 
 .keyword-box {
   top: 3rem;
+}
+
+.attraction-item {
+  width: 100%;
 }
 </style>
