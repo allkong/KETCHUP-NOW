@@ -51,4 +51,12 @@ public interface StoryReviewRepository {
     })
     @Options(useGeneratedKeys = true, keyProperty = "id", keyColumn = "id")
     void createStoryReview(StoryReviewEntity dto);
+
+    @Select(SELECT_ALL_SQL + "WHERE s.id=(SELECT id FROM stories WHERE uuid=#{storyUuid})")
+    @ResultMap("storyReviewResult")
+    List<StoryReviewEntity> getStoryReviewsOf(String storyUuid);
+
+    @Select(SELECT_ALL_SQL + "WHERE sr.uuid=#{reviewUuid}")
+    @ResultMap("storyReviewResult")
+    Optional<StoryReviewEntity> getReviewByUuid(String reviewUuid);
 }

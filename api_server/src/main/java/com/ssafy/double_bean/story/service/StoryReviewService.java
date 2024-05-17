@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -43,12 +44,12 @@ public class StoryReviewService {
         }
 
         // 이미 리뷰를 작성한 경우 작성 불가
-        getStoriesWrittenBy(requestedUser).stream()
+        getReviewsWrittenBy(requestedUser).stream()
                 .filter(sr -> sr.getStoryUuid().equals(storyUuid))
                 .findFirst().ifPresent((review) -> {
                     throw new HttpResponseException(ErrorCode.ALREADY_REVIEWED_STORY);
                 });
-        
+
         // 이외의 경우 리뷰 작성 가능
         StoryReviewEntity requestEntity = requestDto.toRequestEntity(storyUuid, requestedUser.getUuid());
         storyReviewRepository.createStoryReview(requestEntity);
@@ -57,7 +58,15 @@ public class StoryReviewService {
                 .orElseThrow(() -> new RuntimeException("Failed to create story review."));
     }
 
-    public List<StoryReviewEntity> getStoriesWrittenBy(AuthenticatedUser requestedUser) {
+    public List<StoryReviewEntity> getReviewsWrittenBy(AuthenticatedUser requestedUser) {
         return storyReviewRepository.getStoryReviewsWrittenBy(requestedUser.getUuid().toString());
+    }
+
+    public List<StoryReviewEntity> getReviewsOf(UUID storyUuid) {
+        return storyReviewRepository.getStoryReviewsOf(storyUuid.toString());
+    }
+
+    public Optional<StoryReviewEntity> getReview(UUID reviewUuid) {
+        return storyReviewRepository.getReviewByUuid(reviewUuid.toString());
     }
 }
