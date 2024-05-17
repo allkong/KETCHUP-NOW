@@ -129,3 +129,17 @@ create table if not exists double_bean.story_playings
             on delete cascade
 );
 
+create table if not exists double_bean.story_reviews
+(
+    id          int auto_increment primary key,
+    uuid        varchar(36) default (uuid())          not null,
+    story_id    int                                   not null,
+    user_id     int                                   not null,
+    title       varchar(50)                           not null,
+    content     text,
+    score       int                                   not null,
+    created_at  timestamp   default CURRENT_TIMESTAMP not null,
+    modified_at timestamp   default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP,
+    constraint fk_story_reviews_stories_story_id foreign key (story_id) references double_bean.stories (id) on delete cascade,
+    constraint fk_story_reviews_users_user_id foreign key (user_id) references double_bean.users (id) on delete cascade
+)
