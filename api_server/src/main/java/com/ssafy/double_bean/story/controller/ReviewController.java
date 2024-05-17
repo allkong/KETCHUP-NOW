@@ -63,9 +63,16 @@ public class ReviewController {
 
     // 작성한 리뷰를 수정한다.
     @PutMapping("/reviews/{review-uuid}")
-    public ResponseEntity<?> updateReview(@PathVariable("review-uuid") UUID reviewUuid, @Valid @RequestBody StoryReviewCreateRequestDto requestDto) {
+    public ResponseEntity<StoryReviewResponseDto> updateReview(@PathVariable("review-uuid") UUID reviewUuid, @Valid @RequestBody StoryReviewCreateRequestDto requestDto) {
         StoryReviewEntity entity = storyReviewService.updateReview(reviewUuid, requestDto, requestedUser);
         StoryReviewResponseDto dto = StoryReviewResponseDto.fromEntity(entity);
         return ResponseEntity.ok(dto);
+    }
+
+    // 작성한 리뷰를 삭제한다.
+    @DeleteMapping("/reviews/{review-uuid}")
+    public ResponseEntity<StoryReviewResponseDto> deleteReview(@PathVariable("review-uuid") UUID reviewUuid) {
+        storyReviewService.deleteReview(reviewUuid, requestedUser);
+        return ResponseEntity.noContent().build();
     }
 }

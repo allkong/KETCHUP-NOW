@@ -63,4 +63,7 @@ public interface StoryReviewRepository {
 
     @Update("UPDATE story_reviews SET title=#{dto.title}, content=#{dto}, score=#{dto} WHERE uuid=#{reviewUuid}")
     void update(String reviewUuid, StoryReviewCreateRequestDto dto);
+
+    @Delete("DELETE FROM story_reviews WHERE uuid=#{reviewUuid}")
+    void delete(String reviewUuid);
 }

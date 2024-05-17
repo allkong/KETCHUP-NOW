@@ -84,4 +84,16 @@ public class StoryReviewService {
         return storyReviewRepository.getReviewByUuid(reviewUuid.toString())
                 .orElseThrow(() -> new RuntimeException("Failed to update review."));
     }
+
+    public void deleteReview(UUID reviewUuid, AuthenticatedUser requestedUser) {
+        StoryReviewEntity entity = getReview(reviewUuid)
+                .orElseThrow(() -> new HttpResponseException(ErrorCode.NOT_FOUND));
+
+        // 소유자가 아니면 삭제 불가
+        if (!entity.getUserUuid().equals(requestedUser.getUuid())) {
+            throw new HttpResponseException(ErrorCode.NOT_FOUND);
+        }
+
+        storyReviewRepository.delete(reviewUuid.toString());
+    }
 }
