@@ -80,7 +80,8 @@ public class StoryServiceImpl implements StoryService {
         return entities.stream().map(this::setPresignedUriFields).toList();
     }
 
-    private StoryEntity setPresignedUriFields(StoryEntity entity) {
+    @Override
+    public StoryEntity setPresignedUriFields(StoryEntity entity) {
         if (entity.getImageUri() != null) {
             entity.setImageUri(s3Service.getPresignedUri(entity.getImageUri()));
         }
@@ -125,7 +126,7 @@ public class StoryServiceImpl implements StoryService {
         targetStory.setSido(updateDto.sido());
         targetStory.setGungu(updateDto.gungu());
 
-        // 이미지 수정이 요청되었다면
+        // 이미지 추가/변경이 요청되었다면
         if (newImage != null) {
             // 이미 있었던 경우 기존 이미지 삭제해주고
             s3Service.removeItem(targetStory.getImageUri());
@@ -143,12 +144,17 @@ public class StoryServiceImpl implements StoryService {
             targetStory.setImageUri(originalUri);
             targetStory.setThumbnailImageUri(thumbnailUri);
         }
+        // 이미지 삭제가 요청되었다면
+        else if (newImage == null && targetStory.getImageUri() == null) {
+            // 이미지 삭제 및 연결 해제
+            s3Service.removeItem(targetStory.getImageUri());
+            s3Service.removeItem(targetStory.getThumbnailImageUri());
+            targetStory.setImageUri(null);
+            targetStory.setThumbnailImageUri(null);
+        }
 
         // 최종 수정 요청
         storyRepository.updateStory(storyUuid.toString(), targetStory);
-
-        // 수정된 객체에 presign해서 응답
-        setPresignedUriFields(targetStory);
 
         return targetStory;
     }
@@ -268,10 +274,6 @@ public class StoryServiceImpl implements StoryService {
         if (!copiedSpots.isEmpty()) {
             spotService.insertBulk(duplicated.getUuid(), copiedSpots);
         }
-
-
-        // Presign 및 반환
-        setPresignedUriFields(duplicated);
 
         return duplicated;
     }

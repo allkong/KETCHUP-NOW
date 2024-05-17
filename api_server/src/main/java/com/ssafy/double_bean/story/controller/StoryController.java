@@ -8,7 +8,6 @@ import com.ssafy.double_bean.story.service.SpotService;
 import com.ssafy.double_bean.story.service.StoryService;
 import com.ssafy.double_bean.user.dto.AuthenticatedUser;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -18,13 +17,10 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.List;
-import java.util.UUID;
 import java.util.List;
 import java.util.UUID;
 
@@ -76,6 +72,7 @@ public class StoryController {
     @GetMapping("/stories/{story-uuid}")
     public ResponseEntity<StoryResponseDto> getStory(@PathVariable("story-uuid") UUID storyUuid) {
         StoryEntity entity = storyService.getStory(storyUuid, requestedUser);
+        storyService.setPresignedUriFields(entity);
         StoryResponseDto dto = StoryResponseDto.fromEntity(entity);
         return ResponseEntity.ok(dto);
     }
@@ -87,6 +84,7 @@ public class StoryController {
             @PathVariable("story-uuid") UUID storyUuid,
             @Valid StoryUpdateRequestDto updateDto, @RequestPart(required = false) MultipartFile imageFile) throws IOException, URISyntaxException {
         StoryEntity updatedEntity = storyService.updateStory(storyUuid, requestedUser, updateDto, imageFile);
+        storyService.setPresignedUriFields(updatedEntity);
         return ResponseEntity.ok(StoryResponseDto.fromEntity(updatedEntity));
     }
 
@@ -103,6 +101,7 @@ public class StoryController {
     @PostMapping("/stories/{story-uuid}/duplicate")
     public ResponseEntity<StoryResponseDto> duplicateStory(@PathVariable("story-uuid") UUID storyUuid) throws URISyntaxException {
         StoryEntity duplicatedEntity = storyService.duplicateStory(storyUuid, requestedUser);
+        storyService.setPresignedUriFields(duplicatedEntity);
         StoryResponseDto dto = StoryResponseDto.fromEntity(duplicatedEntity);
         return ResponseEntity.ok(dto);
     }

@@ -81,7 +81,7 @@ const mobileRouter = createRouter({
       component: MobileClearedStoryListView,
     },
     {
-      path: '/stories/cleared/tmp',
+      path: '/stories/cleared/:storyUuid/:uuid',
       name: 'story:cleared-record',
       component: MobileStoryRecordView,
     },

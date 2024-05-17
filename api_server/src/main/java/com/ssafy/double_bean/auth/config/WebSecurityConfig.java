@@ -27,7 +27,7 @@ public class WebSecurityConfig {
 
     private final String[] anonymousAllowedPaths = {
             "/api/v1/users/sign-up", "/api/v1/auth/login", "/api/v1/auth/token", "/api/v1/attractions/**",
-            "/api/v1/users/duplication-check"
+            "/api/v1/users/duplication-check", "/api/v1/auth/logout"
     };
 
     public WebSecurityConfig(AuthService authService, AuthenticatedUser authenticatedUser) {

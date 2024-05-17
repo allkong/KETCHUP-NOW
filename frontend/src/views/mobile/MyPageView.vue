@@ -10,8 +10,8 @@ import PasswordCheckingInput from '@/components/mobile/auth/PasswordCheckingInpu
 import { PASSWORD_VERIFICATION_STATUS } from '@/components/mobile/auth/variables'
 import { useUserStore } from '@/stores/user-store'
 
-const router = useRouter()
 const userStore = useUserStore()
+const router = useRouter()
 
 const passwordForm = ref({
   password: '',
@@ -70,6 +70,16 @@ function doPasswordChange() {
 function goMyReviewListPage() {
   router.push({ name: 'user:my-reviews' })
 }
+
+function doLogout() {
+  userStore.logout()
+  message.info('로그아웃 되었습니다.')
+  router.push({ name: 'home' })
+}
+
+if (!userStore.userInfo.loginId) {
+  userStore.fetchUserInfo()
+}
 </script>
 
 <template>
@@ -120,9 +130,10 @@ function goMyReviewListPage() {
       </a-layout-content>
     </a-card>
     <a-card title="기타 정보">
-      <a-button id="my-review-page-btn" type="primary" @click="goMyReviewListPage"
+      <a-button class="page-move-btn" type="primary" @click="goMyReviewListPage"
         >작성한 리뷰 관리</a-button
       >
+      <a-button class="page-move-btn" type="primary" @click="doLogout">로그아웃</a-button>
     </a-card>
     <a-divider />
     <div id="project-info-container">
@@ -213,10 +224,10 @@ function goMyReviewListPage() {
   color: green;
   border-color: green;
 }
-#my-review-page-btn {
+.page-move-btn {
   width: 90%;
   height: 3rem;
-  margin: 0 5%;
+  margin: 1% 5%;
   background-color: tomato;
 }
 #project-info-container {
