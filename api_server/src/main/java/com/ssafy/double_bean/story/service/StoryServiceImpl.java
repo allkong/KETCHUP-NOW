@@ -279,8 +279,8 @@ public class StoryServiceImpl implements StoryService {
     }
 
     @Override
-    public List<StoryEntity> getStoriesWithin(CoordinateDto leftBottom, CoordinateDto rightBottom) {
-        List<StoryEntity> entities = storyRepository.getStoriesWithin(leftBottom, rightBottom);
+    public List<StoryEntity> getStoriesWithin(CoordinateDto leftBottom, CoordinateDto rightBottom, String sido, String gungu) {
+        List<StoryEntity> entities = storyRepository.getStoriesWithin(leftBottom, rightBottom, sido, gungu);
         entities.stream().forEach(e -> setPresignedUriFields(e));
         return entities;
     }

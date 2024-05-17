@@ -9,7 +9,6 @@ import org.apache.ibatis.annotations.*;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Mapper
 public interface StoryRepository {
@@ -96,6 +95,7 @@ public interface StoryRepository {
     void deleteById(int id);
 
     @Select({
+            "<script>",
             "WITH in_bound_bases AS (",
             "   SELECT story_base_id FROM spots JOIN stories ON spots.story_id=stories.id",
             "   WHERE",
@@ -118,9 +118,12 @@ public interface StoryRepository {
             "(",
             "   SELECT MAX(version)",
             "   FROM stories",
-            "   WHERE story_base_id=in_bound_bases.story_base_id AND status='PUBLISHED'",
-            ")"
+            "   WHERE story_base_id=in_bound_bases.story_base_id AND status='PUBLISHED' ",
+            "         <if test='sido neq null'>AND sido=#{sido}</if>",
+            "         <if test='gungu neq null'>AND gungu=#{gungu}</if>",
+            ")",
+            "</script>",
     })
     @ResultMap("storyResult")
-    List<StoryEntity> getStoriesWithin(CoordinateDto leftBottom, CoordinateDto rightTop);
+    List<StoryEntity> getStoriesWithin(CoordinateDto leftBottom, CoordinateDto rightTop, String sido, String gungu);
 }

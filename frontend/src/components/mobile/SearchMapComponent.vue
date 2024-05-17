@@ -25,6 +25,9 @@ let renderedStoryPathLine = null
 const modalOpen = ref(false)
 const clickedMarker = ref()
 
+const sido = ref(null)
+const gungu = ref(null)
+
 onMounted(() => {
   loadKakaoMap(mapContainer.value)
 })
@@ -82,9 +85,14 @@ async function fetchStories() {
   mapInfo['left-bottom-longitude'] = mapInstance.getBounds().getSouthWest().La
   mapInfo['right-top-latitude'] = mapInstance.getBounds().getNorthEast().Ma
   mapInfo['right-top-longitude'] = mapInstance.getBounds().getNorthEast().La
+
   axios
     .get('/stories', {
-      params: mapInfo,
+      params: {
+        ...mapInfo,
+        sido: sido.value,
+        gungu: gungu.value,
+      },
     })
     .then((resp) => {
       console.log(resp.data)
@@ -96,7 +104,7 @@ const closeStoryModal = () => {
   modalOpen.value = false
 }
 
-watch(stories, async (newStories, oldStories) => {
+function updateMap(stories) {
   // 기존 마커 모두 제거
   firstSpotMarkers.forEach((marker) => marker.setMap(null))
   // 마커 배열 초기화
@@ -105,7 +113,7 @@ watch(stories, async (newStories, oldStories) => {
   // 스토리별 스팟 정보 초기화
   spotsByStory.value = {}
 
-  for (let story of newStories) {
+  for (let story of stories) {
     axios.get(`/stories/${story.uuid}/spots`).then((resp) => {
       // 스팟 받아와서 순서대로 정렬
       const spots = resp.data
@@ -158,7 +166,19 @@ watch(stories, async (newStories, oldStories) => {
       marker.setMap(mapInstance)
     })
   }
+}
+
+watch(stories, async (newStories, oldStories) => {
+  updateMap(newStories)
 })
+
+// 시/도, 군/구 필터 정보가 바뀌었음을 감지하면,
+function onAreaFilterUpdate(...args) {
+  // 해당 지역으로 다시 필터링하여 결과를 갱신해줌
+  sido.value = args[0]
+  gungu.value = args[1]
+  fetchStories()
+}
 </script>
 
 <template>
@@ -171,7 +191,7 @@ watch(stories, async (newStories, oldStories) => {
   <div id="map-wrap">
     <div ref="mapContainer" style="height: 100%"></div>
     <a-button class="map-button list-button">목록</a-button>
-    <RegionButton />
+    <RegionButton @area-filter-updated="onAreaFilterUpdate" />
   </div>
 </template>
 
