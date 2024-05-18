@@ -75,12 +75,6 @@ public class StoryServiceImpl implements StoryService {
     }
 
     @Override
-    public List<StoryEntity> getStoryBaseAndLatestStory(AuthenticatedUser requestedUser) {
-        List<StoryEntity> entities = storyRepository.getLatestStoriesOf(requestedUser.getUuid().toString());
-        return entities.stream().map(this::setPresignedUriFields).toList();
-    }
-
-    @Override
     public StoryEntity setPresignedUriFields(StoryEntity entity) {
         if (entity.getImageUri() != null) {
             entity.setImageUri(s3Service.getPresignedUri(entity.getImageUri()));
@@ -90,6 +84,27 @@ public class StoryServiceImpl implements StoryService {
         }
         return entity;
     }
+
+    private StoryEntity setStatisticsInfo(StoryEntity entity) {
+        int totalPlayCount = storyRepository.getTotalPlayCountOf(entity.getUuid().toString());
+        entity.setTotalPlayCount(totalPlayCount);
+        double averageReviewScore = storyRepository.getAverageReviewScoreOf(entity.getUuid().toString());
+        entity.setAverageReviewScore(averageReviewScore);
+        return entity;
+    }
+
+    private StoryEntity setDynamicFields(StoryEntity entity) {
+        setPresignedUriFields(entity);
+        setStatisticsInfo(entity);
+        return entity;
+    }
+
+    @Override
+    public List<StoryEntity> getStoryBaseAndLatestStory(AuthenticatedUser requestedUser) {
+        List<StoryEntity> entities = storyRepository.getLatestStoriesOf(requestedUser.getUuid().toString());
+        return entities.stream().map(this::setDynamicFields).toList();
+    }
+
 
     @Override
     public List<StoryEntity> getStoriesOf(UUID storyBaseUuid, AuthenticatedUser requestedUser) {
@@ -281,8 +296,7 @@ public class StoryServiceImpl implements StoryService {
     @Override
     public List<StoryEntity> getStoriesWithin(CoordinateDto leftBottom, CoordinateDto rightBottom, String sido, String gungu) {
         List<StoryEntity> entities = storyRepository.getStoriesWithin(leftBottom, rightBottom, sido, gungu);
-        entities.stream().forEach(e -> setPresignedUriFields(e));
-        return entities;
+        return entities.stream().map(this::setDynamicFields).toList();
     }
 
     private String getRandomFilenameFromUri(URI uri) {

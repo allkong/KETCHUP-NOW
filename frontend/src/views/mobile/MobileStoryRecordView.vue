@@ -4,6 +4,7 @@ import { useRoute } from 'vue-router'
 import router from '@/router'
 import { EnvironmentOutlined } from '@ant-design/icons-vue'
 import GoBackIcon from '@/components/mobile/functional-icons/GoBackIcon.vue'
+import MapPreviewComponent from '@/components/mobile/MapPreviewComponent.vue'
 import NavigationView from '@/views/mobile/includes/NavigationView.vue'
 
 const route = useRoute()
@@ -52,7 +53,7 @@ axios.get(`/stories/${route.params.storyUuid}`).then((resp) => {
       <a-row>
         <p>{{ story.description }}</p>
       </a-row>
-      <div>지도</div>
+      <div class="map-content"><MapPreviewComponent :storyUuid="story.uuid" /></div>
       <a-steps progress-dot direction="vertical" :current="5" :items="story.spots"></a-steps>
     </div>
   </a-layout-content>
@@ -89,5 +90,13 @@ h1 {
 
 .detail-container {
   margin: 1rem;
+}
+
+.map-content {
+  width: 100%;
+  height: 15rem;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  margin: 1rem 0 1rem 0;
 }
 </style>
