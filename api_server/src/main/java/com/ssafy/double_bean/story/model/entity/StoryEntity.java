@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 public class StoryEntity implements Cloneable {
+    double averageReviewScore;
     private int id;
     private UUID uuid;
     private UUID storyBaseUuid;
@@ -23,11 +24,9 @@ public class StoryEntity implements Cloneable {
     private URI thumbnailImageUri;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
+    private int totalPlayCount;
 
-    public StoryEntity(int id, UUID uuid, UUID storyBaseUuid, String authorNickname, UUID authorUuid, int version,
-                       StoryStatus status, String title, String description, String sido, String gungu, URI imageUri,
-                       URI thumbnailImageUri, LocalDateTime createdAt, LocalDateTime modifiedAt) {
-        super();
+    public StoryEntity(int id, UUID uuid, UUID storyBaseUuid, String authorNickname, UUID authorUuid, int version, StoryStatus status, String title, String description, String sido, String gungu, URI imageUri, URI thumbnailImageUri, LocalDateTime createdAt, LocalDateTime modifiedAt, int totalPlayCount, double averageReviewScore) {
         this.id = id;
         this.uuid = uuid;
         this.storyBaseUuid = storyBaseUuid;
@@ -43,6 +42,8 @@ public class StoryEntity implements Cloneable {
         this.thumbnailImageUri = thumbnailImageUri;
         this.createdAt = createdAt;
         this.modifiedAt = modifiedAt;
+        this.totalPlayCount = totalPlayCount;
+        this.averageReviewScore = averageReviewScore;
     }
 
     public StoryEntity() {
@@ -50,7 +51,7 @@ public class StoryEntity implements Cloneable {
 
     public StoryResponseDto toResponseDto() {
         return new StoryResponseDto(uuid, storyBaseUuid, authorNickname, authorUuid, version, status, title, description, sido,
-                gungu, imageUri, thumbnailImageUri, createdAt, modifiedAt);
+                gungu, imageUri, thumbnailImageUri, createdAt, modifiedAt, totalPlayCount, averageReviewScore);
     }
 
     public int getId() {
@@ -173,13 +174,43 @@ public class StoryEntity implements Cloneable {
         this.modifiedAt = modifiedAt;
     }
 
+    public double getAverageReviewScore() {
+        return averageReviewScore;
+    }
+
+    public void setAverageReviewScore(double averageReviewScore) {
+        this.averageReviewScore = averageReviewScore;
+    }
+
+    public int getTotalPlayCount() {
+        return totalPlayCount;
+    }
+
+    public void setTotalPlayCount(int totalPlayCount) {
+        this.totalPlayCount = totalPlayCount;
+    }
+
     @Override
     public String toString() {
-        return "StoryEntity [id=" + id + ", uuid=" + uuid + ", storyBaseUuid=" + storyBaseUuid + ", authorNickname="
-                + authorNickname + ", authorUuid=" + authorUuid + ", version=" + version + ", status=" + status
-                + ", title=" + title + ", description=" + description + ", sido=" + sido + ", gungu=" + gungu
-                + ", imageUri=" + imageUri + ", thumbnailImageUri=" + thumbnailImageUri + ", createdAt=" + createdAt
-                + ", modifiedAt=" + modifiedAt + "]";
+        return "StoryEntity{" +
+                "averageReviewScore=" + averageReviewScore +
+                ", id=" + id +
+                ", uuid=" + uuid +
+                ", storyBaseUuid=" + storyBaseUuid +
+                ", authorNickname='" + authorNickname + '\'' +
+                ", authorUuid=" + authorUuid +
+                ", version=" + version +
+                ", status=" + status +
+                ", title='" + title + '\'' +
+                ", description='" + description + '\'' +
+                ", sido='" + sido + '\'' +
+                ", gungu='" + gungu + '\'' +
+                ", imageUri=" + imageUri +
+                ", thumbnailImageUri=" + thumbnailImageUri +
+                ", createdAt=" + createdAt +
+                ", modifiedAt=" + modifiedAt +
+                ", totalPlayCount=" + totalPlayCount +
+                '}';
     }
 
     @Override
@@ -199,6 +230,9 @@ public class StoryEntity implements Cloneable {
             clone.setGungu(gungu == null ? null : gungu);
             clone.setImageUri(imageUri == null ? null : new URI(imageUri.toString()));
             clone.setThumbnailImageUri(thumbnailImageUri == null ? null : new URI(thumbnailImageUri.toString()));
+            // 총 플레이 횟수, 평균 평점은 초기화
+            clone.setTotalPlayCount(0);
+            clone.setAverageReviewScore(0.0);
             // 생성/수정 일시는 새로 할당
             clone.setCreatedAt(LocalDateTime.now());
             clone.setModifiedAt(null);

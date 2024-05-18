@@ -55,6 +55,10 @@ function fetchReviews(storyUuid) {
     reviews.value = resp.data
   })
 }
+
+const fixedAverageReviewScore = computed(() => {
+  return props.story.averageReviewScore.toFixed(1)
+})
 </script>
 
 <template>
@@ -67,7 +71,7 @@ function fetchReviews(storyUuid) {
       @cancel="$emit('closeStoryModal')"
       @ok="handleOk"
     >
-      <img class="thumbnail" :src="story.imageUri" @error="$replaceDefaultImage" alt="" />
+      <img class="thumbnail" :src="props.story.imageUri" @error="$replaceDefaultImage" alt="" />
       <a-row align="middle" justify="space-between">
         <a-col>
           <h2>{{ props.story.title }}</h2>
@@ -82,7 +86,11 @@ function fetchReviews(storyUuid) {
           <EnvironmentOutlined />
           <span>{{ storyFullAddress }}</span>
         </a-col>
-        <a-col> <StarFilled /><span> 4.2</span> <CaretRightFilled /><span>12</span> </a-col>
+        <a-col>
+          <StarFilled /><span>{{ fixedAverageReviewScore }}</span> <CaretRightFilled /><span>{{
+            props.story.totalPlayCount
+          }}</span>
+        </a-col>
       </a-row>
 
       <a-tabs v-model:activeKey="activeKey" class="tabs-container">

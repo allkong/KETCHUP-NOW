@@ -126,4 +126,10 @@ public interface StoryRepository {
     })
     @ResultMap("storyResult")
     List<StoryEntity> getStoriesWithin(CoordinateDto leftBottom, CoordinateDto rightTop, String sido, String gungu);
+
+    @Select("SELECT COUNT(*) FROM story_playings WHERE story_id=(SELECT id FROM stories WHERE uuid=#{storyUuid})")
+    int getTotalPlayCountOf(String storyUuid);
+
+    @Select("SELECT IFNULL(AVG(score), 0) FROM story_reviews WHERE story_id=(SELECT id FROM stories WHERE uuid=#{storyUuid})")
+    Double getAverageReviewScoreOf(String storyUuid);
 }
