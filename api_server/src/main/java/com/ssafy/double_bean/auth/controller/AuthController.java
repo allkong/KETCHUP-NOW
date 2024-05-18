@@ -18,6 +18,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
@@ -33,9 +34,11 @@ public class AuthController {
     private final String REFRESH_TOKEN_COOKIE_KEY = "refreshToken";
 
     private final AuthService authService;
+    private final String cookieDomain;
 
-    public AuthController(AuthService authService) {
+    public AuthController(AuthService authService, @Value("${cookie-domain}") String cookieDomain) {
         this.authService = authService;
+        this.cookieDomain = cookieDomain;
     }
 
     @PostMapping("/login")
@@ -85,7 +88,7 @@ public class AuthController {
     private ResponseCookie getRefreshTokenResponseCookie(String refreshToken) {
         return ResponseCookie
                 .from(REFRESH_TOKEN_COOKIE_KEY, refreshToken)
-                .domain("localhost") // TODO : 나중에 프론트 배포하면 바꿔줘야 함
+                .domain(cookieDomain)
                 .path("/")
                 .httpOnly(true)
                 .maxAge(100000000)
