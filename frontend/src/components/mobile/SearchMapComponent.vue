@@ -59,14 +59,6 @@ const loadKakaoMap = (container) => {
           drawStoryMarkers()
         })
       })
-
-      firstSpotMarkers.forEach((marker) => {
-        window.kakao.maps.event.addListener(marker, 'click', () => {
-          // console.log(marker)
-          storyModalOpen.value = true
-          clickedMarker.value = marker
-        })
-      })
     })
   }
 }
@@ -144,6 +136,9 @@ function updateMap(stories) {
       })
 
       window.kakao.maps.event.addListener(marker, 'click', () => {
+        clickedMarker.value = marker
+        storyModalOpen.value = true
+
         // // 기존에 스토리가 선택되어 렌더링 되고 있던 스팟을 지워줌
         // renderedSpotMarkers.forEach((marker) => {
         //   marker.setMap(null)
@@ -206,12 +201,12 @@ function onAreaFilterUpdate(...args) {
     v-if="storyModalOpen"
     :modal-open="storyModalOpen"
     :clicked-marker="clickedMarker"
-    @close-modal="closeStoryModal"
+    @close-story-modal="closeStoryModal"
   />
   <SearchListModal
     v-if="searchListModalOpen"
     :modal-open="searchListModalOpen"
-    @close-modal="closeSearchListModal"
+    @close-search-list-modal="closeSearchListModal"
   />
   <div id="map-wrap">
     <div ref="mapContainer" style="height: 100%"></div>
