@@ -2,6 +2,7 @@
 import { ref, onMounted, inject, watch } from 'vue'
 const { VITE_KAKAO_MAP_KEY } = import.meta.env
 import StoryModal from '@/components/mobile/modal/StoryModal.vue'
+import SearchListModal from '@/components/mobile/modal/SearchListModal.vue'
 import RegionButton from '@/components/mobile/button/RegionButton.vue'
 
 import latLngByArea from '@/assets/data/latlng-by-area.json'
@@ -24,7 +25,8 @@ const spotsByStory = ref({})
 let renderedSpotMarkers = []
 let renderedStoryPathLine = null
 
-const modalOpen = ref(false)
+const storyModalOpen = ref(false)
+const searchListModalOpen = ref(false)
 const clickedMarker = ref()
 
 const sido = ref(null)
@@ -61,7 +63,7 @@ const loadKakaoMap = (container) => {
       firstSpotMarkers.forEach((marker) => {
         window.kakao.maps.event.addListener(marker, 'click', () => {
           // console.log(marker)
-          modalOpen.value = true
+          storyModalOpen.value = true
           clickedMarker.value = marker
         })
       })
@@ -102,7 +104,15 @@ async function fetchStories() {
 }
 
 const closeStoryModal = () => {
-  modalOpen.value = false
+  storyModalOpen.value = false
+}
+
+const closeSearchListModal = () => {
+  searchListModalOpen.value = false
+}
+
+const openSearchListModal = () => {
+  searchListModalOpen.value = true
 }
 
 function updateMap(stories) {
@@ -193,14 +203,19 @@ function onAreaFilterUpdate(...args) {
 
 <template>
   <StoryModal
-    v-if="modalOpen"
-    :modal-open="modalOpen"
+    v-if="storyModalOpen"
+    :modal-open="storyModalOpen"
     :clicked-marker="clickedMarker"
     @close-modal="closeStoryModal"
   />
+  <SearchListModal
+    v-if="searchListModalOpen"
+    :modal-open="searchListModalOpen"
+    @close-modal="closeSearchListModal"
+  />
   <div id="map-wrap">
     <div ref="mapContainer" style="height: 100%"></div>
-    <a-button class="map-button list-button">목록</a-button>
+    <a-button class="map-button list-button" @click="openSearchListModal">목록</a-button>
     <RegionButton @area-filter-updated="onAreaFilterUpdate" />
   </div>
 </template>

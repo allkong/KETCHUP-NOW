@@ -53,7 +53,7 @@ const handleOk = (e) => {
       centered
       cancelText="닫기"
       okText="PLAY!"
-      @cancel="$emit('closeModal')"
+      @cancel="$emit('closeStoryModal')"
       @ok="handleOk"
     >
       <div class="thumnail"></div>
