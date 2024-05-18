@@ -8,7 +8,7 @@ import {
   StarFilled,
   CaretRightFilled,
 } from '@ant-design/icons-vue'
-import PlayMapComponent from '@/components/mobile/PlayMapComponent.vue'
+import MapPreviewComponent from '@/components/mobile/MapPreviewComponent.vue'
 import ReviewPreviewElement from '@/components/mobile/review/ReviewPreviewElement.vue'
 
 const axios = inject('axios')
@@ -94,7 +94,7 @@ function fetchReviews(storyUuid) {
         </a-tab-pane>
         <a-tab-pane key="2" tab="지도">
           <div class="tab-map">
-            <PlayMapComponent :story="story" />
+            <MapPreviewComponent :story-id="props.story.uuid" />
           </div>
         </a-tab-pane>
         <a-tab-pane key="3" tab="리뷰">
