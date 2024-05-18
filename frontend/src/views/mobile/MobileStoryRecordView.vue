@@ -53,7 +53,7 @@ axios.get(`/stories/${route.params.storyUuid}`).then((resp) => {
       <a-row>
         <p>{{ story.description }}</p>
       </a-row>
-      <div class="map-content"><MapPreviewComponent :story-id="story.uuid" /></div>
+      <div class="map-content"><MapPreviewComponent :storyUuid="story.uuid" /></div>
       <a-steps progress-dot direction="vertical" :current="5" :items="story.spots"></a-steps>
     </div>
   </a-layout-content>

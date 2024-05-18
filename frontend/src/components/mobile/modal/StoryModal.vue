@@ -102,7 +102,7 @@ const fixedAverageReviewScore = computed(() => {
         </a-tab-pane>
         <a-tab-pane key="2" tab="지도">
           <div class="tab-map">
-            <MapPreviewComponent :story-id="props.story.uuid" />
+            <MapPreviewComponent :story="props.story" />
           </div>
         </a-tab-pane>
         <a-tab-pane key="3" tab="리뷰">

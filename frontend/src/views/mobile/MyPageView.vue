@@ -137,6 +137,9 @@ if (!userStore.userInfo.loginId) {
     </a-card>
     <a-divider />
     <div id="project-info-container">
+      <a href="https://www.flaticon.com/kr/free-icons/" title="번호 아이콘"
+        >번호 아이콘 제작자: riajulislam - Flaticon</a
+      >
       <div>
         Developed by Dabin Jeong <a href="https://github.com/allkong"><GithubOutlined /></a> & Yubin
         Park <a href="https://github.com/pcjs156"><GithubOutlined /></a>
