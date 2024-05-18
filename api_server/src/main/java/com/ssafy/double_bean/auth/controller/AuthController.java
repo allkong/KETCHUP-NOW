@@ -34,11 +34,12 @@ public class AuthController {
     private final String REFRESH_TOKEN_COOKIE_KEY = "refreshToken";
 
     private final AuthService authService;
-    private final String cookieDomain;
+    private final String activeProfile;
 
-    public AuthController(AuthService authService, @Value("${cookie-domain}") String cookieDomain) {
+    public AuthController(AuthService authService, @Value("${spring.profiles.active}") String activeProfile) {
         this.authService = authService;
-        this.cookieDomain = cookieDomain;
+        this.activeProfile = activeProfile;
+        System.out.println(">>> " + activeProfile);
     }
 
     @PostMapping("/login")
@@ -86,14 +87,22 @@ public class AuthController {
     }
 
     private ResponseCookie getRefreshTokenResponseCookie(String refreshToken) {
-        return ResponseCookie
+        ResponseCookie.ResponseCookieBuilder builder = ResponseCookie
                 .from(REFRESH_TOKEN_COOKIE_KEY, refreshToken)
-                .domain(cookieDomain)
                 .path("/")
                 .httpOnly(true)
-                .maxAge(100000000)
-                .sameSite("Lax")
-                .build();
+                .maxAge(100000000);
+
+        if (activeProfile.equals("dev")) {
+            builder.domain("localhost");
+            builder.sameSite("Lax");
+        } else if (activeProfile.equals("prod")) {
+            builder.domain("home.pcjs156.net");
+            builder.sameSite("None");
+            builder.secure(true);
+        }
+
+        return builder.build();
     }
 
     @PostMapping("/logout")
