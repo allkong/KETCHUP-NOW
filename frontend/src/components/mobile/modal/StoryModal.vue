@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { computed, inject, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import {
   HeartOutlined,
@@ -9,39 +9,51 @@ import {
   CaretRightFilled,
 } from '@ant-design/icons-vue'
 import PlayMapComponent from '@/components/mobile/PlayMapComponent.vue'
-import ReviewList from '@/components/mobile/review/ReviewPreviewElement.vue'
+import ReviewPreviewElement from '@/components/mobile/review/ReviewPreviewElement.vue'
+
+const axios = inject('axios')
 
 const router = useRouter()
 
-const reviews = ref([
-  {
-    uuid: crypto.randomUUID(),
-    title: '기타에 불 붙혀보셨나요?',
-    star: 4.3,
-    content:
-      '세상 머리가 해맑던 어린 내가 떠올라. 장래 희망을 물으면 10개를 답했던 아이. 대통령, 선생님, 때론 문방구 주인, 때론 아름다운 할머니 된대!',
-    createdAt: '2024-05-10',
-  },
-  {
-    uuid: crypto.randomUUID(),
-    title: '바퀴벌레 나왔어요',
-    star: 2.2,
-    content:
-      '마마 왜 내 심장은 가짜야? 나는 왜 찢겨도 붉은 피 하나 나지 않는 가짜야? 다들 물어본다고요. 너도 겨울을 아냐고. 마른 가지 같은 손가락이 왜 슬픈 줄 아냐고. 그럼 당연히 알지 왜 몰라, 그 잔가지 위에 업힌 나의 생. 그럼 당연히 알지 왜 몰라, 그 잔가지 위에 업힌 나의 생.',
-    createdAt: '2024-05-10',
-  },
-])
-
 const props = defineProps({
   modalOpen: Boolean,
+  story: {
+    type: Object,
+    required: true,
+  },
 })
 
 const isOpen = ref(props.modalOpen)
+const reviews = ref([])
 const activeKey = ref('1')
 
 const handleOk = (e) => {
   console.log(e)
   router.push({ name: 'play' })
+}
+
+const storyFullAddress = computed(() => {
+  if (!props.story.sido) {
+    return '주소 미입력'
+  } else if (!props.story.gungu) {
+    return props.story.gungu
+  } else {
+    return `${props.story.sido} ${props.story.gungu}`
+  }
+})
+
+onMounted(() => {
+  fetchReviews(props.story.uuid)
+})
+
+watch(props.story, () => {
+  fetchReviews(props.story.uuid)
+})
+
+function fetchReviews(storyUuid) {
+  axios.get(`/stories/${storyUuid}/reviews`).then((resp) => {
+    reviews.value = resp.data
+  })
 }
 </script>
 
@@ -49,17 +61,16 @@ const handleOk = (e) => {
   <div>
     <a-modal
       v-model:open="isOpen"
-      title="스토리 보기"
       centered
       cancelText="닫기"
       okText="PLAY!"
       @cancel="$emit('closeStoryModal')"
       @ok="handleOk"
     >
-      <div class="thumnail"></div>
+      <img class="thumbnail" :src="story.imageUri" @error="$replaceDefaultImage" alt="" />
       <a-row align="middle" justify="space-between">
         <a-col>
-          <h2>싸피산책로</h2>
+          <h2>{{ props.story.title }}</h2>
           <!-- <span>v1</span> -->
         </a-col>
         <a-col>
@@ -69,34 +80,35 @@ const handleOk = (e) => {
       <a-row align="middle" justify="space-between">
         <a-col>
           <EnvironmentOutlined />
-          <span> 서울시 강남구</span>
+          <span>{{ storyFullAddress }}</span>
         </a-col>
         <a-col> <StarFilled /><span> 4.2</span> <CaretRightFilled /><span>12</span> </a-col>
       </a-row>
 
       <a-tabs v-model:activeKey="activeKey" class="tabs-container">
         <a-tab-pane key="1" tab="설명">
-          <p>김싸피</p>
+          <u id="author-nickname">Created by {{ props.story.authorNickname }}</u>
           <div class="tab-textarea">
-            이 스토리는 영국에서 최초로 시작되어 일년에 한바퀴를 돌면서 받는 사람에게 행운을 주었고
-            지금은 당신에게로 옮겨진 이 스토리는 4일 안에 당신 곁을 떠나야 합니다. 이 스토리를
-            포함해서 7통을 행운이 필요한 사람에게 보내 주셔야 합니다. 복사를 해도 좋습니다. 혹
-            미신이라 하실지 모르지만 사실입니다.
+            {{ props.story.description }}
           </div>
         </a-tab-pane>
         <a-tab-pane key="2" tab="지도">
           <div class="tab-map">
-            <PlayMapComponent />
+            <PlayMapComponent :story="story" />
           </div>
         </a-tab-pane>
         <a-tab-pane key="3" tab="리뷰">
-          <div class="tab-review">
-            <ReviewList
+          <div class="tab-review" v-if="reviews.length > 0">
+            <ReviewPreviewElement
               :review="review"
               :render-footer="false"
               v-for="review in reviews"
               :key="review.uuid"
             />
+          </div>
+          <div class="tab-review" v-if="reviews.length === 0">
+            <div>아직 리뷰가 없어요.</div>
+            <div>이야기의 첫 주인공이 되어 볼까요?</div>
           </div>
         </a-tab-pane>
       </a-tabs>
@@ -105,9 +117,10 @@ const handleOk = (e) => {
 </template>
 
 <style scoped>
-.thumnail {
+.thumbnail {
   background-color: #d9d9d9;
   height: 12rem;
+  width: 100%;
   border-radius: 0.5rem;
 }
 
@@ -139,5 +152,9 @@ const handleOk = (e) => {
 .tab-review {
   max-height: 17rem;
   overflow: auto;
+}
+
+#author-nickname {
+  text-underline-position: under;
 }
 </style>

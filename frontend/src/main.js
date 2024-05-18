@@ -24,6 +24,7 @@ import Antd from 'ant-design-vue'
  * https://axios-http.com/docs/intro
  */
 import { instance } from '@/api/axios'
+import replaceDefaultImagePlugin from './plugins/replaceDefaultImage'
 
 const app = createApp(App)
 
@@ -32,5 +33,7 @@ app.provide('axios', instance)
 app.use(createPinia())
 app.use(router)
 app.use(Antd)
+
+app.use(replaceDefaultImagePlugin)
 
 app.mount('#app')

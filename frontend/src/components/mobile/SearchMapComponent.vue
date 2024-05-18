@@ -28,6 +28,7 @@ let renderedStoryPathLine = null
 const storyModalOpen = ref(false)
 const searchListModalOpen = ref(false)
 const clickedMarker = ref()
+const selectedStory = ref(null)
 
 const sido = ref(null)
 const gungu = ref(null)
@@ -128,7 +129,7 @@ function updateMap(stories) {
       spotsByStory.value[story.uuid]['spots'] = spots
 
       // 스토리의 첫 마커를 화면에 찍어줌
-      const firstSpot = spots.reduce((prev, cur) => (prev.orderIdx < cur.orderIdx ? prev : cur))
+      const firstSpot = spots.reduce((prev, cur) => (prev.orderIndex < cur.orderIndex ? prev : cur))
       const markerPosition = new window.kakao.maps.LatLng(firstSpot.latitude, firstSpot.longitude)
       const marker = new window.kakao.maps.Marker({
         position: markerPosition,
@@ -138,6 +139,7 @@ function updateMap(stories) {
       window.kakao.maps.event.addListener(marker, 'click', () => {
         clickedMarker.value = marker
         storyModalOpen.value = true
+        selectedStory.value = story
 
         // // 기존에 스토리가 선택되어 렌더링 되고 있던 스팟을 지워줌
         // renderedSpotMarkers.forEach((marker) => {
@@ -194,6 +196,12 @@ function onAreaFilterUpdate(...args) {
 
   fetchStories()
 }
+
+function onStorySelectedInListModal(...args) {
+  selectedStory.value = args[0]
+  searchListModalOpen.value = false
+  storyModalOpen.value = true
+}
 </script>
 
 <template>
@@ -201,12 +209,15 @@ function onAreaFilterUpdate(...args) {
     v-if="storyModalOpen"
     :modal-open="storyModalOpen"
     :clicked-marker="clickedMarker"
+    :story="selectedStory"
     @close-story-modal="closeStoryModal"
   />
   <SearchListModal
     v-if="searchListModalOpen"
     :modal-open="searchListModalOpen"
     @close-search-list-modal="closeSearchListModal"
+    :stories="stories"
+    @story-selected="onStorySelectedInListModal"
   />
   <div id="map-wrap">
     <div ref="mapContainer" style="height: 100%"></div>
