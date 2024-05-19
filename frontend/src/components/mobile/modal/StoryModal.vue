@@ -10,6 +10,7 @@ import {
 } from '@ant-design/icons-vue'
 import MapPreviewComponent from '@/components/mobile/MapPreviewComponent.vue'
 import ReviewPreviewElement from '@/components/mobile/review/ReviewPreviewElement.vue'
+import HttpStatus from '@/api/http-status'
 
 const axios = inject('axios')
 
@@ -25,10 +26,10 @@ const props = defineProps({
 
 const isOpen = ref(props.modalOpen)
 const reviews = ref([])
+const isZzim = ref(false)
 const activeKey = ref('1')
 
 const handleOk = (e) => {
-  console.log(e)
   router.push({ name: 'play' })
 }
 
@@ -44,6 +45,7 @@ const storyFullAddress = computed(() => {
 
 onMounted(() => {
   fetchReviews(props.story.uuid)
+  fetchZzims()
 })
 
 watch(props.story, () => {
@@ -53,6 +55,26 @@ watch(props.story, () => {
 function fetchReviews(storyUuid) {
   axios.get(`/stories/${storyUuid}/reviews`).then((resp) => {
     reviews.value = resp.data
+  })
+}
+
+function fetchZzims() {
+  axios.get(`/users/me/zzims`).then((resp) => {
+    const myZzims = resp.data
+    isZzim.value = myZzims.filter((zzim) => zzim.storyUuid === props.story.uuid).length > 0
+  })
+}
+
+async function toggleZzim() {
+  axios.post(`/stories/${props.story.uuid}/zzims`).then((resp) => {
+    // 찜 처리됨
+    if (resp.status === HttpStatus.OK) {
+      isZzim.value = true
+    }
+    // 찜 해제 처리됨
+    else if (resp.status === HttpStatus.NO_CONTENT) {
+      isZzim.value = false
+    }
   })
 }
 
@@ -78,7 +100,10 @@ const fixedAverageReviewScore = computed(() => {
           <!-- <span>v1</span> -->
         </a-col>
         <a-col>
-          <HeartOutlined />
+          <span @click="toggleZzim">
+            <HeartOutlined v-if="!isZzim" />
+            <HeartFilled v-if="isZzim" />
+          </span>
         </a-col>
       </a-row>
       <a-row align="middle" justify="space-between">
