@@ -1,6 +1,6 @@
 <script setup>
 import { ref, inject, onMounted } from 'vue'
-import { SettingOutlined, EditOutlined, EllipsisOutlined } from '@ant-design/icons-vue'
+import { StarFilled, CaretRightFilled } from '@ant-design/icons-vue'
 import defaultImage from '@/assets/default-image.jpg'
 import HeaderView from '@/views/desktop/includes/HeaderView.vue'
 import FooterView from '@/views/desktop/includes/FooterView.vue'
@@ -43,15 +43,15 @@ const fetchMyStories = () => {
               @error="$replaceDefaultImage"
             />
           </template>
-          <a-tag color="red">{{ story.sido }} {{ story.gungu }}</a-tag>
-
-          <a-tag color="yellow">플레이 {{ story.totalPlayCount }}</a-tag>
-          <a-tag color="yellow">평점 {{ story.averageReviewScore }}</a-tag>
-          <a-card-meta :title="story.title" :description="story.description"></a-card-meta>
-          <a-tag color="green">version {{ story.version }}</a-tag>
+          <a-tag color="green">v{{ story.version }}</a-tag>
           <a-tag color="blue">{{ story.status }}</a-tag>
-          <p>생성일: {{ story.createdAt }}</p>
-          <p>수정일: {{ story.modifiedAt }}</p>
+          <a-card-meta :title="story.title" :description="story.description"></a-card-meta>
+          <p>Created {{ story.createdAt }}dddddddddddddddddddddddddddddddddd</p>
+          <p>Updated {{ story.modifiedAt }}</p>
+          <a-tag color="red">{{ story.sido }} {{ story.gungu }}</a-tag>
+          <StarFilled /><span>{{ story.averageReviewScore }}</span> <CaretRightFilled /><span>{{
+            story.totalPlayCount
+          }}</span>
         </a-card>
       </div>
     </div>
@@ -90,8 +90,8 @@ p {
 
 .grid-container {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  grid-gap: 24px;
+  grid-template-columns: repeat(auto-fill, minmax(19rem, 1fr));
+  grid-gap: 1.5rem;
   justify-content: center;
 }
 
@@ -100,9 +100,17 @@ p {
   justify-content: center;
 }
 
+::v-deep .ant-card-image,
+::v-deep .ant-card-body {
+  width: 19rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .story-cover-image {
   height: 11rem;
-  width: 300px;
+  width: 100%;
   object-fit: cover;
 }
 </style>

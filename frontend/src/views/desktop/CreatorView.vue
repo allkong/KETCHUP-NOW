@@ -1,10 +1,10 @@
 <script setup>
 import { ref, onMounted, inject } from 'vue'
 import { SearchOutlined, FlagOutlined, RobotOutlined } from '@ant-design/icons-vue'
-import attractionMarkerIcon from '@/assets/icon/marker/star-marker-blue.png'
-import keywordMarkerIcon from '@/assets/icon/marker/star-marker-orange.png'
-import selectedKeywordMarkerIcon from '@/assets/icon/marker/star-marker-pink.png'
-import defaultImage from '@/assets/default-image.jpg'
+import AttractionMarkerIcon from '@/assets/icon/marker/star-marker-blue.png'
+import KeywordMarkerIcon from '@/assets/icon/marker/star-marker-orange.png'
+import SelectedKeywordMarkerIcon from '@/assets/icon/marker/star-marker-pink.png'
+import AddSpotModal from '@/components/desktop/AddSpotModal.vue'
 const { VITE_KAKAO_MAP_KEY } = import.meta.env
 
 const axios = inject('axios')
@@ -34,6 +34,8 @@ let places = null
 const placeList = ref([])
 let keywordMarkers = []
 let selectedKeywordMarker = null
+
+const isAddSpotModalOpen = ref(false)
 
 onMounted(() => {
   onRightCollapse(true)
@@ -104,7 +106,7 @@ const getAttractions = () => {
         )
 
         const attractionMarkerImage = new window.kakao.maps.MarkerImage(
-          attractionMarkerIcon,
+          AttractionMarkerIcon,
           new window.kakao.maps.Size(35, 35),
           { offset: new window.kakao.maps.Point(17, 35) },
         )
@@ -114,6 +116,12 @@ const getAttractions = () => {
           title: attraction.title,
           image: attractionMarkerImage,
         })
+
+        window.kakao.maps.event.addListener(marker, 'click', () => {
+          isAddSpotModalOpen.value = true
+          console.log('관광지 클릭')
+        })
+
         attractionMarkers.push(marker)
         marker.setMap(mapInstance)
       })
@@ -145,7 +153,7 @@ const searchByKeyword = () => {
       let bounds = new window.kakao.maps.LatLngBounds()
 
       const keywordMarkerImage = new window.kakao.maps.MarkerImage(
-        keywordMarkerIcon,
+        KeywordMarkerIcon,
         new window.kakao.maps.Size(35, 35),
         { offset: new window.kakao.maps.Point(17, 35) },
       )
@@ -156,6 +164,11 @@ const searchByKeyword = () => {
           position: placePosition,
           title: place.place_name,
           image: keywordMarkerImage,
+        })
+
+        window.kakao.maps.event.addListener(marker, 'click', () => {
+          isAddSpotModalOpen.value = true
+          console.log('키워드 클릭')
         })
 
         // LatLngBounds 객체에 좌표 추가
@@ -174,6 +187,7 @@ const searchByKeyword = () => {
       // 지도 범위 재설정
       mapInstance.setBounds(bounds)
 
+      // 새로운 위치의 관광지 가져오기
       if (selectAttractionTag.value) {
         getAttractions()
       }
@@ -194,7 +208,7 @@ const moveToLocation = (place) => {
   if (selectedKeywordMarker) {
     // 기존에 선택한 마커 이미지 되돌리기
     const keywordMarkerImage = new window.kakao.maps.MarkerImage(
-      keywordMarkerIcon,
+      KeywordMarkerIcon,
       new window.kakao.maps.Size(35, 35),
       { offset: new window.kakao.maps.Point(17, 35) },
     )
@@ -203,7 +217,7 @@ const moveToLocation = (place) => {
 
   // 새로 선택한 마커 이미지 변경
   const selectedKeywordMarkerImage = new window.kakao.maps.MarkerImage(
-    selectedKeywordMarkerIcon,
+    SelectedKeywordMarkerIcon,
     new window.kakao.maps.Size(45, 45),
     { offset: new window.kakao.maps.Point(23, 35) },
   )
@@ -215,16 +229,19 @@ const moveToLocation = (place) => {
     getAttractions()
   }
 }
+
+const onCloseAddSpotModal = () => {
+  isAddSpotModalOpen.value = false
+}
 </script>
 
 <template>
-  <a-layout-header>
-    <!-- <a-row align="middle">
-      <a-col>
-        <img src="@/assets/logo.png" class="logo-image" />
-      </a-col>
-    </a-row> -->
-  </a-layout-header>
+  <a-layout-header> </a-layout-header>
+  <AddSpotModal
+    v-if="isAddSpotModalOpen"
+    :modal-open="isAddSpotModalOpen"
+    @close-add-spot-modal="onCloseAddSpotModal"
+  />
   <a-layout>
     <a-layout-sider width="4rem" class="left-inner-sider">
       <a-menu v-model:selectedKeys="selectedKeys" theme="light" mode="inline">
@@ -247,7 +264,6 @@ const moveToLocation = (place) => {
       @collapse="onLeftCollapse"
       collapsible
       class="left-sider-shadow"
-      @click=""
     >
       <div v-show="selectedKeys[0] === '1'" style="height: 100%">
         <h2>키워드 검색</h2>
