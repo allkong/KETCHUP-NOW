@@ -19,7 +19,7 @@ let spotMarkers = []
 
 onMounted(() => {
   loadKakaoMap(mapContainer.value)
-  fetchSpots(props.story.uuid)
+  fetchAndDrawSpots(props.story.uuid)
 })
 
 const loadKakaoMap = (container) => {
@@ -36,8 +36,7 @@ const loadKakaoMap = (container) => {
 
       mapInstance = new window.kakao.maps.Map(container, options) // 지도 생성
 
-      fetchSpots(props.story.uuid)
-      drawSpotMarkers()
+      fetchAndDrawSpots(props.story.uuid)
     })
   }
 }
@@ -50,7 +49,6 @@ const drawSpotMarkers = () => {
     return s1.orderIndex - s2.orderIndex
   })
 
-  console.log(spots.value)
   spots.value.forEach((spot, idx) => {
     const markerIcon = new window.kakao.maps.MarkerImage(
       `/icon/numbers/spot-on-map-${idx + 1}.png`,
@@ -86,9 +84,10 @@ const drawSpotMarkers = () => {
   })
 }
 
-function fetchSpots(storyUuid) {
+function fetchAndDrawSpots(storyUuid) {
   axios.get(`/stories/${storyUuid}/spots`).then((resp) => {
     spots.value = resp.data
+    drawSpotMarkers()
   })
 }
 </script>

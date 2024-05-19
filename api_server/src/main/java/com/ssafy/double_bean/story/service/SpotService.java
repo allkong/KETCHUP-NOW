@@ -119,7 +119,13 @@ public class SpotService {
     }
 
     public List<SpotEntity> getSpotsOf(UUID storyUuid, AuthenticatedUser requestedUser) {
-        StoryEntity targetStory = getStoryWithOwnershipCheck(storyUuid, requestedUser);
+        StoryEntity targetStory = storyRepository.getStoryByUuid(storyUuid.toString())
+                .orElseThrow(() -> new HttpResponseException(ErrorCode.NOT_FOUND));
+
+        // PUBLISH 되지 않았다면 소유자만 확인할 수 있음
+        if (targetStory.getStatus() != StoryEntity.StoryStatus.PUBLISHED && !targetStory.getAuthorUuid().equals(requestedUser.getUuid())) {
+            throw new HttpResponseException(ErrorCode.NOT_FOUND);
+        }
 
         List<SpotEntity> spots = spotRepository.getSpotsOf(targetStory.getUuid().toString());
         spots.sort(Comparator.comparingDouble(SpotEntity::getOrderIndex));
