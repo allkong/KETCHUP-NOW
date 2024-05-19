@@ -58,6 +58,7 @@ export const useUserStore = defineStore('userStore', () => {
     axios.post('/auth/logout')
     axios.defaults.headers.common['Authorization'] = null
     sessionStorage.removeItem('accessToken')
+    userInfo.value = null
   }
 
   return {

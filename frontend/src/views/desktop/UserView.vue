@@ -12,4 +12,8 @@ import FooterView from '@/views/desktop/includes/FooterView.vue'
   <FooterView />
 </template>
 
-<style scoped></style>
+<style scoped>
+.ant-layout-content {
+  min-height: 85vh;
+}
+</style>
