@@ -3,11 +3,11 @@
 }
 
 #content-container {
-  margin-bottom: $footerHeight;
+  margin-bottom: $navigationHeight;
 }
 
 #map-size {
-  height: calc(var(--vh, 1vh) * 100 - $footerHeight);
+  height: calc(var(--vh, 1vh) * 100 - $navigationHeight);
 }
 
 #map-wrap {

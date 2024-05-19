@@ -2,9 +2,9 @@
 import { ref } from 'vue'
 
 const menuList = ref([
-  { name: '스토리창작', routeName: 'creator' },
+  { name: '내스토리', routeName: 'my-stories' },
   { name: '로그인', routeName: 'login' },
-  { name: '회원가입', routeName: 'signup' }
+  { name: '회원가입', routeName: 'signup' },
 ])
 </script>
 

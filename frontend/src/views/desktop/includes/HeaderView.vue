@@ -12,7 +12,7 @@ import MenuComponent from '@/components/desktop/MenuComponent.vue'
     <a-row justify="center" align="middle">
       <a-col :span="10">
         <RouterLink :to="{ name: 'home' }">
-          <img src="@/assets/logo.png" alt="" :style="{ display: 'flex', height: '40px' }" />
+          <img src="@/assets/text-logo.png" alt="" :style="{ display: 'flex', height: '40px' }" />
         </RouterLink>
       </a-col>
       <a-col :span="10">
@@ -24,8 +24,12 @@ import MenuComponent from '@/components/desktop/MenuComponent.vue'
 
 <style scoped lang="scss">
 .header {
-  background-color: #ffffff;
+  background-color: white;
   height: $headerHeight;
   line-height: $headerHeight;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  border-bottom: 1px solid rgb(238, 238, 238);
 }
 </style>

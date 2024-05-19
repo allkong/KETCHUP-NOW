@@ -4,6 +4,7 @@ import DesktopHomeView from '@/views/desktop/HomeView.vue'
 import DesktopUserView from '@/views/desktop/UserView.vue'
 import DesktopLoginComponent from '@/components/desktop/LoginComponent.vue'
 import DesktopSignUpComponent from '@/components/desktop/SignUpComponent.vue'
+import DesktopMyStoriesView from '@/views/desktop/MyStories.vue'
 import DesktopCreatorView from '@/views/desktop/CreatorView.vue'
 import DesktopNotFoundView from '@/views/desktop/NotFoundView.vue'
 
@@ -28,8 +29,8 @@ const desktopRouter = createRouter({
       component: DesktopHomeView,
     },
     {
-      path: '/user',
-      name: 'user',
+      path: '/auth',
+      name: 'auth',
       component: DesktopUserView,
       children: [
         {
@@ -43,6 +44,11 @@ const desktopRouter = createRouter({
           component: DesktopSignUpComponent,
         },
       ],
+    },
+    {
+      path: '/my-stories',
+      name: 'my-stories',
+      component: DesktopMyStoriesView,
     },
     {
       path: '/creator',

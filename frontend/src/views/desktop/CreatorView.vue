@@ -187,10 +187,6 @@ const searchByKeyword = () => {
   })
 }
 
-const replaceDefaultImage = (e) => {
-  e.target.src = defaultImage
-}
-
 const moveToLocation = (place) => {
   const newPosition = new window.kakao.maps.LatLng(place.y, place.x)
   mapInstance.setCenter(newPosition)
@@ -300,7 +296,7 @@ const moveToLocation = (place) => {
           >
             <img
               :src="attraction.secondImageUrl"
-              @error="replaceDefaultImage"
+              @error="$replaceDefaultImage"
               style="width: 10rem"
             />
             <h3>{{ attraction.title }}</h3>
