@@ -9,7 +9,9 @@ import com.ssafy.double_bean.story.dto.StoryUpdateRequestDto;
 import com.ssafy.double_bean.story.model.entity.SpotEntity;
 import com.ssafy.double_bean.story.model.entity.StoryEntity;
 import com.ssafy.double_bean.story.model.entity.StoryEntity.StoryStatus;
+import com.ssafy.double_bean.story.model.entity.StoryZzimEntity;
 import com.ssafy.double_bean.story.model.repository.StoryRepository;
+import com.ssafy.double_bean.story.model.repository.StoryZzimRepository;
 import com.ssafy.double_bean.story_play.service.StoryPlayingService;
 import com.ssafy.double_bean.user.dto.AuthenticatedUser;
 import com.ssafy.double_bean.user.model.entity.UserEntity;
@@ -30,14 +32,17 @@ import java.util.UUID;
 public class StoryServiceImpl implements StoryService {
     private final StoryRepository storyRepository;
     private final UserRepository userRepository;
+    private final StoryZzimRepository storyZzimRepository;
     private final SpotService spotService;
     private final StoryPlayingService storyPlayingService;
     private final S3Service s3Service;
 
 
-    public StoryServiceImpl(StoryRepository storyRepository, UserRepository userRepository, SpotService spotService, StoryPlayingService storyPlayingService, S3Service s3Service) {
+    public StoryServiceImpl(StoryRepository storyRepository, UserRepository userRepository, StoryZzimRepository storyZzimRepository,
+                            SpotService spotService, StoryPlayingService storyPlayingService, S3Service s3Service) {
         this.storyRepository = storyRepository;
         this.userRepository = userRepository;
+        this.storyZzimRepository = storyZzimRepository;
         this.spotService = spotService;
         this.storyPlayingService = storyPlayingService;
         this.s3Service = s3Service;
@@ -297,6 +302,45 @@ public class StoryServiceImpl implements StoryService {
     public List<StoryEntity> getStoriesWithin(CoordinateDto leftBottom, CoordinateDto rightBottom, String sido, String gungu) {
         List<StoryEntity> entities = storyRepository.getStoriesWithin(leftBottom, rightBottom, sido, gungu);
         return entities.stream().map(this::setDynamicFields).toList();
+    }
+
+    @Override
+    public List<StoryZzimEntity> getZzimsOfStory(UUID storyUuid) {
+        StoryEntity story = storyRepository.getStoryByUuid(storyUuid.toString())
+                .orElseThrow(() -> new HttpResponseException(ErrorCode.NOT_FOUND));
+        return storyZzimRepository.getZzimsOfStory(story.getUuid().toString());
+    }
+
+    @Override
+    public List<StoryZzimEntity> getZzimsOfUser(AuthenticatedUser requestedUser) {
+        return storyZzimRepository.getZzimsOfUser(requestedUser.getUuid().toString());
+    }
+
+    @Override
+    public boolean toggleZzim(UUID storyUuid, AuthenticatedUser requestedUser) {
+        StoryEntity targetStory = storyRepository.getStoryByUuid(storyUuid.toString())
+                .orElseThrow(() -> new HttpResponseException(ErrorCode.NOT_FOUND));
+
+        // 공개되지 않은 스토리는 찜할 수 없음
+        if (targetStory.getStatus() != StoryStatus.PUBLISHED) {
+            throw new HttpResponseException(ErrorCode.NOT_PUBLISHED_STORY);
+        }
+
+        // 요청한 사용자가
+        List<StoryZzimEntity> userZzims = storyZzimRepository.getZzimsOfUser(requestedUser.getUuid().toString());
+
+        // 해당 스토리를 찜한 적이 있다면
+        if (userZzims.stream().filter(zzim -> zzim.getStoryId() == targetStory.getId()).findFirst().isPresent()) {
+            // 스토리 찜 해제 처리
+            storyZzimRepository.deleteZzim(targetStory.getId(), requestedUser.getUuid().toString());
+            return false;
+        }
+        // 스토리를 찜한 적이 없다면
+        else {
+            // 스토리 찜 처리
+            storyZzimRepository.createZzim(targetStory.getId(), requestedUser.getUuid().toString());
+            return true;
+        }
     }
 
     private String getRandomFilenameFromUri(URI uri) {

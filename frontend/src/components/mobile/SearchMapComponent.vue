@@ -140,34 +140,6 @@ function updateMap(stories) {
         clickedMarker.value = marker
         storyModalOpen.value = true
         selectedStory.value = story
-
-        // // 기존에 스토리가 선택되어 렌더링 되고 있던 스팟을 지워줌
-        // renderedSpotMarkers.forEach((marker) => {
-        //   marker.setMap(null)
-        // })
-        // // 새 스팟 마커 그리기
-        // renderedSpotMarkers = []
-        // for (let spot of spotsByStory.value[story.uuid].spots) {
-        //   const spotMarker = new window.kakao.maps.Marker({
-        //     position: new window.kakao.maps.LatLng(spot.latitude, spot.longitude),
-        //   })
-        //   spotMarker.setMap(mapInstance)
-        //   renderedSpotMarkers.push(spotMarker)
-        // }
-        // // 스팟을 잇는 선 초기화
-        // if (renderedStoryPathLine != null) {
-        //   renderedStoryPathLine.setMap(null)
-        // }
-        // // 새 경로 선 그리기
-        // const linePath = spots.map((s) => new window.kakao.maps.LatLng(s.latitude, s.longitude))
-        // renderedStoryPathLine = new kakao.maps.Polyline({
-        //   path: linePath,
-        //   strokeWeight: 5,
-        //   strokeColor: '#FFAE00',
-        //   strokeOpacity: 0.7,
-        //   strokeStyle: 'solid',
-        // })
-        // renderedStoryPathLine.setMap(mapInstance)
       })
 
       firstSpotMarkers.push(marker)

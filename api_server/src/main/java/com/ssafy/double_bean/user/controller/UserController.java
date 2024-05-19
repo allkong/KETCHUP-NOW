@@ -4,6 +4,9 @@ import com.ssafy.double_bean.common.dto.DuplicationCheckResponseDto;
 import com.ssafy.double_bean.common.exception.ErrorCode;
 import com.ssafy.double_bean.common.exception.ErrorResponse;
 import com.ssafy.double_bean.common.exception.HttpResponseException;
+import com.ssafy.double_bean.story.dto.StoryZzimResponseDto;
+import com.ssafy.double_bean.story.model.entity.StoryZzimEntity;
+import com.ssafy.double_bean.story.service.StoryService;
 import com.ssafy.double_bean.user.dto.AuthenticatedUser;
 import com.ssafy.double_bean.user.dto.SignUpRequestDto;
 import com.ssafy.double_bean.user.dto.UserResponseDto;
@@ -20,15 +23,19 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/users")
 @Tag(name = "User API", description = "사용자 관련 API")
 public class UserController {
     private final UserService userService;
+    private final StoryService storyService;
     private final AuthenticatedUser requestedUser;
 
-    public UserController(UserService userService, AuthenticatedUser requestedUser) {
+    public UserController(UserService userService, StoryService storyService, AuthenticatedUser requestedUser) {
         this.userService = userService;
+        this.storyService = storyService;
         this.requestedUser = requestedUser;
     }
 
@@ -73,5 +80,12 @@ public class UserController {
         } else {
             throw new HttpResponseException(ErrorCode.INVALID_REQUEST);
         }
+    }
+
+    @GetMapping("/me/zzims")
+    public ResponseEntity<List<StoryZzimResponseDto>> getZzimsOfUser() {
+        List<StoryZzimEntity> entities = storyService.getZzimsOfUser(requestedUser);
+        List<StoryZzimResponseDto> dtos = entities.stream().map(StoryZzimResponseDto::fromEntity).toList();
+        return ResponseEntity.ok(dtos);
     }
 }
