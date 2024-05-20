@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted, inject } from 'vue'
 import { useRoute } from 'vue-router'
+import draggable from 'vuedraggable'
 import { SearchOutlined, FlagOutlined, RobotOutlined } from '@ant-design/icons-vue'
 import AttractionMarkerIcon from '@/assets/icon/marker/star-marker-blue.png'
 import KeywordMarkerIcon from '@/assets/icon/marker/star-marker-orange.png'
@@ -13,7 +14,7 @@ const route = useRoute()
 const axios = inject('axios')
 
 const leftCollapsed = ref(false)
-const rightCollapsed = ref(true)
+const rightCollapsed = ref(false)
 const selectedKeys = ref(['1'])
 const keyword = ref('')
 
@@ -42,7 +43,6 @@ const isAddSpotModalOpen = ref(false)
 const spots = ref([])
 
 onMounted(() => {
-  onRightCollapse(true)
   loadKakaoMap(mapContainer.value)
 })
 
@@ -243,7 +243,8 @@ const onCloseAddSpotModal = () => {
 const fetchSpots = () => {
   axios.get(`/stories/${route.params.uuid}/spots`).then((response) => {
     spots.value = response.data
-    spots.value.forEach((spot) => console.log(spot))
+    spots.value.sort((a, b) => a.orderIndex - b.orderIndex)
+    console.log(spots.value)
   })
 }
 </script>
@@ -302,7 +303,7 @@ const fetchSpots = () => {
             </a-col>
           </a-row>
           <a-row style="height: 100%">
-            <a-card class="left-outer-sider-cards">
+            <a-card class="sider-cards">
               <a-card-grid
                 v-for="place in placeList"
                 :key="place.id"
@@ -319,7 +320,7 @@ const fetchSpots = () => {
         </div>
         <div v-show="selectedKeys[0] === '2'" style="height: 100%">
           <h2>관광지 목록</h2>
-          <a-card class="left-outer-sider-cards">
+          <a-card class="sider-cards">
             <p v-show="attractionList.length === 0">관광지 버튼을 클릭해 주세요!</p>
             <a-card-grid
               v-for="attraction in attractionList"
@@ -363,20 +364,20 @@ const fetchSpots = () => {
       reverseArrow
     >
       <div class="sider-content">
-        <h2>스팟 저장소</h2>
-        <div v-for="spot in spots">
-          <a-card hoverable style="width: 100%">
-            <a-row>
-              <a-col :span="10">
+        <h2>담은 스팟</h2>
+        <div class="sider-cards">
+          <a-card v-for="spot in spots" hoverable class="spot-card">
+            <a-row style="height: 100%">
+              <a-col :span="8" style="width: 100%; height: 100%">
                 <img
-                  style="width: 5rem"
                   :src="spot.thumnailUri || DefaultImage"
                   alt=""
+                  class="spot-cover-image"
                   @error="$replaceDefaultImage"
                 />
               </a-col>
-              <a-col :span="14">
-                <a-card-meta :title="spot.title" :description="spot.description"> </a-card-meta>
+              <a-col :span="16" class="card-text">
+                <a-card-meta :title="spot.title" :description="spot.description"></a-card-meta>
               </a-col>
             </a-row>
           </a-card>
@@ -402,6 +403,7 @@ const fetchSpots = () => {
 
 .sider-content {
   margin: 1rem;
+  height: 100%;
 }
 
 .left-inner-sider {
@@ -417,7 +419,7 @@ const fetchSpots = () => {
   z-index: 1;
 }
 
-.left-outer-sider-cards {
+.sider-cards {
   overflow: auto;
   height: 100%;
 }
@@ -437,5 +439,33 @@ const fetchSpots = () => {
 
 .attraction-item {
   width: 100%;
+}
+
+.spot-card {
+  width: 100%;
+  height: 8rem;
+  margin-bottom: 0.5rem;
+}
+
+::v-deep .spot-card .ant-card-body {
+  height: 100%;
+}
+
+.spot-cover-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.card-text {
+  padding-left: 1rem;
+}
+
+::v-deep .card-text .ant-card-meta-description {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
 }
 </style>
