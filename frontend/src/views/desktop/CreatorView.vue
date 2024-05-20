@@ -267,7 +267,9 @@ const onCloseAddSpotModal = () => {
 
 const fetchSpots = async () => {
   return axios.get(`/stories/${route.params.uuid}/spots`).then((response) => {
+    console.log('updated from:', spots.value)
     spots.value = response.data
+    console.log('updated to:', spots.value)
     spots.value.sort((a, b) => a.orderIndex - b.orderIndex)
   })
 }
@@ -450,7 +452,7 @@ function focusToSpotMarker(spot) {
           </a-card>
         </div>
         <div v-show="selectedKeys[0] === '3'" style="height: 100%">
-          <AIStoryGenerationBoard :spots="spots" />
+          <AIStoryGenerationBoard :spots="spots" :story="story" @refresh-spots="fetchSpots" />
         </div>
       </div>
     </a-layout-sider>
