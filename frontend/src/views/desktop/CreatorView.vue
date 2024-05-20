@@ -125,7 +125,7 @@ const getAttractions = () => {
           image: attractionMarkerImage,
         })
 
-        marker.placeData = attraction
+        marker.placeData = { ...attraction, placeType: 'attraction' }
 
         window.kakao.maps.event.addListener(marker, 'click', () => {
           clickedMarker.value = marker
@@ -177,7 +177,7 @@ const searchByKeyword = () => {
           image: keywordMarkerImage,
         })
 
-        marker.placeData = place
+        marker.placeData = { ...place, placeType: 'keyword' }
 
         window.kakao.maps.event.addListener(marker, 'click', () => {
           clickedMarker.value = marker
@@ -285,7 +285,7 @@ const onChangeSpot = (e) => {
   <AddSpotModal
     v-if="isAddSpotModalOpen"
     :modal-open="isAddSpotModalOpen"
-    :marker="clickedMarker.placeData"
+    :place="clickedMarker.placeData"
     @close-add-spot-modal="onCloseAddSpotModal"
   />
   <a-layout>
