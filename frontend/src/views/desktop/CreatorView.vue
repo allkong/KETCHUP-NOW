@@ -17,7 +17,7 @@ const axios = inject('axios')
 
 const leftCollapsed = ref(false)
 const rightCollapsed = ref(false)
-const selectedKeys = ref(['3'])
+const selectedKeys = ref(['1'])
 const keyword = ref('')
 
 const mapInfo = {
@@ -378,7 +378,7 @@ function focusToSpotMarker(spot) {
         <a-menu-item key="2" @click="openLeftSider">
           <FlagOutlined />
         </a-menu-item>
-        <a-menu-item key="3">
+        <a-menu-item key="3" v-if="story.status === 'WRITING'">
           <RobotOutlined />
         </a-menu-item>
       </a-menu>
@@ -395,7 +395,7 @@ function focusToSpotMarker(spot) {
     >
       <div class="sider-content">
         <div v-show="selectedKeys[0] === '1'" style="height: 100%">
-          <h2>키워드 검색</h2>
+          <h2 style="text-align: center">키워드 검색</h2>
           <a-row justify="center">
             <a-col>
               <div>
@@ -431,7 +431,7 @@ function focusToSpotMarker(spot) {
           </a-row>
         </div>
         <div v-show="selectedKeys[0] === '2'" style="height: 100%">
-          <h2>관광지 목록</h2>
+          <h2 style="text-align: center">관광지 목록</h2>
           <a-card class="sider-cards">
             <p v-show="attractionList.length === 0">관광지 버튼을 클릭해 주세요!</p>
             <a-card-grid
