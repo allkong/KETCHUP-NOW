@@ -1,11 +1,18 @@
 <script setup>
 import { ref, inject, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router'
 import draggable from 'vuedraggable'
 const { VITE_KAKAO_MAP_KEY } = import.meta.env
 import { message } from 'ant-design-vue'
-import { SearchOutlined, FlagOutlined, RobotOutlined } from '@ant-design/icons-vue'
-import AttractionMarkerIcon from '@/assets/icon/marker/star-marker-blue.png'
+import { Modal } from 'ant-design-vue'
+import {
+  SearchOutlined,
+  FlagOutlined,
+  RobotOutlined,
+  VerticalAlignBottomOutlined,
+} from '@ant-design/icons-vue'
+import AttractionMarkerIcon from '@/assets/icon/marker/star-marker-sky.png'
+import SelectedAttractionMarkerIcon from '@/assets/icon/marker/star-marker-blue.png'
 import KeywordMarkerIcon from '@/assets/icon/marker/star-marker-orange.png'
 import SelectedKeywordMarkerIcon from '@/assets/icon/marker/star-marker-pink.png'
 import AddSpotModal from '@/components/desktop/AddSpotModal.vue'
@@ -13,6 +20,7 @@ import DefaultImage from '@/assets/default-image.jpg'
 import AIStoryGenerationBoard from '@/components/desktop/AIStoryGenerationBoard.vue'
 
 const route = useRoute()
+const router = useRouter()
 const axios = inject('axios')
 
 const leftCollapsed = ref(false)
@@ -39,7 +47,7 @@ const selectAttractionTag = ref(false)
 let places = null
 const placeList = ref([])
 let keywordMarkers = []
-let selectedKeywordMarker = null
+let selectedPlaceMarker = null
 
 const clickedMarker = ref()
 const isAddSpotModalOpen = ref(false)
@@ -73,6 +81,26 @@ const onRightCollapse = (collapsed) => {
 const openLeftSider = () => {
   leftCollapsed.value = false
 }
+
+const onExit = () => {
+  leftCollapsed.value = true
+  router.push({ name: 'my-stories' })
+}
+
+onBeforeRouteLeave((to, from, next) => {
+  Modal.confirm({
+    title: '정말 나가시겠습니까?',
+    content: '현재 페이지를 벗어나면 변경 사항이 저장되지 않을 수 있으니 꼭 저장해 주세요!',
+    okText: '그래도 나갈래요',
+    cancelText: '안나갈래요',
+    onOk() {
+      next()
+    },
+    onCancel() {
+      next(false)
+    },
+  })
+})
 
 const loadKakaoMap = (container) => {
   const script = document.createElement('script')
@@ -121,7 +149,6 @@ const getAttractions = () => {
     .then((response) => response.data.data)
     .then((attractions) => {
       attractionList.value = attractions
-      console.log(attractionList.value)
       // 받아온 관광지들로 마커 생성하여 attractionsMarkers 배열에 추가
       removeAllMarkers(attractionMarkers)
       attractions.forEach((attraction) => {
@@ -143,6 +170,7 @@ const getAttractions = () => {
         })
 
         marker.placeData = { ...attraction, placeType: 'attraction' }
+        attraction.marker = marker
 
         window.kakao.maps.event.addListener(marker, 'click', () => {
           clickedMarker.value = marker
@@ -175,6 +203,10 @@ const handleChange = () => {
 
 // 키워드 검색
 const searchByKeyword = () => {
+  if (keyword.value === '') {
+    removeAllMarkers(keywordMarkers)
+    return
+  }
   places.keywordSearch(keyword.value, (data, status, pagination) => {
     if (status === window.kakao.maps.services.Status.OK) {
       removeAllMarkers(keywordMarkers)
@@ -232,18 +264,12 @@ const searchByKeyword = () => {
   })
 }
 
-const moveToLocation = (place) => {
+const moveToPlaceLocation = (place) => {
   const newPosition = new window.kakao.maps.LatLng(place.y, place.x)
   mapInstance.setCenter(newPosition)
 
-  if (selectedKeywordMarker) {
-    // 기존에 선택한 마커 이미지 되돌리기
-    const keywordMarkerImage = new window.kakao.maps.MarkerImage(
-      KeywordMarkerIcon,
-      new window.kakao.maps.Size(35, 35),
-      { offset: new window.kakao.maps.Point(17, 35) },
-    )
-    selectedKeywordMarker.setImage(keywordMarkerImage)
+  if (selectedPlaceMarker) {
+    resetMarkerImage(selectedPlaceMarker)
   }
 
   // 새로 선택한 마커 이미지 변경
@@ -254,10 +280,50 @@ const moveToLocation = (place) => {
   )
   place.marker.setImage(selectedKeywordMarkerImage)
   place.marker.setZIndex(1)
-  selectedKeywordMarker = place.marker
+  selectedPlaceMarker = place.marker
 
   if (selectAttractionTag.value) {
     getAttractions()
+  }
+}
+
+const moveToAttractionLocation = (attraction) => {
+  const newPosition = new window.kakao.maps.LatLng(attraction.latitude, attraction.longitude)
+  mapInstance.setCenter(newPosition)
+
+  if (selectedPlaceMarker) {
+    resetMarkerImage(selectedPlaceMarker)
+  }
+
+  // 새로 선택한 마커 이미지 변경
+  const selectedAttractionMarkerImage = new window.kakao.maps.MarkerImage(
+    SelectedAttractionMarkerIcon,
+    new window.kakao.maps.Size(45, 45),
+    { offset: new window.kakao.maps.Point(23, 35) },
+  )
+  attraction.marker.setImage(selectedAttractionMarkerImage)
+  attraction.marker.setZIndex(1)
+  selectedPlaceMarker = attraction.marker
+}
+
+const resetMarkerImage = (marker) => {
+  const type = marker.placeData.placeType
+  if (type === 'keyword') {
+    // 기존에 선택한 마커 이미지 되돌리기
+    const keywordMarkerImage = new window.kakao.maps.MarkerImage(
+      KeywordMarkerIcon,
+      new window.kakao.maps.Size(35, 35),
+      { offset: new window.kakao.maps.Point(17, 35) },
+    )
+    selectedPlaceMarker.setImage(keywordMarkerImage)
+  } else if (type === 'attraction') {
+    // 기존에 선택한 마커 이미지 되돌리기
+    const attractionMarkerImage = new window.kakao.maps.MarkerImage(
+      AttractionMarkerIcon,
+      new window.kakao.maps.Size(35, 35),
+      { offset: new window.kakao.maps.Point(17, 35) },
+    )
+    selectedPlaceMarker.setImage(attractionMarkerImage)
   }
 }
 
@@ -386,8 +452,11 @@ function focusToSpotMarker(spot) {
         <a-menu-item key="2" @click="openLeftSider">
           <FlagOutlined />
         </a-menu-item>
-        <a-menu-item key="3">
+        <a-menu-item key="3" @click="openLeftSider">
           <RobotOutlined />
+        </a-menu-item>
+        <a-menu-item key="4" @click="onExit">
+          <VerticalAlignBottomOutlined style="transform: rotate(90deg)" />
         </a-menu-item>
       </a-menu>
     </a-layout-sider>
@@ -428,7 +497,7 @@ function focusToSpotMarker(spot) {
                 v-for="place in placeList"
                 :key="place.id"
                 class="attraction-item"
-                @click="moveToLocation(place)"
+                @click="moveToPlaceLocation(place)"
               >
                 <h3>{{ place.place_name }}</h3>
                 <p>{{ place.address_name }}</p>
@@ -446,6 +515,7 @@ function focusToSpotMarker(spot) {
               v-for="attraction in attractionList"
               :key="attraction.id"
               class="attraction-item"
+              @click="moveToAttractionLocation(attraction)"
             >
               <img
                 :src="attraction.secondImageUrl"
