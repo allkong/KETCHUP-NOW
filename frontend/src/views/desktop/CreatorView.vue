@@ -74,6 +74,7 @@ const loadKakaoMap = (container) => {
       mapInstance = new window.kakao.maps.Map(container, options) // 지도 생성
       places = new window.kakao.maps.services.Places()
 
+      onRightCollapse(true)
       fetchSpots()
 
       // 지도 이동 이벤트
@@ -244,13 +245,42 @@ const fetchSpots = () => {
   axios.get(`/stories/${route.params.uuid}/spots`).then((response) => {
     spots.value = response.data
     spots.value.sort((a, b) => a.orderIndex - b.orderIndex)
-    console.log(spots.value)
+    console.log('연동')
   })
+}
+
+const onChangeSpot = (e) => {
+  const targetSpotElement = e.moved.element
+  const previousSpotIndex = e.moved.newIndex - 1
+  let previousSpotUuid = null
+
+  // 스팟 순서를 첫 번째로 이동하면 previousSpotUuid는 null
+  if (e.moved.newIndex !== 0) {
+    previousSpotUuid = spots.value[previousSpotIndex].uuid
+  }
+  console.log('previousSpotUuid:', previousSpotUuid)
+  console.log('latitude:', targetSpotElement.latitude)
+  console.log('longitude:', targetSpotElement.longitude)
+  console.log('title:', targetSpotElement.title)
+  console.log('description:', targetSpotElement.description)
+  console.log('eventType:', targetSpotElement.eventType)
+
+  axios
+    .put(`stories/${route.params.uuid}/spots/${targetSpotElement.uuid}`, {
+      previousSpotUuid: previousSpotUuid,
+      latitude: targetSpotElement.latitude,
+      longitude: targetSpotElement.longitude,
+      title: targetSpotElement.title,
+      description: targetSpotElement.description,
+      eventType: targetSpotElement.eventType,
+    })
+    .then((response) => console.log(response.data))
+    .catch((error) => console.error(error))
 }
 </script>
 
 <template>
-  <a-layout-header> </a-layout-header>
+  <!-- <a-layout-header> </a-layout-header> -->
   <AddSpotModal
     v-if="isAddSpotModalOpen"
     :modal-open="isAddSpotModalOpen"
@@ -365,23 +395,28 @@ const fetchSpots = () => {
     >
       <div class="sider-content">
         <h2>담은 스팟</h2>
-        <div class="sider-cards">
-          <a-card v-for="spot in spots" hoverable class="spot-card">
-            <a-row style="height: 100%">
-              <a-col :span="8" style="width: 100%; height: 100%">
-                <img
-                  :src="spot.thumnailUri || DefaultImage"
-                  alt=""
-                  class="spot-cover-image"
-                  @error="$replaceDefaultImage"
-                />
-              </a-col>
-              <a-col :span="16" class="card-text">
-                <a-card-meta :title="spot.title" :description="spot.description"></a-card-meta>
-              </a-col>
-            </a-row>
-          </a-card>
-        </div>
+        <draggable v-model="spots" item-key="orderIndex" class="sider-cards" @change="onChangeSpot">
+          <template #item="{ element }">
+            <a-card hoverable class="spot-card">
+              <a-row style="height: 100%">
+                <a-col :span="8" style="height: 100%">
+                  <img
+                    :src="element.thumnailUri || DefaultImage"
+                    alt=""
+                    class="spot-cover-image"
+                    @error="replaceDefaultImage"
+                  />
+                </a-col>
+                <a-col :span="16" class="card-text">
+                  <a-card-meta
+                    :title="element.title"
+                    :description="element.description"
+                  ></a-card-meta>
+                </a-col>
+              </a-row>
+            </a-card>
+          </template>
+        </draggable>
       </div>
     </a-layout-sider>
   </a-layout>
@@ -402,7 +437,7 @@ const fetchSpots = () => {
 }
 
 .sider-content {
-  margin: 1rem;
+  padding: 1rem;
   height: 100%;
 }
 
@@ -459,9 +494,10 @@ const fetchSpots = () => {
 
 .card-text {
   padding-left: 1rem;
+  height: 100%;
 }
 
-::v-deep .card-text .ant-card-meta-description {
+::v-deep .ant-card-meta-description {
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
