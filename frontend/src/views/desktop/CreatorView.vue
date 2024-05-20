@@ -8,6 +8,7 @@ import KeywordMarkerIcon from '@/assets/icon/marker/star-marker-orange.png'
 import SelectedKeywordMarkerIcon from '@/assets/icon/marker/star-marker-pink.png'
 import AddSpotModal from '@/components/desktop/AddSpotModal.vue'
 import DefaultImage from '@/assets/default-image.jpg'
+import AIStoryGenerationBoard from '@/components/desktop/AIStoryGenerationBoard.vue'
 const { VITE_KAKAO_MAP_KEY } = import.meta.env
 
 const route = useRoute()
@@ -15,7 +16,7 @@ const axios = inject('axios')
 
 const leftCollapsed = ref(false)
 const rightCollapsed = ref(false)
-const selectedKeys = ref(['1'])
+const selectedKeys = ref(['3'])
 const keyword = ref('')
 
 const mapInfo = {
@@ -368,6 +369,9 @@ const onChangeSpot = (e) => {
               <p>{{ attraction.address }}</p>
             </a-card-grid>
           </a-card>
+        </div>
+        <div v-show="selectedKeys[0] === '3'" style="height: 100%">
+          <AIStoryGenerationBoard />
         </div>
       </div>
     </a-layout-sider>
