@@ -17,7 +17,7 @@ function doLogout() {
 <template>
   <a-menu mode="horizontal" class="menu-items" v-if="userStore.userInfo !== null">
     <a-menu-item>
-      <RouterLink :to="{ name: 'creator' }">스토리 창작</RouterLink>
+      <RouterLink :to="{ name: 'my-stories' }">내스토리</RouterLink>
     </a-menu-item>
     <a-menu-item @click="doLogout">로그아웃</a-menu-item>
   </a-menu>
