@@ -484,7 +484,7 @@ const onChangeSpot = (e) => {
   margin-bottom: 0.5rem;
 }
 
-::v-deep .spot-card .ant-card-body {
+:deep(.spot-card .ant-card-body) {
   height: 100%;
 }
 
@@ -499,7 +499,7 @@ const onChangeSpot = (e) => {
   height: 100%;
 }
 
-::v-deep .ant-card-meta-description {
+:deep(.ant-card-meta-description) {
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;

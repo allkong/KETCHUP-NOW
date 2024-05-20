@@ -108,8 +108,8 @@ p {
   justify-content: center;
 }
 
-::v-deep .ant-card-image,
-::v-deep .ant-card-body {
+:deep(.ant-card-image),
+:deep(.ant-card-body) {
   width: 19rem;
   white-space: nowrap;
   overflow: hidden;
