@@ -83,8 +83,8 @@ public class StoryController {
     @PutMapping("/stories/{story-uuid}")
     public ResponseEntity<StoryResponseDto> getStory(
             @PathVariable("story-uuid") UUID storyUuid,
-            @Valid StoryUpdateRequestDto updateDto, @RequestPart(required = false) MultipartFile imageFile) throws IOException, URISyntaxException {
-        StoryEntity updatedEntity = storyService.updateStory(storyUuid, requestedUser, updateDto, imageFile);
+            @Valid StoryUpdateRequestDto updateDto) throws IOException, URISyntaxException {
+        StoryEntity updatedEntity = storyService.updateStory(storyUuid, requestedUser, updateDto);
         storyService.setPresignedUriFields(updatedEntity);
         return ResponseEntity.ok(StoryResponseDto.fromEntity(updatedEntity));
     }
@@ -148,10 +148,8 @@ public class StoryController {
     @PutMapping("/stories/{story-uuid}/spots/{spot-uuid}")
     public ResponseEntity<SpotResponseDto> updateSpot(@PathVariable("story-uuid") UUID storyUuid,
                                                       @PathVariable("spot-uuid") UUID spotUuid,
-                                                      @Valid SpotUpdateRequestDto requestDto,
-                                                      @RequestParam(required = false) MultipartFile spotImageFile,
-                                                      @RequestParam(required = false) MultipartFile eventImageFile) throws IOException {
-        SpotEntity updatedEntity = spotService.updateSpot(storyUuid, spotUuid, requestDto, spotImageFile, eventImageFile, requestedUser);
+                                                      @Valid SpotUpdateRequestDto requestDto) throws IOException {
+        SpotEntity updatedEntity = spotService.updateSpot(storyUuid, spotUuid, requestDto, requestedUser);
         SpotResponseDto dto = SpotResponseDto.fromEntity(updatedEntity);
         return ResponseEntity.ok(dto);
     }

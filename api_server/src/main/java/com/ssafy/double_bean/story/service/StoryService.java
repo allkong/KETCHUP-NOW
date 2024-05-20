@@ -25,7 +25,7 @@ public interface StoryService {
     StoryEntity getStory(UUID storyUuid, AuthenticatedUser requestedUser);
 
     StoryEntity updateStory(UUID storyUuid, AuthenticatedUser requestedUser,
-                            StoryUpdateRequestDto updateDto, MultipartFile newImage) throws IOException, URISyntaxException;
+                            StoryUpdateRequestDto updateDto) throws IOException, URISyntaxException;
 
     void deleteStory(UUID storyUuid, AuthenticatedUser requestedUser);
 
