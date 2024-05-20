@@ -1,16 +1,20 @@
 <script setup>
 import { ref, onMounted, inject } from 'vue'
+import { useRoute } from 'vue-router'
+import draggable from 'vuedraggable'
 import { SearchOutlined, FlagOutlined, RobotOutlined } from '@ant-design/icons-vue'
 import AttractionMarkerIcon from '@/assets/icon/marker/star-marker-blue.png'
 import KeywordMarkerIcon from '@/assets/icon/marker/star-marker-orange.png'
 import SelectedKeywordMarkerIcon from '@/assets/icon/marker/star-marker-pink.png'
 import AddSpotModal from '@/components/desktop/AddSpotModal.vue'
+import DefaultImage from '@/assets/default-image.jpg'
 const { VITE_KAKAO_MAP_KEY } = import.meta.env
 
+const route = useRoute()
 const axios = inject('axios')
 
 const leftCollapsed = ref(false)
-const rightCollapsed = ref(true)
+const rightCollapsed = ref(false)
 const selectedKeys = ref(['1'])
 const keyword = ref('')
 
@@ -35,10 +39,11 @@ const placeList = ref([])
 let keywordMarkers = []
 let selectedKeywordMarker = null
 
+const clickedMarker = ref()
 const isAddSpotModalOpen = ref(false)
+const spots = ref([])
 
 onMounted(() => {
-  onRightCollapse(true)
   loadKakaoMap(mapContainer.value)
 })
 
@@ -69,6 +74,9 @@ const loadKakaoMap = (container) => {
 
       mapInstance = new window.kakao.maps.Map(container, options) // 지도 생성
       places = new window.kakao.maps.services.Places()
+
+      onRightCollapse(true)
+      fetchSpots()
 
       // 지도 이동 이벤트
       window.kakao.maps.event.addListener(mapInstance, 'dragend', () => {
@@ -117,7 +125,10 @@ const getAttractions = () => {
           image: attractionMarkerImage,
         })
 
+        marker.placeData = attraction
+
         window.kakao.maps.event.addListener(marker, 'click', () => {
+          clickedMarker.value = marker
           isAddSpotModalOpen.value = true
           console.log('관광지 클릭')
         })
@@ -166,7 +177,10 @@ const searchByKeyword = () => {
           image: keywordMarkerImage,
         })
 
+        marker.placeData = place
+
         window.kakao.maps.event.addListener(marker, 'click', () => {
+          clickedMarker.value = marker
           isAddSpotModalOpen.value = true
           console.log('키워드 클릭')
         })
@@ -233,16 +247,49 @@ const moveToLocation = (place) => {
 const onCloseAddSpotModal = () => {
   isAddSpotModalOpen.value = false
 }
+
+const fetchSpots = () => {
+  axios.get(`/stories/${route.params.uuid}/spots`).then((response) => {
+    spots.value = response.data
+    spots.value.sort((a, b) => a.orderIndex - b.orderIndex)
+    console.log('연동')
+  })
+}
+
+const onChangeSpot = (e) => {
+  const targetSpotElement = e.moved.element
+  const previousSpotIndex = e.moved.newIndex - 1
+  let previousSpotUuid = null
+
+  // 스팟 순서를 첫 번째로 이동하면 previousSpotUuid는 null
+  if (e.moved.newIndex !== 0) {
+    previousSpotUuid = spots.value[previousSpotIndex].uuid
+  }
+
+  axios
+    .put(`stories/${route.params.uuid}/spots/${targetSpotElement.uuid}`, {
+      previousSpotUuid: previousSpotUuid,
+      latitude: targetSpotElement.latitude,
+      longitude: targetSpotElement.longitude,
+      title: targetSpotElement.title,
+      description: targetSpotElement.description,
+      eventType: targetSpotElement.eventType,
+    })
+    .then((response) => console.log(response.data))
+    .catch((error) => console.error(error))
+}
 </script>
 
 <template>
-  <a-layout-header> </a-layout-header>
+  <!-- <a-layout-header> </a-layout-header> -->
   <AddSpotModal
     v-if="isAddSpotModalOpen"
     :modal-open="isAddSpotModalOpen"
+    :marker="clickedMarker.placeData"
     @close-add-spot-modal="onCloseAddSpotModal"
   />
   <a-layout>
+    <!-- 좌측 안쪽 사이드바 -->
     <a-layout-sider width="4rem" class="left-inner-sider">
       <a-menu v-model:selectedKeys="selectedKeys" theme="light" mode="inline">
         <a-menu-item key="1" @click="openLeftSider">
@@ -256,6 +303,7 @@ const onCloseAddSpotModal = () => {
         </a-menu-item>
       </a-menu>
     </a-layout-sider>
+    <!-- 좌측 바깥쪽 사이드바 -->
     <a-layout-sider
       breakpoint="lg"
       collapsed-width="0"
@@ -265,63 +313,65 @@ const onCloseAddSpotModal = () => {
       collapsible
       class="left-sider-shadow"
     >
-      <div v-show="selectedKeys[0] === '1'" style="height: 100%">
-        <h2>키워드 검색</h2>
-        <a-row justify="center">
-          <a-col>
-            <div>
-              <a-input
-                v-model:value="keyword"
-                placeholder="키워드 검색"
-                @keyup.enter="searchByKeyword"
+      <div class="sider-content">
+        <div v-show="selectedKeys[0] === '1'" style="height: 100%">
+          <h2>키워드 검색</h2>
+          <a-row justify="center">
+            <a-col>
+              <div>
+                <a-input
+                  v-model:value="keyword"
+                  placeholder="키워드 검색"
+                  @keyup.enter="searchByKeyword"
+                >
+                  <template #prefix>
+                    <SearchOutlined
+                      style="color: tomato; margin-right: 0.5rem"
+                      @click="searchByKeyword"
+                    />
+                  </template>
+                </a-input>
+              </div>
+            </a-col>
+          </a-row>
+          <a-row style="height: 100%">
+            <a-card class="sider-cards">
+              <a-card-grid
+                v-for="place in placeList"
+                :key="place.id"
+                class="attraction-item"
+                @click="moveToLocation(place)"
               >
-                <template #prefix>
-                  <SearchOutlined
-                    style="color: tomato; margin-right: 0.5rem"
-                    @click="searchByKeyword"
-                  />
-                </template>
-              </a-input>
-            </div>
-          </a-col>
-        </a-row>
-        <a-row style="height: 100%">
-          <a-card class="left-outer-sider-cards">
+                <h3>{{ place.place_name }}</h3>
+                <p>{{ place.address_name }}</p>
+                <p>{{ place.road_address_name }}</p>
+                <p>{{ place.phone }}</p>
+              </a-card-grid>
+            </a-card>
+          </a-row>
+        </div>
+        <div v-show="selectedKeys[0] === '2'" style="height: 100%">
+          <h2>관광지 목록</h2>
+          <a-card class="sider-cards">
+            <p v-show="attractionList.length === 0">관광지 버튼을 클릭해 주세요!</p>
             <a-card-grid
-              v-for="place in placeList"
-              :key="place.id"
+              v-for="attraction in attractionList"
+              :key="attraction.id"
               class="attraction-item"
-              @click="moveToLocation(place)"
             >
-              <h3>{{ place.place_name }}</h3>
-              <p>{{ place.address_name }}</p>
-              <p>{{ place.road_address_name }}</p>
-              <p>{{ place.phone }}</p>
+              <img
+                :src="attraction.secondImageUrl"
+                @error="$replaceDefaultImage"
+                style="width: 10rem"
+              />
+              <h3>{{ attraction.title }}</h3>
+              <p>{{ attraction.address }}</p>
             </a-card-grid>
           </a-card>
-        </a-row>
-      </div>
-      <div v-show="selectedKeys[0] === '2'" style="height: 100%">
-        <h2>관광지 목록</h2>
-        <a-card class="left-outer-sider-cards">
-          <p v-show="attractionList.length === 0">관광지 버튼을 클릭해 주세요!</p>
-          <a-card-grid
-            v-for="attraction in attractionList"
-            :key="attraction.id"
-            class="attraction-item"
-          >
-            <img
-              :src="attraction.secondImageUrl"
-              @error="$replaceDefaultImage"
-              style="width: 10rem"
-            />
-            <h3>{{ attraction.title }}</h3>
-            <p>{{ attraction.address }}</p>
-          </a-card-grid>
-        </a-card>
+        </div>
       </div>
     </a-layout-sider>
-
+    <!-- 지도 -->
     <a-layout-content>
       <div id="map-wrap">
         <div ref="mapContainer" style="width: 100%; height: 100vh"></div>
@@ -334,17 +384,42 @@ const onCloseAddSpotModal = () => {
         </a-checkable-tag>
       </div>
     </a-layout-content>
-
+    <!-- 오른쪽 사이드바 -->
     <a-layout-sider
       breakpoint="lg"
       collapsed-width="0"
+      width="20rem"
       :collapsed="rightCollapsed"
       @collapse="onRightCollapse"
       :class="{ 'right-sider-shadow': !rightCollapsed }"
       collapsible
       reverseArrow
     >
-      내 스팟
+      <div class="sider-content">
+        <h2>담은 스팟</h2>
+        <draggable v-model="spots" item-key="orderIndex" class="sider-cards" @change="onChangeSpot">
+          <template #item="{ element }">
+            <a-card hoverable class="spot-card">
+              <a-row style="height: 100%">
+                <a-col :span="8" style="height: 100%">
+                  <img
+                    :src="element.thumnailUri || DefaultImage"
+                    alt=""
+                    class="spot-cover-image"
+                    @error="replaceDefaultImage"
+                  />
+                </a-col>
+                <a-col :span="16" class="card-text">
+                  <a-card-meta
+                    :title="element.title"
+                    :description="element.description"
+                  ></a-card-meta>
+                </a-col>
+              </a-row>
+            </a-card>
+          </template>
+        </draggable>
+      </div>
     </a-layout-sider>
   </a-layout>
 </template>
@@ -363,6 +438,11 @@ const onCloseAddSpotModal = () => {
   height: 100vh;
 }
 
+.sider-content {
+  padding: 1rem;
+  height: 100%;
+}
+
 .left-inner-sider {
   border-inline-end: 1px solid rgba(5, 5, 5, 0.06);
 }
@@ -376,7 +456,7 @@ const onCloseAddSpotModal = () => {
   z-index: 1;
 }
 
-.left-outer-sider-cards {
+.sider-cards {
   overflow: auto;
   height: 100%;
 }
@@ -396,5 +476,34 @@ const onCloseAddSpotModal = () => {
 
 .attraction-item {
   width: 100%;
+}
+
+.spot-card {
+  width: 100%;
+  height: 8rem;
+  margin-bottom: 0.5rem;
+}
+
+::v-deep .spot-card .ant-card-body {
+  height: 100%;
+}
+
+.spot-cover-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.card-text {
+  padding-left: 1rem;
+  height: 100%;
+}
+
+::v-deep .ant-card-meta-description {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
 }
 </style>
