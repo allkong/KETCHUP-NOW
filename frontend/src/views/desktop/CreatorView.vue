@@ -8,6 +8,8 @@ import KeywordMarkerIcon from '@/assets/icon/marker/star-marker-orange.png'
 import SelectedKeywordMarkerIcon from '@/assets/icon/marker/star-marker-pink.png'
 import AddSpotModal from '@/components/desktop/AddSpotModal.vue'
 import DefaultImage from '@/assets/default-image.jpg'
+import AIStoryGenerationBoard from '@/components/desktop/AIStoryGenerationBoard.vue'
+import { message } from 'ant-design-vue'
 const { VITE_KAKAO_MAP_KEY } = import.meta.env
 
 const route = useRoute()
@@ -15,7 +17,7 @@ const axios = inject('axios')
 
 const leftCollapsed = ref(false)
 const rightCollapsed = ref(false)
-const selectedKeys = ref(['1'])
+const selectedKeys = ref(['3'])
 const keyword = ref('')
 
 const mapInfo = {
@@ -42,10 +44,23 @@ let selectedKeywordMarker = null
 const clickedMarker = ref()
 const isAddSpotModalOpen = ref(false)
 const spots = ref([])
+let spotMarkers = []
+let spotMarkerPolyline = null
+
+const story = ref({
+  status: 'PUBLISHED',
+})
 
 onMounted(() => {
   loadKakaoMap(mapContainer.value)
+  fetchStory()
 })
+
+async function fetchStory() {
+  axios.get(`/stories/${route.params.uuid}`).then((resp) => {
+    story.value = resp.data
+  })
+}
 
 const onLeftCollapse = (collapsed) => {
   leftCollapsed.value = collapsed
@@ -76,7 +91,9 @@ const loadKakaoMap = (container) => {
       places = new window.kakao.maps.services.Places()
 
       onRightCollapse(true)
-      fetchSpots()
+      fetchSpots().then(() => {
+        drawSpotMarkers()
+      })
 
       // 지도 이동 이벤트
       window.kakao.maps.event.addListener(mapInstance, 'dragend', () => {
@@ -248,11 +265,10 @@ const onCloseAddSpotModal = () => {
   isAddSpotModalOpen.value = false
 }
 
-const fetchSpots = () => {
-  axios.get(`/stories/${route.params.uuid}/spots`).then((response) => {
+const fetchSpots = async () => {
+  return axios.get(`/stories/${route.params.uuid}/spots`).then((response) => {
     spots.value = response.data
     spots.value.sort((a, b) => a.orderIndex - b.orderIndex)
-    console.log('연동')
   })
 }
 
@@ -275,8 +291,72 @@ const onChangeSpot = (e) => {
       description: targetSpotElement.description,
       eventType: targetSpotElement.eventType,
     })
-    .then((response) => console.log(response.data))
+    .then((response) => {
+      fetchSpots().then(() => {
+        // 기존에 그려져 있던 스팟 마커와 경로 모두 삭제
+        removeAllMarkers(spotMarkers)
+        spotMarkers = []
+        spotMarkerPolyline.setMap(null)
+        spotMarkerPolyline = null
+
+        // 다시 그리기
+        drawSpotMarkers()
+      })
+    })
     .catch((error) => console.error(error))
+}
+
+async function drawSpotMarkers() {
+  let bounds = new window.kakao.maps.LatLngBounds()
+  const polylinePaths = []
+
+  spots.value.sort((s1, s2) => {
+    return s1.orderIndex - s2.orderIndex
+  })
+
+  spots.value.forEach((spot, idx) => {
+    const markerIcon = new window.kakao.maps.MarkerImage(
+      `/icon/numbers/spot-on-map-${idx + 1}.png`,
+      new window.kakao.maps.Size(23, 23),
+      {
+        offset: new window.kakao.maps.Point(12, 15),
+        shape: 'poly',
+      },
+    )
+
+    const markerPosition = new window.kakao.maps.LatLng(spot.latitude, spot.longitude)
+    polylinePaths.push(markerPosition)
+
+    const marker = new window.kakao.maps.Marker({
+      position: markerPosition,
+      image: markerIcon,
+    })
+
+    marker.spotUuid = spot.uuid
+
+    bounds.extend(markerPosition)
+
+    spotMarkers.push(marker)
+    marker.setMap(mapInstance)
+    mapInstance.setBounds(bounds)
+  })
+
+  spotMarkerPolyline = new window.kakao.maps.Polyline({
+    map: mapInstance,
+    path: polylinePaths,
+    strokeWeight: 2,
+    strokeColor: 'red',
+    strokeOpacity: 0.8,
+    strokeStyle: 'solid',
+  })
+}
+
+function focusToSpotMarker(spot) {
+  for (let spotMarker of spotMarkers) {
+    if (spot.uuid === spotMarker.spotUuid) {
+      mapInstance.setCenter(new window.kakao.maps.LatLng(spot.latitude, spot.longitude))
+    }
+  }
 }
 </script>
 
@@ -369,6 +449,9 @@ const onChangeSpot = (e) => {
             </a-card-grid>
           </a-card>
         </div>
+        <div v-show="selectedKeys[0] === '3'" style="height: 100%">
+          <AIStoryGenerationBoard :spots="spots" />
+        </div>
       </div>
     </a-layout-sider>
     <!-- 지도 -->
@@ -397,9 +480,15 @@ const onChangeSpot = (e) => {
     >
       <div class="sider-content">
         <h2>담은 스팟</h2>
-        <draggable v-model="spots" item-key="orderIndex" class="sider-cards" @change="onChangeSpot">
+        <draggable
+          :disabled="story.status === 'PUBLISHED'"
+          v-model="spots"
+          item-key="orderIndex"
+          class="sider-cards"
+          @change="onChangeSpot"
+        >
           <template #item="{ element }">
-            <a-card hoverable class="spot-card">
+            <a-card hoverable class="spot-card" @click="() => focusToSpotMarker(element)">
               <a-row style="height: 100%">
                 <a-col :span="8" style="height: 100%">
                   <img
