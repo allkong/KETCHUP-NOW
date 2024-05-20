@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, inject } from 'vue'
+import { ref, inject, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import draggable from 'vuedraggable'
 import { SearchOutlined, FlagOutlined, RobotOutlined } from '@ant-design/icons-vue'
@@ -265,6 +265,12 @@ const onCloseAddSpotModal = () => {
   isAddSpotModalOpen.value = false
 }
 
+// 스팟 등록 후 스팟 목록 업데이트
+const onUpdateSpots = () => {
+  fetchSpots()
+  isAddSpotModalOpen.value = false
+}
+
 const fetchSpots = async () => {
   return axios.get(`/stories/${route.params.uuid}/spots`).then((response) => {
     spots.value = response.data
@@ -366,7 +372,9 @@ function focusToSpotMarker(spot) {
     v-if="isAddSpotModalOpen"
     :modal-open="isAddSpotModalOpen"
     :place="clickedMarker.placeData"
+    :last-spot-uuid="spots.length > 0 ? spots[spots.length - 1].uuid : null"
     @close-add-spot-modal="onCloseAddSpotModal"
+    @update-spots="onUpdateSpots"
   />
   <a-layout>
     <!-- 좌측 안쪽 사이드바 -->
