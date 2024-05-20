@@ -39,6 +39,7 @@ const placeList = ref([])
 let keywordMarkers = []
 let selectedKeywordMarker = null
 
+const clickedMarker = ref()
 const isAddSpotModalOpen = ref(false)
 const spots = ref([])
 
@@ -124,7 +125,10 @@ const getAttractions = () => {
           image: attractionMarkerImage,
         })
 
+        marker.placeData = attraction
+
         window.kakao.maps.event.addListener(marker, 'click', () => {
+          clickedMarker.value = marker
           isAddSpotModalOpen.value = true
           console.log('관광지 클릭')
         })
@@ -173,7 +177,10 @@ const searchByKeyword = () => {
           image: keywordMarkerImage,
         })
 
+        marker.placeData = place
+
         window.kakao.maps.event.addListener(marker, 'click', () => {
+          clickedMarker.value = marker
           isAddSpotModalOpen.value = true
           console.log('키워드 클릭')
         })
@@ -258,12 +265,6 @@ const onChangeSpot = (e) => {
   if (e.moved.newIndex !== 0) {
     previousSpotUuid = spots.value[previousSpotIndex].uuid
   }
-  console.log('previousSpotUuid:', previousSpotUuid)
-  console.log('latitude:', targetSpotElement.latitude)
-  console.log('longitude:', targetSpotElement.longitude)
-  console.log('title:', targetSpotElement.title)
-  console.log('description:', targetSpotElement.description)
-  console.log('eventType:', targetSpotElement.eventType)
 
   axios
     .put(`stories/${route.params.uuid}/spots/${targetSpotElement.uuid}`, {
@@ -284,6 +285,7 @@ const onChangeSpot = (e) => {
   <AddSpotModal
     v-if="isAddSpotModalOpen"
     :modal-open="isAddSpotModalOpen"
+    :marker="clickedMarker.placeData"
     @close-add-spot-modal="onCloseAddSpotModal"
   />
   <a-layout>

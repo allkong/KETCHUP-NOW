@@ -3,18 +3,19 @@ import { ref } from 'vue'
 
 const props = defineProps({
   modalOpen: Boolean,
+  marker: Object,
 })
-
+console.log(props.marker)
 const isOpen = ref(props.modalOpen)
 
-const handleOk = (e) => {
+const onAddSpot = (e) => {
   console.log(e)
 }
 </script>
 
 <template>
   <div>
-    <a-modal v-model:open="isOpen" centered @cancel="$emit('closeAddSpotModal')">
+    <a-modal v-model:open="isOpen" centered @cancel="$emit('closeAddSpotModal')" @ok="onAddSpot">
       <a-row align="middle" justify="center">
         <a-col :span="4">
           <img src="@/assets/icon/flag.png" class="flag-icon" />
