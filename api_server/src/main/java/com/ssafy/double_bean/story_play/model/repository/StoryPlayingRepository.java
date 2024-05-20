@@ -53,4 +53,11 @@ public interface StoryPlayingRepository {
 
     @Delete("DELETE FROM story_playings WHERE player_id=(SELECT id FROM users WHERE uuid=#{playerUuid}) AND cleared_at IS NULL")
     void deleteCurrentPlaying(String playerUuid);
+
+    @Update("UPDATE story_playings SET cleared_at=CURRENT_TIMESTAMP WHERE uuid=#{playUuid}")
+    void setClearStoryPlaying(String playUuid);
+
+    @Select(SELECT_ALL_SQL + " WHERE sp.uuid=#{uuid}")
+    @ResultMap("storyPlayingResult")
+    Optional<StoryPlayingEntity> getByUuid(String uuid);
 }
