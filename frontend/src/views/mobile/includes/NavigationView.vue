@@ -13,7 +13,7 @@ import MenuComponent from '@/components/mobile/MenuComponent.vue'
   position: fixed;
   bottom: 0;
   width: 100%;
-  height: $footerHeight;
+  height: $navigationHeight;
   background-color: white;
   border-top: 1px solid #eaeaea;
 }

@@ -71,7 +71,7 @@ const menuList = ref([
 #menu-items {
   position: absolute;
   bottom: 0;
-  height: $footerHeight;
+  height: $navigationHeight;
   width: 100%;
 }
 
