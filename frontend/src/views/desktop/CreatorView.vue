@@ -2,6 +2,8 @@
 import { ref, inject, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import draggable from 'vuedraggable'
+const { VITE_KAKAO_MAP_KEY } = import.meta.env
+import { message } from 'ant-design-vue'
 import { SearchOutlined, FlagOutlined, RobotOutlined } from '@ant-design/icons-vue'
 import AttractionMarkerIcon from '@/assets/icon/marker/star-marker-blue.png'
 import KeywordMarkerIcon from '@/assets/icon/marker/star-marker-orange.png'
@@ -9,8 +11,6 @@ import SelectedKeywordMarkerIcon from '@/assets/icon/marker/star-marker-pink.png
 import AddSpotModal from '@/components/desktop/AddSpotModal.vue'
 import DefaultImage from '@/assets/default-image.jpg'
 import AIStoryGenerationBoard from '@/components/desktop/AIStoryGenerationBoard.vue'
-import { message } from 'ant-design-vue'
-const { VITE_KAKAO_MAP_KEY } = import.meta.env
 
 const route = useRoute()
 const axios = inject('axios')
