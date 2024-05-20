@@ -13,6 +13,7 @@ public enum ErrorCode {
     SPOT_MODIFY_FAILED(HttpStatus.BAD_REQUEST, "E0007", "Given request to modify spot is invalid."),
     ONLY_ONE_WRITING_STORY(HttpStatus.BAD_REQUEST, "E0008", "Can't duplicate story with status 'WRITING'."),
     NOT_CLEARED_STORY(HttpStatus.BAD_REQUEST, "E0009", "User didn't cleared story yet."),
+    NOT_PUBLISHED_STORY(HttpStatus.BAD_REQUEST, "E0010", "Requested story is not published."),
 
     // 401 Unauthorized
     UNKNOWN_USER(HttpStatus.UNAUTHORIZED, "E0001", "No such user with given credential."),

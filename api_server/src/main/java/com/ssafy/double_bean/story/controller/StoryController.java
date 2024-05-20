@@ -4,6 +4,7 @@ import com.ssafy.double_bean.attraction.dto.CoordinateDto;
 import com.ssafy.double_bean.story.dto.*;
 import com.ssafy.double_bean.story.model.entity.SpotEntity;
 import com.ssafy.double_bean.story.model.entity.StoryEntity;
+import com.ssafy.double_bean.story.model.entity.StoryZzimEntity;
 import com.ssafy.double_bean.story.service.SpotService;
 import com.ssafy.double_bean.story.service.StoryService;
 import com.ssafy.double_bean.user.dto.AuthenticatedUser;
@@ -162,5 +163,22 @@ public class StoryController {
                                                       @PathVariable("spot-uuid") UUID spotUuid) {
         spotService.deleteSpot(storyUuid, spotUuid, requestedUser);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/stories/{story-uuid}/zzims")
+    public ResponseEntity<List<StoryZzimResponseDto>> getZzimsOfStory(@PathVariable("story-uuid") UUID storyUuid) {
+        List<StoryZzimEntity> entities = storyService.getZzimsOfStory(storyUuid);
+        List<StoryZzimResponseDto> dtos = entities.stream().map(StoryZzimResponseDto::fromEntity).toList();
+        return ResponseEntity.ok(dtos);
+    }
+
+    @PostMapping("/stories/{story-uuid}/zzims")
+    public ResponseEntity<?> toggleZzim(@PathVariable("story-uuid") UUID storyUuid) {
+        boolean zzim = storyService.toggleZzim(storyUuid, requestedUser);
+        if (zzim) {
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.noContent().build();
+        }
     }
 }

@@ -35,12 +35,12 @@ const desktopRouter = createRouter({
       children: [
         {
           path: 'login',
-          name: 'login',
+          name: 'auth:login',
           component: DesktopLoginComponent,
         },
         {
           path: 'signup',
-          name: 'signup',
+          name: 'auth:sign-up',
           component: DesktopSignUpComponent,
         },
       ],
@@ -123,11 +123,15 @@ const mobileRouter = createRouter({
 let router
 const isMobile = window.innerWidth < 768
 
+let ANONYMOUS_ONLY_ROUTE_NAMES = []
+let LOGIN_REQUIRED_ROUTE_NAMES = []
+
 if (isMobile) {
   console.log('mobile')
   router = mobileRouter
 
-  const LOGIN_REQUIRED_ROUTE_NAMES = [
+  ANONYMOUS_ONLY_ROUTE_NAMES = ['auth:login', 'auth:sign-up']
+  LOGIN_REQUIRED_ROUTE_NAMES = [
     'search',
     'play',
     'story:cleared-list',
@@ -135,31 +139,29 @@ if (isMobile) {
     'user:my-page',
     'user:my-reviews',
   ]
-
-  const ANONYMOUS_ONLY_ROUTE_NAMES = ['not-found', 'home', 'auth:login', 'auth:sign-up']
-
-  router.beforeEach((to, from, next) => {
-    const isLoggedIn = sessionStorage.getItem('accessToken') !== null
-
-    // 로그인이 필요한 화면에 익명 사용자가 접근한 경우
-    if (!isLoggedIn && LOGIN_REQUIRED_ROUTE_NAMES.filter((name) => name === to.name).length > 0) {
-      message.error('로그인이 필요합니다.')
-      router.push({ name: 'auth:login' })
-    }
-    // 익명 사용자만 접근 가능한 화면에 로그인한 사용자가 접근한 경우
-    else if (
-      isLoggedIn &&
-      ANONYMOUS_ONLY_ROUTE_NAMES.filter((name) => name === to.name).length > 0
-    ) {
-      message.error('이미 로그인 되어 있습니다.')
-      router.push({ name: 'home' })
-    } else {
-      next()
-    }
-  })
 } else {
   console.log('pc')
   router = desktopRouter
+
+  ANONYMOUS_ONLY_ROUTE_NAMES = ['auth:login', 'auth:sign']
+  LOGIN_REQUIRED_ROUTE_NAMES = ['creator']
 }
+
+router.beforeEach((to, from, next) => {
+  const isLoggedIn = sessionStorage.getItem('accessToken') !== null
+
+  // 로그인이 필요한 화면에 익명 사용자가 접근한 경우
+  if (!isLoggedIn && LOGIN_REQUIRED_ROUTE_NAMES.filter((name) => name === to.name).length > 0) {
+    message.error('로그인이 필요합니다.')
+    router.push({ name: 'auth:login' })
+  }
+  // 익명 사용자만 접근 가능한 화면에 로그인한 사용자가 접근한 경우
+  else if (isLoggedIn && ANONYMOUS_ONLY_ROUTE_NAMES.filter((name) => name === to.name).length > 0) {
+    message.error('이미 로그인 되어 있습니다.')
+    router.push({ name: 'home' })
+  } else {
+    next()
+  }
+})
 
 export default router

@@ -32,10 +32,17 @@ public class SpotService {
         this.s3Service = s3Service;
     }
 
-    private StoryEntity getStoryWithOwnershipCheck(UUID storyUuid, AuthenticatedUser requestedUser, boolean forUpdate) {
+    private StoryEntity getStory(UUID storyUuid) {
         // 연결된 스토리를 찾아
         StoryEntity targetStory = storyRepository.getStoryByUuid(storyUuid.toString())
                 .orElseThrow(() -> new HttpResponseException(ErrorCode.NOT_FOUND));
+        // 반환
+        return targetStory;
+    }
+
+    private StoryEntity getStoryWithOwnershipCheck(UUID storyUuid, AuthenticatedUser requestedUser, boolean forUpdate) {
+        // 연결된 스토리를 찾아
+        StoryEntity targetStory = getStory(storyUuid);
 
         // 소유자가 아닌 경우 반환 거절
         if (!targetStory.getAuthorUuid().equals(requestedUser.getUuid())) {
@@ -119,7 +126,13 @@ public class SpotService {
     }
 
     public List<SpotEntity> getSpotsOf(UUID storyUuid, AuthenticatedUser requestedUser) {
-        StoryEntity targetStory = getStoryWithOwnershipCheck(storyUuid, requestedUser);
+        StoryEntity targetStory = storyRepository.getStoryByUuid(storyUuid.toString())
+                .orElseThrow(() -> new HttpResponseException(ErrorCode.NOT_FOUND));
+
+        // PUBLISH 되지 않았다면 소유자만 확인할 수 있음
+        if (targetStory.getStatus() != StoryEntity.StoryStatus.PUBLISHED && !targetStory.getAuthorUuid().equals(requestedUser.getUuid())) {
+            throw new HttpResponseException(ErrorCode.NOT_FOUND);
+        }
 
         List<SpotEntity> spots = spotRepository.getSpotsOf(targetStory.getUuid().toString());
         spots.sort(Comparator.comparingDouble(SpotEntity::getOrderIndex));

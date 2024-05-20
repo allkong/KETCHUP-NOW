@@ -1,17 +1,32 @@
 <script setup>
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { useUserStore } from '@/stores/user-store'
+import { message } from 'ant-design-vue'
 
-const menuList = ref([
-  { name: '내스토리', routeName: 'my-stories' },
-  { name: '로그인', routeName: 'login' },
-  { name: '회원가입', routeName: 'signup' },
-])
+const userStore = useUserStore()
+const router = useRouter()
+
+function doLogout() {
+  userStore.logout()
+  message.success('로그아웃 되었습니다. 또 오실거죠? 🥺')
+  router.push({ name: 'home' })
+}
 </script>
 
 <template>
-  <a-menu mode="horizontal" class="menu-items">
-    <a-menu-item v-for="menu in menuList" :key="menu.name">
-      <RouterLink :to="{ name: menu.routeName }">{{ menu.name }}</RouterLink>
+  <a-menu mode="horizontal" class="menu-items" v-if="userStore.userInfo !== null">
+    <a-menu-item>
+      <RouterLink :to="{ name: 'my-stories' }">내스토리</RouterLink>
+    </a-menu-item>
+    <a-menu-item @click="doLogout">로그아웃</a-menu-item>
+  </a-menu>
+  <a-menu mode="horizontal" class="menu-items" v-if="userStore.userInfo === null">
+    <a-menu-item>
+      <RouterLink :to="{ name: 'auth:login' }">로그인</RouterLink>
+    </a-menu-item>
+    <a-menu-item>
+      <RouterLink :to="{ name: 'auth:sign-up' }">회원가입</RouterLink>
     </a-menu-item>
   </a-menu>
 </template>

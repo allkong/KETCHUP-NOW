@@ -4,6 +4,7 @@ import com.ssafy.double_bean.attraction.dto.CoordinateDto;
 import com.ssafy.double_bean.story.dto.StoryCreateRequestDto;
 import com.ssafy.double_bean.story.dto.StoryUpdateRequestDto;
 import com.ssafy.double_bean.story.model.entity.StoryEntity;
+import com.ssafy.double_bean.story.model.entity.StoryZzimEntity;
 import com.ssafy.double_bean.user.dto.AuthenticatedUser;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -31,4 +32,10 @@ public interface StoryService {
     StoryEntity duplicateStory(UUID storyUuid, AuthenticatedUser requestedUser) throws URISyntaxException;
 
     List<StoryEntity> getStoriesWithin(CoordinateDto leftBottom, CoordinateDto rightBottom, String sido, String gungu);
+
+    List<StoryZzimEntity> getZzimsOfStory(UUID storyUuid);
+
+    List<StoryZzimEntity> getZzimsOfUser(AuthenticatedUser requestedUser);
+
+    boolean toggleZzim(UUID storyUuid, AuthenticatedUser requestedUser);
 }

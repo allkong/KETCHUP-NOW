@@ -25,6 +25,14 @@ body {
   font-style: normal;
 }
 
+@font-face {
+  font-family: 'KCC-Hanbit';
+  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/2403-2@1.0/KCC-Hanbit.woff2')
+    format('woff2');
+  font-weight: normal;
+  font-style: normal;
+}
+
 .ant-layout :not(#logo-text-ketchup, #logo-text-now),
 .ant-modal,
 .ant-col,

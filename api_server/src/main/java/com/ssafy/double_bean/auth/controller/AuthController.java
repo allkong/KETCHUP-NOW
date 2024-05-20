@@ -18,6 +18,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
@@ -33,9 +34,12 @@ public class AuthController {
     private final String REFRESH_TOKEN_COOKIE_KEY = "refreshToken";
 
     private final AuthService authService;
+    private final String activeProfile;
 
-    public AuthController(AuthService authService) {
+    public AuthController(AuthService authService, @Value("${spring.profiles.active}") String activeProfile) {
         this.authService = authService;
+        this.activeProfile = activeProfile;
+        System.out.println(">>> " + activeProfile);
     }
 
     @PostMapping("/login")
@@ -83,14 +87,22 @@ public class AuthController {
     }
 
     private ResponseCookie getRefreshTokenResponseCookie(String refreshToken) {
-        return ResponseCookie
+        ResponseCookie.ResponseCookieBuilder builder = ResponseCookie
                 .from(REFRESH_TOKEN_COOKIE_KEY, refreshToken)
-                .domain("localhost") // TODO : 나중에 프론트 배포하면 바꿔줘야 함
                 .path("/")
                 .httpOnly(true)
-                .maxAge(100000000)
-                .sameSite("Lax")
-                .build();
+                .maxAge(100000000);
+
+        if (activeProfile.equals("dev")) {
+            builder.domain("localhost");
+            builder.sameSite("Lax");
+        } else if (activeProfile.equals("prod")) {
+            builder.domain("home.pcjs156.net");
+            builder.sameSite("None");
+            builder.secure(true);
+        }
+
+        return builder.build();
     }
 
     @PostMapping("/logout")
