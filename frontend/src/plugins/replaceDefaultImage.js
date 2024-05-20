@@ -1,7 +1,6 @@
 import defaultImage from '@/assets/default-image.jpg'
 
 const replaceDefaultImage = (e) => {
-  console.log(e.target.src)
   e.target.src = defaultImage
 }
 

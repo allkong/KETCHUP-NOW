@@ -51,7 +51,7 @@ const desktopRouter = createRouter({
       component: DesktopMyStoriesView,
     },
     {
-      path: '/creator',
+      path: '/creator/:storyBaseUuid/:uuid',
       name: 'creator',
       component: DesktopCreatorView,
     },
