@@ -35,7 +35,7 @@ public interface SpotRepository {
             @Result(property = "eventType", column = "event_type", typeHandler = SpotEventTypeTypeHandler.class),
             @Result(property = "eventImageUri", column = "event_image_uri", typeHandler = URITypeHandler.class),
             @Result(property = "eventThumbnailImageUri", column = "event_thumbnail_image_uri", typeHandler = URITypeHandler.class),
-            @Result(property = "jsonEventContent", column = "jsonEventContent")
+            @Result(property = "jsonEventContent", column = "json_event_content")
     })
     List<SpotEntity> getAll();
 
