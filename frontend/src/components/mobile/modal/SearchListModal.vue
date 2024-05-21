@@ -20,7 +20,6 @@ function onStoryCardClicked(story) {
 }
 </script>
 
-<!-- 디자인 수정 필요 -->
 <template>
   <div>
     <a-modal
@@ -49,7 +48,7 @@ function onStoryCardClicked(story) {
               </a-col>
               <a-col :span="14">
                 <h4>{{ story.title }}</h4>
-                <a-rate :value="2" disabled class="star-grade" />
+                <a-rate :value="story.averageReviewScore.toFixed(1)" disabled class="star-grade" />
                 <p style="display: flex; align-items: center">
                   <EnvironmentOutlined style="margin-right: 0.3rem" /> {{ story.sido }}
                   {{ story.gungu ? ' ' + story.gungu : '' }}
@@ -65,9 +64,13 @@ function onStoryCardClicked(story) {
 </template>
 
 <style scoped>
-h4,
-p {
+h4 {
   margin: 0;
+}
+
+p {
+  margin: 0.2rem 0;
+  font-size: 0.8rem;
 }
 
 .thumbnail {
@@ -79,7 +82,7 @@ p {
 }
 
 .star-grade {
-  font-size: 0.9rem;
+  font-size: 1rem;
 }
 
 :deep(.ant-rate .ant-rate-star:not(:last-child)) {
