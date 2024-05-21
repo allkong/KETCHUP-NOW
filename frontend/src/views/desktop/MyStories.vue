@@ -1,5 +1,6 @@
 <script setup>
 import { ref, inject, onMounted } from 'vue'
+import { RouterLink } from 'vue-router'
 import { StarFilled, CaretRightFilled } from '@ant-design/icons-vue'
 import defaultImage from '@/assets/default-image.jpg'
 import HeaderView from '@/views/desktop/includes/HeaderView.vue'
@@ -34,25 +35,32 @@ const fetchMyStories = () => {
     </a-row>
     <div class="grid-container">
       <div v-for="story in stories" :key="story.uuid" class="card-container">
-        <a-card hoverable>
-          <template #cover>
-            <img
-              :src="story.imageUri || defaultImage"
-              alt=""
-              class="story-cover-image"
-              @error="$replaceDefaultImage"
-            />
-          </template>
-          <a-tag color="green">v{{ story.version }}</a-tag>
-          <a-tag color="blue">{{ story.status }}</a-tag>
-          <a-card-meta :title="story.title" :description="story.description"></a-card-meta>
-          <p>Created {{ story.createdAt }}dddddddddddddddddddddddddddddddddd</p>
-          <p>Updated {{ story.modifiedAt }}</p>
-          <a-tag color="red">{{ story.sido }} {{ story.gungu }}</a-tag>
-          <StarFilled /><span>{{ story.averageReviewScore }}</span> <CaretRightFilled /><span>{{
-            story.totalPlayCount
-          }}</span>
-        </a-card>
+        <RouterLink
+          :to="{
+            name: 'creator',
+            params: { storyBaseUuid: story.storyBaseUuid, uuid: story.uuid },
+          }"
+        >
+          <a-card hoverable>
+            <template #cover>
+              <img
+                :src="story.imageUri || defaultImage"
+                alt=""
+                class="story-cover-image"
+                @error="$replaceDefaultImage"
+              />
+            </template>
+            <a-tag color="green">v{{ story.version }}</a-tag>
+            <a-tag color="blue">{{ story.status }}</a-tag>
+            <a-card-meta :title="story.title" :description="story.description"></a-card-meta>
+            <p>Created {{ story.createdAt }}</p>
+            <p>Updated {{ story.modifiedAt }}</p>
+            <a-tag color="red">{{ story.sido }} {{ story.gungu }}</a-tag>
+            <StarFilled /><span>{{ story.averageReviewScore }}</span> <CaretRightFilled /><span>{{
+              story.totalPlayCount
+            }}</span>
+          </a-card>
+        </RouterLink>
       </div>
     </div>
   </a-layout-content>
@@ -100,8 +108,8 @@ p {
   justify-content: center;
 }
 
-::v-deep .ant-card-image,
-::v-deep .ant-card-body {
+:deep(.ant-card-image),
+:deep(.ant-card-body) {
   width: 19rem;
   white-space: nowrap;
   overflow: hidden;

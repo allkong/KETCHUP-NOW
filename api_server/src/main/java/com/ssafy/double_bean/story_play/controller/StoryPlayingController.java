@@ -2,8 +2,11 @@ package com.ssafy.double_bean.story_play.controller;
 
 import com.ssafy.double_bean.common.exception.ErrorCode;
 import com.ssafy.double_bean.common.exception.HttpResponseException;
+import com.ssafy.double_bean.story_play.dto.StoryPlayingCreateRequestDto;
+import com.ssafy.double_bean.story_play.dto.StoryPlayingLogRespDto;
 import com.ssafy.double_bean.story_play.dto.StoryPlayingResponseDto;
 import com.ssafy.double_bean.story_play.model.entity.StoryPlayingEntity;
+import com.ssafy.double_bean.story_play.model.entity.StoryPlayingLogEntity;
 import com.ssafy.double_bean.story_play.service.StoryPlayingService;
 import com.ssafy.double_bean.user.dto.AuthenticatedUser;
 import org.springframework.http.HttpStatus;
@@ -55,5 +58,29 @@ public class StoryPlayingController {
     public ResponseEntity<Void> deleteCurrentPlaying() {
         storyPlayingService.deleteCurrentPlay(requestedUser);
         return ResponseEntity.noContent().build();
+    }
+
+    // 현재 사용자가 플레이 중인 스토리의 로그 목록 조회
+    @GetMapping("/playings/current/logs")
+    public ResponseEntity<List<StoryPlayingLogRespDto>> getCurrentStoryPlayingLogs() {
+        List<StoryPlayingLogEntity> entities = storyPlayingService.getCurrentStoryPlayingLogs(requestedUser);
+        List<StoryPlayingLogRespDto> dtos = entities.stream().map(StoryPlayingLogRespDto::fromEntity).toList();
+        return ResponseEntity.ok(dtos);
+    }
+
+    // 현재 사용자가 플레이 중인 스토리의 특정 스팟 클리어 처리
+    @PostMapping("/playings/current/clear")
+    public ResponseEntity<StoryPlayingLogRespDto> createPlayingLog(@RequestBody StoryPlayingCreateRequestDto requestDto) {
+        StoryPlayingLogEntity entity = storyPlayingService.createStoryPlayingLog(requestDto, requestedUser);
+        StoryPlayingLogRespDto responseDto = StoryPlayingLogRespDto.fromEntity(entity);
+        return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
+    }
+
+    // 해당 플레이에 속해 있는 스팟 클리어 기록을 조회
+    @GetMapping("/playings/{playing-uuid}/logs")
+    public ResponseEntity<List<StoryPlayingLogRespDto>> getLogsOfPlaying(@PathVariable("playing-uuid") UUID playingUuid) {
+        List<StoryPlayingLogEntity> entities = storyPlayingService.getLogsOfPlaying(playingUuid, requestedUser);
+        List<StoryPlayingLogRespDto> dtos = entities.stream().map(StoryPlayingLogRespDto::fromEntity).toList();
+        return ResponseEntity.ok(dtos);
     }
 }

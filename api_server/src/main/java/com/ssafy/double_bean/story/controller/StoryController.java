@@ -45,7 +45,7 @@ public class StoryController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "생성 성공",
                     content = @Content(mediaType = "multipart/form-data", schema = @Schema(implementation = StoryResponseDto.class)))})
-    public ResponseEntity<StoryResponseDto> createFirstStory(@Valid StoryCreateRequestDto createDto, @RequestPart(required = false) MultipartFile imageFile) throws IOException, URISyntaxException {
+    public ResponseEntity<StoryResponseDto> createFirstStory(@Valid @RequestBody StoryCreateRequestDto createDto, @RequestPart(required = false) MultipartFile imageFile) throws IOException, URISyntaxException {
         StoryEntity createdStory = storyService.createFirstStory(requestedUser, createDto, imageFile);
         StoryResponseDto dto = createdStory.toResponseDto();
         return ResponseEntity.status(HttpStatus.CREATED).body(dto);
@@ -83,8 +83,8 @@ public class StoryController {
     @PutMapping("/stories/{story-uuid}")
     public ResponseEntity<StoryResponseDto> getStory(
             @PathVariable("story-uuid") UUID storyUuid,
-            @Valid StoryUpdateRequestDto updateDto, @RequestPart(required = false) MultipartFile imageFile) throws IOException, URISyntaxException {
-        StoryEntity updatedEntity = storyService.updateStory(storyUuid, requestedUser, updateDto, imageFile);
+            @Valid @RequestBody StoryUpdateRequestDto updateDto) throws IOException, URISyntaxException {
+        StoryEntity updatedEntity = storyService.updateStory(storyUuid, requestedUser, updateDto);
         storyService.setPresignedUriFields(updatedEntity);
         return ResponseEntity.ok(StoryResponseDto.fromEntity(updatedEntity));
     }
@@ -136,7 +136,7 @@ public class StoryController {
     // 단, 스토리의 상태가 WRITING일 때에만 가능하다.
     @PostMapping("/stories/{story-uuid}/spots")
     public ResponseEntity<SpotResponseDto> insertSpotTo(@PathVariable("story-uuid") UUID storyUuid,
-                                                        @Valid SpotInsertRequestDto requestDto,
+                                                        @Valid @RequestBody SpotInsertRequestDto requestDto,
                                                         @RequestParam(required = false) MultipartFile imageFile) throws IOException {
         SpotEntity insertedEntity = spotService.insertSpotTo(storyUuid, requestDto, imageFile, requestedUser);
         SpotResponseDto dto = SpotResponseDto.fromEntity(insertedEntity);
@@ -148,10 +148,8 @@ public class StoryController {
     @PutMapping("/stories/{story-uuid}/spots/{spot-uuid}")
     public ResponseEntity<SpotResponseDto> updateSpot(@PathVariable("story-uuid") UUID storyUuid,
                                                       @PathVariable("spot-uuid") UUID spotUuid,
-                                                      @Valid SpotUpdateRequestDto requestDto,
-                                                      @RequestParam(required = false) MultipartFile spotImageFile,
-                                                      @RequestParam(required = false) MultipartFile eventImageFile) throws IOException {
-        SpotEntity updatedEntity = spotService.updateSpot(storyUuid, spotUuid, requestDto, spotImageFile, eventImageFile, requestedUser);
+                                                      @Valid @RequestBody SpotUpdateRequestDto requestDto) throws IOException {
+        SpotEntity updatedEntity = spotService.updateSpot(storyUuid, spotUuid, requestDto, requestedUser);
         SpotResponseDto dto = SpotResponseDto.fromEntity(updatedEntity);
         return ResponseEntity.ok(dto);
     }

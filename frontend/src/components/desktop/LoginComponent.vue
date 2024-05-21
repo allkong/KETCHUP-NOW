@@ -21,7 +21,7 @@ function doLogin() {
     .login(loginForm.value)
     .then(() => {
       message.success('로그인 성공!')
-      router.push({ name: 'creator' })
+      router.push({ name: 'my-stories' })
     })
     .catch((error) => {
       console.log(error)

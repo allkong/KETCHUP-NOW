@@ -81,8 +81,6 @@ public interface StoryRepository {
 
     @Update("UPDATE stories SET status=#{updated.status}, title=#{updated.title}, description=#{updated.description}, " +
             "sido=#{updated.sido}, gungu=#{updated.gungu}, " +
-            "image_uri=#{updated.imageUri, typeHandler=com.ssafy.double_bean.common.model.repository.type_handler.URITypeHandler}, " +
-            "thumbnail_image_uri=#{updated.thumbnailImageUri, typeHandler=com.ssafy.double_bean.common.model.repository.type_handler.URITypeHandler}, " +
             "modified_at=CURRENT_TIMESTAMP " +
             "WHERE uuid=#{storyUuid}")
     void updateStory(String storyUuid, StoryEntity updated);

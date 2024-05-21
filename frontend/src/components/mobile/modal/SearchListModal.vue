@@ -77,7 +77,7 @@ p {
   font-size: 0.9rem;
 }
 
-::v-deep .ant-rate .ant-rate-star:not(:last-child) {
+:deep(.ant-rate .ant-rate-star:not(:last-child)) {
   margin-inline-end: 0.2rem;
 }
 </style>

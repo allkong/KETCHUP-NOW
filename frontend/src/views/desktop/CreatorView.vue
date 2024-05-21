@@ -1,17 +1,31 @@
 <script setup>
-import { ref, onMounted, inject } from 'vue'
-import { SearchOutlined, FlagOutlined, RobotOutlined } from '@ant-design/icons-vue'
-import AttractionMarkerIcon from '@/assets/icon/marker/star-marker-blue.png'
+import { ref, inject, onMounted } from 'vue'
+import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router'
+import draggable from 'vuedraggable'
+const { VITE_KAKAO_MAP_KEY } = import.meta.env
+import { message } from 'ant-design-vue'
+import { Modal } from 'ant-design-vue'
+import {
+  SearchOutlined,
+  FlagOutlined,
+  RobotOutlined,
+  VerticalAlignBottomOutlined,
+} from '@ant-design/icons-vue'
+import AttractionMarkerIcon from '@/assets/icon/marker/star-marker-sky.png'
+import SelectedAttractionMarkerIcon from '@/assets/icon/marker/star-marker-blue.png'
 import KeywordMarkerIcon from '@/assets/icon/marker/star-marker-orange.png'
 import SelectedKeywordMarkerIcon from '@/assets/icon/marker/star-marker-pink.png'
 import AddSpotModal from '@/components/desktop/AddSpotModal.vue'
-const { VITE_KAKAO_MAP_KEY } = import.meta.env
+import DefaultImage from '@/assets/default-image.jpg'
+import AIStoryGenerationBoard from '@/components/desktop/AIStoryGenerationBoard.vue'
 
+const route = useRoute()
+const router = useRouter()
 const axios = inject('axios')
 
 const leftCollapsed = ref(false)
-const rightCollapsed = ref(true)
-const selectedKeys = ref(['1'])
+const rightCollapsed = ref(false)
+const selectedKeys = ref(['3'])
 const keyword = ref('')
 
 const mapInfo = {
@@ -33,14 +47,28 @@ const selectAttractionTag = ref(false)
 let places = null
 const placeList = ref([])
 let keywordMarkers = []
-let selectedKeywordMarker = null
+let selectedPlaceMarker = null
 
+const clickedMarker = ref()
 const isAddSpotModalOpen = ref(false)
+const spots = ref([])
+let spotMarkers = []
+let spotMarkerPolyline = null
+
+const story = ref({
+  status: 'PUBLISHED',
+})
 
 onMounted(() => {
-  onRightCollapse(true)
   loadKakaoMap(mapContainer.value)
+  fetchStory()
 })
+
+async function fetchStory() {
+  axios.get(`/stories/${route.params.uuid}`).then((resp) => {
+    story.value = resp.data
+  })
+}
 
 const onLeftCollapse = (collapsed) => {
   leftCollapsed.value = collapsed
@@ -53,6 +81,26 @@ const onRightCollapse = (collapsed) => {
 const openLeftSider = () => {
   leftCollapsed.value = false
 }
+
+const onExit = () => {
+  leftCollapsed.value = true
+  router.push({ name: 'my-stories' })
+}
+
+onBeforeRouteLeave((to, from, next) => {
+  Modal.confirm({
+    title: '정말 나가시겠습니까?',
+    content: '현재 페이지를 벗어나면 변경 사항이 저장되지 않을 수 있으니 꼭 저장해 주세요!',
+    okText: '그래도 나갈래요',
+    cancelText: '안나갈래요',
+    onOk() {
+      next()
+    },
+    onCancel() {
+      next(false)
+    },
+  })
+})
 
 const loadKakaoMap = (container) => {
   const script = document.createElement('script')
@@ -69,6 +117,11 @@ const loadKakaoMap = (container) => {
 
       mapInstance = new window.kakao.maps.Map(container, options) // 지도 생성
       places = new window.kakao.maps.services.Places()
+
+      onRightCollapse(true)
+      fetchSpots().then(() => {
+        drawSpotMarkers()
+      })
 
       // 지도 이동 이벤트
       window.kakao.maps.event.addListener(mapInstance, 'dragend', () => {
@@ -96,7 +149,6 @@ const getAttractions = () => {
     .then((response) => response.data.data)
     .then((attractions) => {
       attractionList.value = attractions
-      console.log(attractionList.value)
       // 받아온 관광지들로 마커 생성하여 attractionsMarkers 배열에 추가
       removeAllMarkers(attractionMarkers)
       attractions.forEach((attraction) => {
@@ -117,7 +169,11 @@ const getAttractions = () => {
           image: attractionMarkerImage,
         })
 
+        marker.placeData = { ...attraction, placeType: 'attraction' }
+        attraction.marker = marker
+
         window.kakao.maps.event.addListener(marker, 'click', () => {
+          clickedMarker.value = marker
           isAddSpotModalOpen.value = true
           console.log('관광지 클릭')
         })
@@ -147,6 +203,10 @@ const handleChange = () => {
 
 // 키워드 검색
 const searchByKeyword = () => {
+  if (keyword.value === '') {
+    removeAllMarkers(keywordMarkers)
+    return
+  }
   places.keywordSearch(keyword.value, (data, status, pagination) => {
     if (status === window.kakao.maps.services.Status.OK) {
       removeAllMarkers(keywordMarkers)
@@ -166,7 +226,10 @@ const searchByKeyword = () => {
           image: keywordMarkerImage,
         })
 
+        marker.placeData = { ...place, placeType: 'keyword' }
+
         window.kakao.maps.event.addListener(marker, 'click', () => {
+          clickedMarker.value = marker
           isAddSpotModalOpen.value = true
           console.log('키워드 클릭')
         })
@@ -201,18 +264,12 @@ const searchByKeyword = () => {
   })
 }
 
-const moveToLocation = (place) => {
+const moveToPlaceLocation = (place) => {
   const newPosition = new window.kakao.maps.LatLng(place.y, place.x)
   mapInstance.setCenter(newPosition)
 
-  if (selectedKeywordMarker) {
-    // 기존에 선택한 마커 이미지 되돌리기
-    const keywordMarkerImage = new window.kakao.maps.MarkerImage(
-      KeywordMarkerIcon,
-      new window.kakao.maps.Size(35, 35),
-      { offset: new window.kakao.maps.Point(17, 35) },
-    )
-    selectedKeywordMarker.setImage(keywordMarkerImage)
+  if (selectedPlaceMarker) {
+    resetMarkerImage(selectedPlaceMarker)
   }
 
   // 새로 선택한 마커 이미지 변경
@@ -223,26 +280,170 @@ const moveToLocation = (place) => {
   )
   place.marker.setImage(selectedKeywordMarkerImage)
   place.marker.setZIndex(1)
-  selectedKeywordMarker = place.marker
+  selectedPlaceMarker = place.marker
 
   if (selectAttractionTag.value) {
     getAttractions()
   }
 }
 
+const moveToAttractionLocation = (attraction) => {
+  const newPosition = new window.kakao.maps.LatLng(attraction.latitude, attraction.longitude)
+  mapInstance.setCenter(newPosition)
+
+  if (selectedPlaceMarker) {
+    resetMarkerImage(selectedPlaceMarker)
+  }
+
+  // 새로 선택한 마커 이미지 변경
+  const selectedAttractionMarkerImage = new window.kakao.maps.MarkerImage(
+    SelectedAttractionMarkerIcon,
+    new window.kakao.maps.Size(45, 45),
+    { offset: new window.kakao.maps.Point(23, 35) },
+  )
+  attraction.marker.setImage(selectedAttractionMarkerImage)
+  attraction.marker.setZIndex(1)
+  selectedPlaceMarker = attraction.marker
+}
+
+const resetMarkerImage = (marker) => {
+  const type = marker.placeData.placeType
+  if (type === 'keyword') {
+    // 기존에 선택한 마커 이미지 되돌리기
+    const keywordMarkerImage = new window.kakao.maps.MarkerImage(
+      KeywordMarkerIcon,
+      new window.kakao.maps.Size(35, 35),
+      { offset: new window.kakao.maps.Point(17, 35) },
+    )
+    selectedPlaceMarker.setImage(keywordMarkerImage)
+  } else if (type === 'attraction') {
+    // 기존에 선택한 마커 이미지 되돌리기
+    const attractionMarkerImage = new window.kakao.maps.MarkerImage(
+      AttractionMarkerIcon,
+      new window.kakao.maps.Size(35, 35),
+      { offset: new window.kakao.maps.Point(17, 35) },
+    )
+    selectedPlaceMarker.setImage(attractionMarkerImage)
+  }
+}
+
 const onCloseAddSpotModal = () => {
   isAddSpotModalOpen.value = false
+}
+
+// 스팟 등록 후 스팟 목록 업데이트
+const onUpdateSpots = () => {
+  fetchSpots()
+  isAddSpotModalOpen.value = false
+}
+
+const fetchSpots = async () => {
+  return axios.get(`/stories/${route.params.uuid}/spots`).then((response) => {
+    spots.value = response.data
+    spots.value.sort((a, b) => a.orderIndex - b.orderIndex)
+  })
+}
+
+const onChangeSpot = (e) => {
+  const targetSpotElement = e.moved.element
+  const previousSpotIndex = e.moved.newIndex - 1
+  let previousSpotUuid = null
+
+  // 스팟 순서를 첫 번째로 이동하면 previousSpotUuid는 null
+  if (e.moved.newIndex !== 0) {
+    previousSpotUuid = spots.value[previousSpotIndex].uuid
+  }
+
+  axios
+    .put(`stories/${route.params.uuid}/spots/${targetSpotElement.uuid}`, {
+      previousSpotUuid: previousSpotUuid,
+      latitude: targetSpotElement.latitude,
+      longitude: targetSpotElement.longitude,
+      title: targetSpotElement.title,
+      description: targetSpotElement.description,
+      eventType: targetSpotElement.eventType,
+    })
+    .then((response) => {
+      fetchSpots().then(() => {
+        // 기존에 그려져 있던 스팟 마커와 경로 모두 삭제
+        removeAllMarkers(spotMarkers)
+        spotMarkers = []
+        spotMarkerPolyline.setMap(null)
+        spotMarkerPolyline = null
+
+        // 다시 그리기
+        drawSpotMarkers()
+      })
+    })
+    .catch((error) => console.error(error))
+}
+
+async function drawSpotMarkers() {
+  let bounds = new window.kakao.maps.LatLngBounds()
+  const polylinePaths = []
+
+  spots.value.sort((s1, s2) => {
+    return s1.orderIndex - s2.orderIndex
+  })
+
+  spots.value.forEach((spot, idx) => {
+    const markerIcon = new window.kakao.maps.MarkerImage(
+      `/icon/numbers/spot-on-map-${idx + 1}.png`,
+      new window.kakao.maps.Size(23, 23),
+      {
+        offset: new window.kakao.maps.Point(12, 15),
+        shape: 'poly',
+      },
+    )
+
+    const markerPosition = new window.kakao.maps.LatLng(spot.latitude, spot.longitude)
+    polylinePaths.push(markerPosition)
+
+    const marker = new window.kakao.maps.Marker({
+      position: markerPosition,
+      image: markerIcon,
+    })
+
+    marker.spotUuid = spot.uuid
+
+    bounds.extend(markerPosition)
+
+    spotMarkers.push(marker)
+    marker.setMap(mapInstance)
+    mapInstance.setBounds(bounds)
+  })
+
+  spotMarkerPolyline = new window.kakao.maps.Polyline({
+    map: mapInstance,
+    path: polylinePaths,
+    strokeWeight: 2,
+    strokeColor: 'red',
+    strokeOpacity: 0.8,
+    strokeStyle: 'solid',
+  })
+}
+
+function focusToSpotMarker(spot) {
+  for (let spotMarker of spotMarkers) {
+    if (spot.uuid === spotMarker.spotUuid) {
+      mapInstance.setCenter(new window.kakao.maps.LatLng(spot.latitude, spot.longitude))
+    }
+  }
 }
 </script>
 
 <template>
-  <a-layout-header> </a-layout-header>
+  <!-- <a-layout-header> </a-layout-header> -->
   <AddSpotModal
     v-if="isAddSpotModalOpen"
     :modal-open="isAddSpotModalOpen"
+    :place="clickedMarker.placeData"
+    :last-spot-uuid="spots.length > 0 ? spots[spots.length - 1].uuid : null"
     @close-add-spot-modal="onCloseAddSpotModal"
+    @update-spots="onUpdateSpots"
   />
   <a-layout>
+    <!-- 좌측 안쪽 사이드바 -->
     <a-layout-sider width="4rem" class="left-inner-sider">
       <a-menu v-model:selectedKeys="selectedKeys" theme="light" mode="inline">
         <a-menu-item key="1" @click="openLeftSider">
@@ -251,11 +452,15 @@ const onCloseAddSpotModal = () => {
         <a-menu-item key="2" @click="openLeftSider">
           <FlagOutlined />
         </a-menu-item>
-        <a-menu-item key="3">
+        <a-menu-item key="3" @click="openLeftSider">
           <RobotOutlined />
+        </a-menu-item>
+        <a-menu-item key="4" @click="onExit">
+          <VerticalAlignBottomOutlined style="transform: rotate(90deg)" />
         </a-menu-item>
       </a-menu>
     </a-layout-sider>
+    <!-- 좌측 바깥쪽 사이드바 -->
     <a-layout-sider
       breakpoint="lg"
       collapsed-width="0"
@@ -265,63 +470,69 @@ const onCloseAddSpotModal = () => {
       collapsible
       class="left-sider-shadow"
     >
-      <div v-show="selectedKeys[0] === '1'" style="height: 100%">
-        <h2>키워드 검색</h2>
-        <a-row justify="center">
-          <a-col>
-            <div>
-              <a-input
-                v-model:value="keyword"
-                placeholder="키워드 검색"
-                @keyup.enter="searchByKeyword"
+      <div class="sider-content">
+        <div v-show="selectedKeys[0] === '1'" style="height: 100%">
+          <h2>키워드 검색</h2>
+          <a-row justify="center">
+            <a-col>
+              <div>
+                <a-input
+                  v-model:value="keyword"
+                  placeholder="키워드 검색"
+                  @keyup.enter="searchByKeyword"
+                >
+                  <template #prefix>
+                    <SearchOutlined
+                      style="color: tomato; margin-right: 0.5rem"
+                      @click="searchByKeyword"
+                    />
+                  </template>
+                </a-input>
+              </div>
+            </a-col>
+          </a-row>
+          <a-row style="height: 100%">
+            <a-card class="sider-cards">
+              <a-card-grid
+                v-for="place in placeList"
+                :key="place.id"
+                class="attraction-item"
+                @click="moveToPlaceLocation(place)"
               >
-                <template #prefix>
-                  <SearchOutlined
-                    style="color: tomato; margin-right: 0.5rem"
-                    @click="searchByKeyword"
-                  />
-                </template>
-              </a-input>
-            </div>
-          </a-col>
-        </a-row>
-        <a-row style="height: 100%">
-          <a-card class="left-outer-sider-cards">
+                <h3>{{ place.place_name }}</h3>
+                <p>{{ place.address_name }}</p>
+                <p>{{ place.road_address_name }}</p>
+                <p>{{ place.phone }}</p>
+              </a-card-grid>
+            </a-card>
+          </a-row>
+        </div>
+        <div v-show="selectedKeys[0] === '2'" style="height: 100%">
+          <h2>관광지 목록</h2>
+          <a-card class="sider-cards">
+            <p v-show="attractionList.length === 0">관광지 버튼을 클릭해 주세요!</p>
             <a-card-grid
-              v-for="place in placeList"
-              :key="place.id"
+              v-for="attraction in attractionList"
+              :key="attraction.id"
               class="attraction-item"
-              @click="moveToLocation(place)"
+              @click="moveToAttractionLocation(attraction)"
             >
-              <h3>{{ place.place_name }}</h3>
-              <p>{{ place.address_name }}</p>
-              <p>{{ place.road_address_name }}</p>
-              <p>{{ place.phone }}</p>
+              <img
+                :src="attraction.secondImageUrl"
+                @error="$replaceDefaultImage"
+                style="width: 10rem"
+              />
+              <h3>{{ attraction.title }}</h3>
+              <p>{{ attraction.address }}</p>
             </a-card-grid>
           </a-card>
-        </a-row>
-      </div>
-      <div v-show="selectedKeys[0] === '2'" style="height: 100%">
-        <h2>관광지 목록</h2>
-        <a-card class="left-outer-sider-cards">
-          <p v-show="attractionList.length === 0">관광지 버튼을 클릭해 주세요!</p>
-          <a-card-grid
-            v-for="attraction in attractionList"
-            :key="attraction.id"
-            class="attraction-item"
-          >
-            <img
-              :src="attraction.secondImageUrl"
-              @error="$replaceDefaultImage"
-              style="width: 10rem"
-            />
-            <h3>{{ attraction.title }}</h3>
-            <p>{{ attraction.address }}</p>
-          </a-card-grid>
-        </a-card>
+        </div>
+        <div v-show="selectedKeys[0] === '3'" style="height: 100%">
+          <AIStoryGenerationBoard :spots="spots" />
+        </div>
       </div>
     </a-layout-sider>
-
+    <!-- 지도 -->
     <a-layout-content>
       <div id="map-wrap">
         <div ref="mapContainer" style="width: 100%; height: 100vh"></div>
@@ -334,17 +545,48 @@ const onCloseAddSpotModal = () => {
         </a-checkable-tag>
       </div>
     </a-layout-content>
-
+    <!-- 오른쪽 사이드바 -->
     <a-layout-sider
       breakpoint="lg"
       collapsed-width="0"
+      width="20rem"
       :collapsed="rightCollapsed"
       @collapse="onRightCollapse"
       :class="{ 'right-sider-shadow': !rightCollapsed }"
       collapsible
       reverseArrow
     >
-      내 스팟
+      <div class="sider-content">
+        <h2>담은 스팟</h2>
+        <draggable
+          :disabled="story.status === 'PUBLISHED'"
+          v-model="spots"
+          item-key="orderIndex"
+          class="sider-cards"
+          @change="onChangeSpot"
+        >
+          <template #item="{ element }">
+            <a-card hoverable class="spot-card" @click="() => focusToSpotMarker(element)">
+              <a-row style="height: 100%">
+                <a-col :span="8" style="height: 100%">
+                  <img
+                    :src="element.thumnailUri || DefaultImage"
+                    alt=""
+                    class="spot-cover-image"
+                    @error="replaceDefaultImage"
+                  />
+                </a-col>
+                <a-col :span="16" class="card-text">
+                  <a-card-meta
+                    :title="element.title"
+                    :description="element.description"
+                  ></a-card-meta>
+                </a-col>
+              </a-row>
+            </a-card>
+          </template>
+        </draggable>
+      </div>
     </a-layout-sider>
   </a-layout>
 </template>
@@ -363,6 +605,11 @@ const onCloseAddSpotModal = () => {
   height: 100vh;
 }
 
+.sider-content {
+  padding: 1rem;
+  height: 100%;
+}
+
 .left-inner-sider {
   border-inline-end: 1px solid rgba(5, 5, 5, 0.06);
 }
@@ -376,7 +623,7 @@ const onCloseAddSpotModal = () => {
   z-index: 1;
 }
 
-.left-outer-sider-cards {
+.sider-cards {
   overflow: auto;
   height: 100%;
 }
@@ -396,5 +643,34 @@ const onCloseAddSpotModal = () => {
 
 .attraction-item {
   width: 100%;
+}
+
+.spot-card {
+  width: 100%;
+  height: 8rem;
+  margin-bottom: 0.5rem;
+}
+
+:deep(.spot-card .ant-card-body) {
+  height: 100%;
+}
+
+.spot-cover-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.card-text {
+  padding-left: 1rem;
+  height: 100%;
+}
+
+:deep(.ant-card-meta-description) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
 }
 </style>

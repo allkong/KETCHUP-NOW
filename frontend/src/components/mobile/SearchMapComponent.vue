@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted, inject, watch } from 'vue'
 const { VITE_KAKAO_MAP_KEY } = import.meta.env
+import StoryMarkerIcon from '@/assets/icon/marker/flag-marker-red.png'
 import StoryModal from '@/components/mobile/modal/StoryModal.vue'
 import SearchListModal from '@/components/mobile/modal/SearchListModal.vue'
 import RegionButton from '@/components/mobile/button/RegionButton.vue'
@@ -68,8 +69,15 @@ const drawStoryMarkers = () => {
   stories.value.forEach((place) => {
     const markerPosition = new window.kakao.maps.LatLng(place[0], place[1])
 
+    const storyMarkerImage = new window.kakao.maps.MarkerImage(
+      StoryMarkerIcon,
+      new window.kakao.maps.Size(35, 35),
+      { offset: new window.kakao.maps.Point(17, 35) },
+    )
+
     const marker = new window.kakao.maps.Marker({
       position: markerPosition,
+      image: storyMarkerImage,
     })
 
     firstSpotMarkers.push(marker)
@@ -131,8 +139,14 @@ function updateMap(stories) {
       // 스토리의 첫 마커를 화면에 찍어줌
       const firstSpot = spots.reduce((prev, cur) => (prev.orderIndex < cur.orderIndex ? prev : cur))
       const markerPosition = new window.kakao.maps.LatLng(firstSpot.latitude, firstSpot.longitude)
+      const storyMarkerImage = new window.kakao.maps.MarkerImage(
+        StoryMarkerIcon,
+        new window.kakao.maps.Size(50, 50),
+        { offset: new window.kakao.maps.Point(25, 50) },
+      )
       const marker = new window.kakao.maps.Marker({
         position: markerPosition,
+        image: storyMarkerImage,
         clickable: true,
       })
 

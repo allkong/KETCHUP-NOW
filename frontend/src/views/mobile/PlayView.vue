@@ -1,8 +1,17 @@
 <script setup>
-import { onMounted } from 'vue'
+import { ref, inject, onMounted } from 'vue'
 import PlayMapComponent from '@/components/mobile/PlayMapComponent.vue'
 import HeaderView from '@/views/mobile/includes/HeaderView.vue'
 import NavigationView from '@/views/mobile/includes/NavigationView.vue'
+
+const axios = inject('axios')
+
+const isPlaying = ref(false)
+
+onMounted(() => {
+  setVH()
+  window.addEventListener('resize', setVH)
+})
 
 // 지도 영역 높이 계산
 const setVH = () => {
@@ -10,10 +19,16 @@ const setVH = () => {
   document.documentElement.style.setProperty('--vh', `${vh}px`)
 }
 
-onMounted(() => {
-  setVH()
-  window.addEventListener('resize', setVH)
-})
+const checkPlaying = () => {
+  axios.get('playings/now').then((response) => {
+    if (response.data.status === 'PLAYING') {
+      isPlaying.value = true
+    }
+    console.log(isPlaying.value)
+  })
+}
+
+checkPlaying()
 </script>
 
 <template>

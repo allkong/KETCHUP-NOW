@@ -154,4 +154,19 @@ create table if not exists double_bean.story_zzims
     constraint fk_story_zzims_stories_story_id foreign key (story_id) references double_bean.stories (id) on delete cascade,
     constraint fk_story_zzims_users_user_id foreign key (user_id) references double_bean.users (id) on delete cascade,
     constraint unique_story_zzims_story_id_user_id unique (story_id, user_id)
-)
+);
+
+create table if not exists double_bean.story_playing_logs
+(
+    id                 int auto_increment primary key,
+    uuid               varchar(36) default (uuid()),
+    story_playing_id   int                                   not null,
+    spot_id            int                                   not null,
+    user_id            int                                   not null,
+    json_event_content TEXT,
+    created_at         timestamp   default CURRENT_TIMESTAMP not null,
+    constraint fk_story_playing_logs_story_playings_story_playing_id foreign key (story_playing_id) references double_bean.story_playings (id) on delete cascade,
+    constraint fk_story_playing_logs_spots_spot_id foreign key (spot_id) references double_bean.spots (id) on delete cascade,
+    constraint fk_story_playing_logs_users_user_id foreign key (user_id) references double_bean.users (id) on delete cascade,
+    constraint unique_story_playing_logs_spot_id_user_id unique (spot_id, user_id)
+);
