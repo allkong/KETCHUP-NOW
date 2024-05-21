@@ -4,6 +4,8 @@ import { message } from 'ant-design-vue'
 const { VITE_KAKAO_MAP_KEY, VITE_APP_MODE } = import.meta.env
 import FindSpot from '@/components/mobile/modal/FindSpot.vue'
 import { useLocationStore } from '@/stores/location'
+import HttpStatus from '@/api/http-status'
+import { Modal } from 'ant-design-vue';
 
 const axios = inject('axios')
 
@@ -11,7 +13,6 @@ const [messageApi, contextHolder] = message.useMessage()
 const mapContainer = ref(null)
 let mapInstance = null
 let currentPositionMarker = null
-const modalOpen = ref(false)
 
 let inRangeTargetMarker = null
 
@@ -53,28 +54,25 @@ function isAround(currentLat, currentLng, spot) {
   return meterDistance <= 30.0
 }
 
-const locationStore = useLocationStore()
-if (VITE_APP_MODE === 'DEBUG') {
-  watch(locationStore.coords, () => {
-    // 남은 스팟이 있고
+function updateGame({latitude, longitude}) {
+      // 남은 스팟이 있고
     if (nextTargetSpot) {
       const isTargetAround = isAround(
-        locationStore.coords.latitude,
-        locationStore.coords.longitude,
+        latitude,
+        longitude,
         nextTargetSpot,
       )
       // 근처에 있으며
       if (isTargetAround) {
-        // 하이라이팅 만들어져 있지 않다면
+        // 하이라이팅이 만들어져 있지 않다면
         if (!inRangeTargetMarker) {
           // 첫 진입이므로 화면에 표시
           const markerIcon = new window.kakao.maps.MarkerImage(
-            '/icon/numbers/spot-on-map-10.png',
-            // '/icon/active-spot.gif',
+            // '/icon/numbers/spot-on-map-10.png',
+            '/icon/active-spot.gif',
             new window.kakao.maps.Size(60, 60),
             {
               offset: new window.kakao.maps.Point(30.5, 32.5),
-              shape: 'poly',
             },
           )
           inRangeTargetMarker = new window.kakao.maps.Marker({
@@ -83,6 +81,30 @@ if (VITE_APP_MODE === 'DEBUG') {
               nextTargetSpot.value.longitude,
             ),
             image: markerIcon,
+          })
+
+          window.kakao.maps.event.addListener(inRangeTargetMarker, 'click', () => {
+            axios.post('/playings/current/clear', {
+              spotUuid: nextTargetSpot.value.uuid
+            })
+            .then(async (resp) => {
+              return fetchPlayLogs()
+            })
+            .then(async (logs) => {
+              drawSpotMarkers()
+
+              // 스팟 활성화 하이라이팅 삭제
+              inRangeTargetMarker.setMap(null)
+              inRangeTargetMarker = null
+
+              message.success('이벤트 클리어! 다음 이벤트로 이동하세요 🎉')
+            })
+            .catch(error => {
+              // 만약 다음 타겟 스팟이 없으면 게임이 종료되었다는 의미
+              if (error.response.status === HttpStatus.CONFLICT && error.response.data.detailCode === 'E0005') {
+                  message.success('🎊 스토리 클리어를 축하합니다! 🎊')
+              }
+            })
           })
 
           // 마커에 이벤트 수행 물어보는 이벤트 등록
@@ -100,9 +122,10 @@ if (VITE_APP_MODE === 'DEBUG') {
       }
     }
 
+    // 사용자 위치 갱신 =========================================================
     const currentPosition = new window.kakao.maps.LatLng(
-      locationStore.coords.latitude,
-      locationStore.coords.longitude,
+      latitude,
+      longitude,
     )
     mapInstance.setCenter(currentPosition)
 
@@ -117,17 +140,27 @@ if (VITE_APP_MODE === 'DEBUG') {
     })
     // 위치 이동하면 마커 업데이트
     currentPositionMarker.setPosition(currentPosition)
+    // 사용자 위치 갱신 =========================================================
+
+    
+}
+
+const locationStore = useLocationStore()
+if (VITE_APP_MODE === 'DEBUG') {
+  watch(locationStore.coords, () => {
+    updateGame(locationStore.coords)
   })
 }
 
 const playLogs = ref([])
 const spots = ref([])
 let spotMarkers = []
-let spotMarkerPolyline = null
+let clearedSpotMarkerPolyline = null
+let unclearedSpotMarkerPolyline = null
 
 const nextTargetSpot = computed(() => {
   // 배치 순서대로 정렬
-  playLogs.value.sort((l1, l2) => l1.orderIndex - l2.orderIndex)
+  playLogs.value.sort((l1, l2) => l1.createdAt - l2.createdAt)
 
   // 아직 아무 스팟도 클리어 하지 않았다면
   if (playLogs.value.length === 0) {
@@ -158,6 +191,7 @@ async function fetchPlayLogs() {
   return axios
     .get(`/playings/current/logs`)
     .then((resp) => {
+      playLogs.value = resp.data
       return Promise.resolve(resp.data)
     })
     .catch((error) => {
@@ -181,24 +215,35 @@ async function fetchSpots() {
 
 async function drawSpotMarkers() {
   let bounds = new window.kakao.maps.LatLngBounds()
-  const polylinePaths = []
+  const clearedSpotMarkerPositions = []
+  const unclearedSpotMarkerPositions = []
 
   spots.value.sort((s1, s2) => {
     return s1.orderIndex - s2.orderIndex
   })
 
+  let foundNextTarget = false
   spots.value.forEach((spot, idx) => {
+    if (nextTargetSpot.value && spot.uuid === nextTargetSpot.value.uuid) {
+      foundNextTarget = true
+    }
+
+    const markerPosition = new window.kakao.maps.LatLng(spot.latitude, spot.longitude)
+    if (foundNextTarget) {
+      clearedSpotMarkerPositions.push(markerPosition)
+    } else {
+      unclearedSpotMarkerPositions.push(markerPosition)
+    }
+
+    const iconPath = foundNextTarget ? `/icon/numbers/spot-on-map-${idx + 1}.png` : `/icon/numbers/cleared-spot-on-map-${idx + 1}.png`
+    
     const markerIcon = new window.kakao.maps.MarkerImage(
-      `/icon/numbers/spot-on-map-${idx + 1}.png`,
+      iconPath,
       new window.kakao.maps.Size(23, 23),
       {
         offset: new window.kakao.maps.Point(12, 15),
-        shape: 'poly',
       },
     )
-
-    const markerPosition = new window.kakao.maps.LatLng(spot.latitude, spot.longitude)
-    polylinePaths.push(markerPosition)
 
     const marker = new window.kakao.maps.Marker({
       position: markerPosition,
@@ -214,11 +259,34 @@ async function drawSpotMarkers() {
     mapInstance.setBounds(bounds)
   })
 
-  spotMarkerPolyline = new window.kakao.maps.Polyline({
+  
+
+  if (clearedSpotMarkerPositions.length > 0) {
+    unclearedSpotMarkerPositions.push(clearedSpotMarkerPositions[0])
+  }
+
+  if (clearedSpotMarkerPolyline) {
+    clearedSpotMarkerPolyline.setMap(null)
+    clearedSpotMarkerPolyline = null
+  }
+  clearedSpotMarkerPolyline = new window.kakao.maps.Polyline({
     map: mapInstance,
-    path: polylinePaths,
+    path: clearedSpotMarkerPositions,
     strokeWeight: 2,
     strokeColor: 'red',
+    strokeOpacity: 0.8,
+    strokeStyle: 'solid',
+  })
+
+  if (unclearedSpotMarkerPolyline) {
+    unclearedSpotMarkerPolyline.setMap(null)
+    unclearedSpotMarkerPolyline = null
+  }
+  unclearedSpotMarkerPolyline = new window.kakao.maps.Polyline({
+    map: mapInstance,
+    path: unclearedSpotMarkerPositions,
+    strokeWeight: 2,
+    strokeColor: 'gray',
     strokeOpacity: 0.8,
     strokeStyle: 'solid',
   })
@@ -266,44 +334,17 @@ const loadKakaoMap = (container) => {
 let positionInterval = null
 const startSyncPositionAndMarker = () => {
   if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition((position) => {
-      const lat = position.coords.latitude
-      const lng = position.coords.longitude
-      const currentPosition = new window.kakao.maps.LatLng(lat, lng)
-
-      // 현재 위치 마커 생성
-      if (!currentPositionMarker) {
-        currentPositionMarker = new window.kakao.maps.Marker({
-          map: mapInstance,
-          position: currentPosition,
-        })
-      }
-      // 위치 이동하면 마커 업데이트
-      else {
-        currentPositionMarker.setPosition(currentPosition)
-      }
-
       positionInterval = setInterval(() => {
         navigator.geolocation.getCurrentPosition(
           (position) => {
-            let lat = position.coords.latitude
-            let lng = position.coords.longitude
-            let newPosition = new window.kakao.maps.LatLng(lat, lng)
-
-            // console.log('현재 위치:', lat, lng)
-            // messageApi.info(`현재 위치: ${lat}, ${lng}`)
-            currentPositionMarker.setPosition(newPosition)
-            mapInstance.setCenter(newPosition)
-
-            // 이동평균
-            // 마커 부드럽게
+            let {latitude, longitude} = position.coords
+            updateGame({latitude, longitude})
           },
           (error) => {
             console.error('위치 업데이트 에러:', error)
           },
         )
       }, 1000)
-    })
   } else {
     console.log('geolocation 사용 불가')
   }
@@ -324,14 +365,9 @@ onUnmounted(async () => {
     clearInterval(positionInterval)
   }
 })
-
-const closeFindSpot = () => {
-  modalOpen.value = false
-}
 </script>
 
 <template>
-  <FindSpot v-if="modalOpen" :modal-open="modalOpen" @close-modal="closeFindSpot" />
   <div id="map-wrap">
     <div ref="mapContainer" style="height: 100%">
       <!-- <context-holder /> -->

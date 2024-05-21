@@ -55,7 +55,6 @@ const drawSpotMarkers = () => {
       new window.kakao.maps.Size(23, 23),
       {
         offset: new window.kakao.maps.Point(12, 15),
-        shape: 'poly',
       },
     )
 
