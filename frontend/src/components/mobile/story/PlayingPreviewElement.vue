@@ -16,7 +16,7 @@ const addressInfo = computed(() => {
 })
 
 function formatDatetime(dt) {
-  let [datePart, timePart ] = dt.split('T')
+  let [datePart, timePart] = dt.split('T')
   timePart = timePart.split(':').slice(0, 2).join(':')
   return datePart + ' ' + timePart
 }
@@ -41,10 +41,10 @@ const periodInfo = computed(() => {
         <template #description>
           <div>{{ addressInfo }}</div>
           <div>{{ periodInfo }}</div>
-          </template >
+        </template>
       </a-card-meta>
       <div class="cleared-story-container">
-          {{ props.playing.description }}
+        {{ props.playing.description }}
       </div>
     </a-card>
   </RouterLink>
@@ -59,7 +59,6 @@ const periodInfo = computed(() => {
 }
 .cleared-story-preview-card {
   width: 95%;
-  padding: 0.5rem;
   margin-bottom: 1rem;
 }
 .cleared-story-container {
