@@ -1,14 +1,38 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, watch } from 'vue'
 import { message } from 'ant-design-vue'
-const { VITE_KAKAO_MAP_KEY } = import.meta.env
+const { VITE_KAKAO_MAP_KEY, VITE_APP_MODE } = import.meta.env
 import FindSpot from '@/components/mobile/modal/FindSpot.vue'
+import { useLocationStore } from '@/stores/location'
 
 const [messageApi, contextHolder] = message.useMessage()
 const mapContainer = ref(null)
 let mapInstance = null
 let currentPositionMarker = null
 const modalOpen = ref(false)
+
+const locationStore = useLocationStore()
+if (VITE_APP_MODE === 'DEBUG') {
+  watch(locationStore.coords, () => {
+    const currentPosition = new window.kakao.maps.LatLng(
+      locationStore.coords.latitude,
+      locationStore.coords.longitude,
+    )
+    mapInstance.setCenter(currentPosition)
+
+    if (currentPositionMarker !== null) {
+      currentPositionMarker.setMap(null)
+    }
+
+    // 현재 위치 마커 생성
+    currentPositionMarker = new window.kakao.maps.Marker({
+      map: mapInstance,
+      position: currentPosition,
+    })
+    // 위치 이동하면 마커 업데이트
+    currentPositionMarker.setPosition(currentPosition)
+  })
+}
 
 const loadKakaoMap = (container) => {
   const script = document.createElement('script')
@@ -23,14 +47,34 @@ const loadKakaoMap = (container) => {
       }
 
       mapInstance = new window.kakao.maps.Map(container, options) // 지도 생성
-    })
 
-    displayCurrentPosition()
+      if (VITE_APP_MODE === 'DEBUG') {
+        const newCenter = new window.kakao.maps.LatLng(
+          locationStore.coords.latitude,
+          locationStore.coords.longitude,
+        )
+        mapInstance.setCenter(newCenter)
+
+        if (currentPositionMarker !== null) {
+          currentPositionMarker.setMap(null)
+        }
+
+        // 현재 위치 마커 생성
+        currentPositionMarker = new window.kakao.maps.Marker({
+          map: mapInstance,
+          position: newCenter,
+        })
+        // 위치 이동하면 마커 업데이트
+        currentPositionMarker.setPosition(newCenter)
+      } else {
+        startSyncPositionAndMarker()
+      }
+    })
   })
 }
 
 let positionInterval = null
-const displayCurrentPosition = () => {
+const startSyncPositionAndMarker = () => {
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition((position) => {
       const lat = position.coords.latitude
@@ -50,6 +94,7 @@ const displayCurrentPosition = () => {
       }
 
       mapInstance.setCenter(currentPosition)
+
       positionInterval = setInterval(() => {
         navigator.geolocation.getCurrentPosition(
           (position) => {
