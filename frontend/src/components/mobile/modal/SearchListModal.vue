@@ -49,7 +49,7 @@ function onStoryCardClicked(story) {
               </a-col>
               <a-col :span="14">
                 <p>{{ story.title }}</p>
-                <a-rate :value="2" disabled class="star-grade" />
+                <a-rate :value="story.averageReviewScore" disabled class="star-grade" />
                 <p>{{ story.sido }} {{ story.gungu ? ' ' + story.gungu : '' }}</p>
                 <p>{{ story.authorNickname }}</p>
               </a-col>

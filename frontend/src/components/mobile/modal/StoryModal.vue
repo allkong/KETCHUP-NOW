@@ -47,9 +47,9 @@ const storyFullAddress = computed(() => {
 
 onMounted(() => {
   fetchReviews(props.story.uuid)
-  storyZzimStore.fetchZzimStories()
-  .then(zzimStories => {
-    isZzim.value = zzimStories.filter(s => s.uuid === props.story.uuid).length > 0
+  storyZzimStore.fetchZzims()
+  .then(zzims => {
+    isZzim.value = zzims.filter(s => s.uuid === props.story.uuid).length > 0
   })
 })
 

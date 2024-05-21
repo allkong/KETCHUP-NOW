@@ -57,10 +57,10 @@ onMounted(async () => {
       </RouterLink>
     </a-col>
     <a-col class="menu-item">
-        <span @click="openZzimListModal">
-          <HeartOutlined />
-          <p>찜</p>
-        </span>
+          <RouterLink :to="{name: 'user:zzim-stories'}">
+            <HeartOutlined />
+            <p>찜</p>
+          </RouterLink>
     </a-col>
     <a-col class="menu-item">
       <span @click="doPlayGame">
