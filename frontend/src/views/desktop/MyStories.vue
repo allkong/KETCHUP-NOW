@@ -50,15 +50,20 @@ const fetchMyStories = () => {
                 @error="$replaceDefaultImage"
               />
             </template>
-            <a-tag color="green">v{{ story.version }}</a-tag>
-            <a-tag color="blue">{{ story.status }}</a-tag>
+            <!-- <a-tag color="green">v{{ story.version }}</a-tag> -->
+            <div style="margin-bottom: 1rem">
+              <a-tag color="blue">{{ story.status }}</a-tag>
+              <a-tag color="green">{{ story.sido }} {{ story.gungu }}</a-tag>
+              <StarFilled class="star-icon" /><span>{{ story.averageReviewScore }}</span>
+              <CaretRightFilled /><span>{{ story.totalPlayCount }}</span>
+            </div>
+
             <a-card-meta :title="story.title" :description="story.description"></a-card-meta>
-            <p>Created {{ story.createdAt }}</p>
-            <p>Updated {{ story.modifiedAt }}</p>
-            <a-tag color="red">{{ story.sido }} {{ story.gungu }}</a-tag>
-            <StarFilled /><span>{{ story.averageReviewScore }}</span> <CaretRightFilled /><span>{{
-              story.totalPlayCount
-            }}</span>
+
+            <div class="date-container">
+              <p>Updated {{ story.modifiedAt.split('T').join(' | ') }}</p>
+              <p>Created {{ story.createdAt.split('T').join(' | ') }}</p>
+            </div>
           </a-card>
         </RouterLink>
       </div>
@@ -120,5 +125,20 @@ p {
   height: 11rem;
   width: 100%;
   object-fit: cover;
+}
+
+.star-icon {
+  color: #fadb14;
+  margin-right: 0.3rem;
+}
+
+:deep(.ant-card-meta-description) {
+  color: lightslategray;
+}
+
+.date-container {
+  margin-top: 1rem;
+  color: lightgray;
+  font-size: 0.8rem;
 }
 </style>
