@@ -1,18 +1,24 @@
 <script setup>
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import {
   SearchOutlined,
   PlayCircleFilled,
   HistoryOutlined,
   UserOutlined,
 } from '@ant-design/icons-vue'
+import { message } from 'ant-design-vue'
 
-const menuList = ref([
-  { name: '검색', routeName: 'search' },
-  { name: '플레이', routeName: 'play' },
-  { name: '스토리', routeName: 'story:cleared-list' },
-  { name: 'MY', routeName: 'user:my-page' },
-])
+const router = useRouter()
+
+const isPlaying = ref(false)
+function doPlayGame() {
+  if (isPlaying.value) {
+    router.push({ name: 'play' })
+  } else {
+    message.error('플레이 중인 스토리가 없어요 🥲')
+  }
+}
 </script>
 
 <template>
@@ -47,10 +53,10 @@ const menuList = ref([
       </RouterLink>
     </a-col>
     <a-col class="menu-item">
-      <RouterLink :to="{ name: 'play' }">
-        <PlayCircleFilled class="play-icon" />
+      <span @click="doPlayGame">
+        <PlayCircleFilled :class="isPlaying ? 'play-icon' : 'disabled-play-icon'" />
         <p>플레이</p>
-      </RouterLink>
+      </span>
     </a-col>
     <a-col class="menu-item">
       <RouterLink :to="{ name: 'story:cleared-list' }">
@@ -96,5 +102,9 @@ const menuList = ref([
 
 .play-icon {
   color: tomato;
+}
+
+.disabled-play-icon {
+  color: gray;
 }
 </style>
