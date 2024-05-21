@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 
 const props = defineProps({
@@ -9,7 +9,21 @@ const props = defineProps({
   },
 })
 
-console.log(props.playing)
+const addressInfo = computed(() => {
+  let address = props.playing.sido ?? ''
+  address += props.playing.gungu ? `${props.playing.sido ? ' ' : ''}${props.playing.gungu}` : ''
+  return address
+})
+
+function formatDatetime(dt) {
+  let [datePart, timePart ] = dt.split('T')
+  timePart = timePart.split(':').slice(0, 2).join(':')
+  return datePart + ' ' + timePart
+}
+
+const periodInfo = computed(() => {
+  return formatDatetime(props.playing.startedAt) + ' ~ ' + formatDatetime(props.playing.clearedAt)
+})
 </script>
 
 <template>
@@ -25,19 +39,12 @@ console.log(props.playing)
       </template>
       <a-card-meta :title="props.playing.title">
         <template #description>
-          <!-- 인천 남동구, 2024-05-05 ~ 2024-05-10 -->
-          {{ props.playing.sido ?? '' }}
-          {{ props.playing.gungu ? `${props.playing.sido ? ' ' : ''}${props.playing.gungu}` : '' }}
-          {{ props.playing.sido || props.playing.gungu ? ' : ' : '' }}
-          {{ props.playing.storyCreatedAt }}
-          ~ {{ props.playing.clearedAt }}</template
-        >
+          <div>{{ addressInfo }}</div>
+          <div>{{ periodInfo }}</div>
+          </template >
       </a-card-meta>
       <div class="cleared-story-container">
-        <a-row>
-          <b></b>
-          <a-col span="24">{{ props.playing.description }}</a-col>
-        </a-row>
+          {{ props.playing.description }}
       </div>
     </a-card>
   </RouterLink>
