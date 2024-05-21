@@ -11,10 +11,9 @@ const props = defineProps({
 })
 
 const isOpen = ref(props.modalOpen)
-console.log(props.spot)
 
 const editedSpot = ref({
-  previousSpotUuid: props.spot.previousSpotUuid,
+  previousSpotUuid: '',
   latitude: props.spot.latitude,
   longitude: props.spot.longitude,
   title: props.spot.title,

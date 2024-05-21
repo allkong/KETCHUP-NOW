@@ -17,10 +17,12 @@ import AttractionMarkerIcon from '@/assets/icon/marker/star-marker-sky.png'
 import SelectedAttractionMarkerIcon from '@/assets/icon/marker/star-marker-blue.png'
 import KeywordMarkerIcon from '@/assets/icon/marker/star-marker-orange.png'
 import SelectedKeywordMarkerIcon from '@/assets/icon/marker/star-marker-pink.png'
-import AddSpotModal from '@/components/desktop/AddSpotModal.vue'
-import AddSpotEventModal from '@/components/desktop/AddSpotEventModal.vue'
 import DefaultImage from '@/assets/default-image.jpg'
 import AIStoryGenerationBoard from '@/components/desktop/AIStoryGenerationBoard.vue'
+
+import AddSpotModal from '@/components/desktop/AddSpotModal.vue'
+import EditSpotModal from '@/components/desktop/EditSpotModal.vue'
+import AddSpotEventModal from '@/components/desktop/AddSpotEventModal.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -53,6 +55,7 @@ let keywordMarkers = []
 let selectedPlaceMarker = null
 
 const isAddSpotModalOpen = ref(false)
+const isEditSpotModalOpen = ref(false)
 const isAddSpotEventModalOpen = ref(false)
 
 const clickedMarker = ref()
@@ -340,27 +343,6 @@ const resetMarkerImage = (marker) => {
   }
 }
 
-const onCloseAddSpotModal = () => {
-  isAddSpotModalOpen.value = false
-}
-
-// 스팟 등록 후 스팟 목록 업데이트
-const onUpdateSpots = () => {
-  fetchSpots()
-  isAddSpotModalOpen.value = false
-}
-
-const onCloseAddSpotEventModal = () => {
-  isAddSpotEventModalOpen.value = false
-}
-
-const fetchSpots = async () => {
-  return axios.get(`/stories/${route.params.uuid}/spots`).then((response) => {
-    spots.value = response.data
-    spots.value.sort((a, b) => a.orderIndex - b.orderIndex)
-  })
-}
-
 const onChangeSpot = (e) => {
   const targetSpotElement = e.moved.element
   const previousSpotIndex = e.moved.newIndex - 1
@@ -393,6 +375,28 @@ const onChangeSpot = (e) => {
       })
     })
     .catch((error) => console.error(error))
+}
+
+// 스팟 등록 후 스팟 목록 업데이트
+const onUpdateSpots = async () => {
+  await fetchSpots()
+
+  // 기존에 그려져 있던 스팟 마커와 경로 모두 삭제
+  removeAllMarkers(spotMarkers)
+  spotMarkers = []
+  spotMarkerPolyline.setMap(null)
+  spotMarkerPolyline = null
+  // 다시 그리기
+  drawSpotMarkers()
+
+  isAddSpotModalOpen.value = false
+}
+
+const fetchSpots = async () => {
+  return axios.get(`/stories/${route.params.uuid}/spots`).then((response) => {
+    spots.value = response.data
+    spots.value.sort((a, b) => a.orderIndex - b.orderIndex)
+  })
 }
 
 async function drawSpotMarkers() {
@@ -448,26 +452,49 @@ const focusToSpotMarker = (spot) => {
   }
 }
 
-const onEidtSpot = (spot) => {}
+const onUpdateEditedSpot = async () => {
+  await fetchSpots()
+  isEditSpotModalOpen.value = false
+}
 
-const onAddSpotEvent = (spot) => {}
+const onCloseAddSpotModal = () => {
+  isAddSpotModalOpen.value = false
+}
+
+const onEditSpotModal = (spot) => {
+  const spotIndex = spots.value.indexOf(spot)
+  spot.previousSpotUuid = spots.value[spotIndex].uuid
+  clickedSpot.value = spot
+  isEditSpotModalOpen.value = true
+}
+
+const onCloseEditSpotModal = () => {
+  isEditSpotModalOpen.value = false
+}
+
+const onAddSpotEventModal = (spot) => {
+  isAddSpotEventModalOpen.value = true
+}
+
+const onCloseAddSpotEventModal = () => {
+  isAddSpotEventModalOpen.value = false
+}
 
 const onDeleteSpot = (spot) => {
-  // /stories/f03c3bb1-0f83-11ef-bec7-0242ac110002/spots/f03e2f02-0f83-11ef-bec7-0242ac110002
-  // axios
-  //   .delete(`/stories/${route.params.uuid}/spots/${spot.uuid}`)
-  //   .then((response) => {
-  //     const spotIndex = spots.value.indexOf(spot)
-  //     spots.value.splice(spotIndex, 1)
-  //     // 기존에 그려져 있던 스팟 마커와 경로 모두 삭제
-  //     removeAllMarkers(spotMarkers)
-  //     spotMarkers = []
-  //     spotMarkerPolyline.setMap(null)
-  //     spotMarkerPolyline = null
-  //     // 다시 그리기
-  //     drawSpotMarkers()
-  //   })
-  //   .catch((error) => console.error(error))
+  axios
+    .delete(`/stories/${route.params.uuid}/spots/${spot.uuid}`)
+    .then((response) => {
+      const spotIndex = spots.value.indexOf(spot)
+      spots.value.splice(spotIndex, 1)
+      // 기존에 그려져 있던 스팟 마커와 경로 모두 삭제
+      removeAllMarkers(spotMarkers)
+      spotMarkers = []
+      spotMarkerPolyline.setMap(null)
+      spotMarkerPolyline = null
+      // 다시 그리기
+      drawSpotMarkers()
+    })
+    .catch((error) => console.error(error))
 }
 </script>
 
@@ -480,6 +507,13 @@ const onDeleteSpot = (spot) => {
     :last-spot-uuid="spots.length > 0 ? spots[spots.length - 1].uuid : null"
     @close-add-spot-modal="onCloseAddSpotModal"
     @update-spots="onUpdateSpots"
+  />
+  <EditSpotModal
+    v-if="isEditSpotModalOpen"
+    :modal-open="isEditSpotModalOpen"
+    :spot="clickedSpot"
+    @close-edit-spot-modal="onCloseEditSpotModal"
+    @update-edited-spot="onUpdateEditedSpot"
   />
   <AddSpotEventModal
     v-if="isAddSpotEventModalOpen"
@@ -629,17 +663,17 @@ const onDeleteSpot = (spot) => {
               <a-divider class="horizontal-divider" />
 
               <a-row align="middle" justify="center" class="card-actions">
-                <a-col :span="8" class="full-height" @click.stop="onEditSpot(element)">
+                <a-col :span="8" class="full-height" @click.stop="onEditSpotModal(element)">
                   <div class="action-container">
                     <EditOutlined />
                   </div>
                 </a-col>
-                <a-col :span="8" class="full-height" @click.stop="onAddSpotEvent(element)">
+                <a-col :span="8" class="full-height" @click.stop="onAddSpotEventModal(element)">
                   <div class="action-container middle-border">
                     <PlusSquareOutlined />
                   </div>
                 </a-col>
-                <a-col :span="8" class="full-height" @click.stop="onDeleteSpot(element)">
+                <a-col :span="8" class="full-height" @click.stop="onDeleteSpotModal(element)">
                   <div class="action-container">
                     <DeleteOutlined />
                   </div>

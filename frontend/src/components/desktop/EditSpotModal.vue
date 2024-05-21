@@ -1,50 +1,35 @@
 <script setup>
-import { ref, inject, watchEffect } from 'vue'
+import { ref, inject } from 'vue'
 import { useRoute } from 'vue-router'
 
 const route = useRoute()
 const axios = inject('axios')
 
+const emit = defineEmits(['closeEditSpotModal', 'updateEditedSpot'])
 const props = defineProps({
   modalOpen: Boolean,
-  place: Object,
-  lastSpotUuid: String,
+  spot: Object,
 })
 
 const isOpen = ref(props.modalOpen)
-const spot = ref({
-  previousSpotUuid: props.lastSpotUuid,
-  latitude: 0,
-  longitude: 0,
-  title: '',
-  description: '',
-  imageFile: '',
+const editedSpot = ref({
+  previousSpotUuid: props.spot.previousSpotUuid,
+  latitude: props.spot.latitude,
+  longitude: props.spot.longitude,
+  title: props.spot.title,
+  description: props.spot.description,
+  imageFile: props.spot.imageFile,
+  eventType: props.spot.eventType,
+  jsonEventContent: props.spot.jsonEventContent,
 })
 
-const onSavePlaceToSpot = (place) => {
-  if (place.placeType === 'keyword') {
-    spot.value.latitude = place.y
-    spot.value.longitude = place.x
-    spot.value.title = place.place_name
-  } else if (place.placeType === 'attraction') {
-    spot.value.latitude = place.latitude
-    spot.value.longitude = place.longitude
-    spot.value.title = place.title
-  }
-}
-
-watchEffect(() => {
-  if (isOpen.value) {
-    onSavePlaceToSpot(props.place)
-  }
-})
-
-const emit = defineEmits(['onCloseAddSpotModal', 'updateSpots'])
-const onAddSpot = (e) => {
-  console.log('결과를 보여줘')
+const onEditSpot = () => {
   axios
-    .post(`/stories/${route.params.uuid}/spots`, spot.value)
-    .then((response) => emit('updateSpots'))
+    .put(
+      `/stories/${route.params.uuid}/spots/${editedSpot.value.previousSpotUuid}`,
+      editedSpot.value,
+    )
+    .then((response) => emit('updateEditedSpot'))
     .catch((error) => console.error(error))
 }
 </script>
@@ -57,8 +42,8 @@ const onAddSpot = (e) => {
     centered
     cancelText="취소"
     okText="등록"
-    @cancel="$emit('closeAddSpotModal')"
-    @ok="onAddSpot"
+    @cancel="$emit('closeEditSpotModal')"
+    @ok="onEditSpot"
   >
     <a-row align="middle" justify="center">
       <a-col>
@@ -72,13 +57,13 @@ const onAddSpot = (e) => {
       <a-row justify="center" class="input-form">
         <a-col class="input-label">이름</a-col>
         <a-col>
-          <a-input v-model:value="spot.title" class="input-box" />
+          <a-input v-model:value="editedSpot.title" class="input-box" />
         </a-col>
       </a-row>
       <a-row justify="center" class="input-form">
         <a-col class="input-label">설명</a-col>
         <a-col>
-          <a-textarea v-model:value="spot.description" class="input-box" />
+          <a-textarea v-model:value="editedSpot.description" class="input-box" />
         </a-col>
       </a-row>
     </div>
