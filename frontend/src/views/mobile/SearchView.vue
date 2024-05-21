@@ -1,8 +1,15 @@
 <script setup>
 import { onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 import HeaderView from '@/views/mobile/includes/HeaderView.vue'
 import NavigationView from '@/views/mobile/includes/NavigationView.vue'
 import SearchMapComponent from '@/components/mobile/SearchMapComponent.vue'
+
+const route = useRoute()
+let initialFocusStoryUuid = null
+if (route.query['story-uuid']) {
+  initialFocusStoryUuid = route.query['story-uuid']
+}
 
 // 지도 영역 높이 계산
 const setVH = () => {
@@ -18,7 +25,7 @@ onMounted(() => {
 
 <template>
   <a-layout-content id="map-size">
-    <SearchMapComponent />
+    <SearchMapComponent :initial-focus-story-uuid="initialFocusStoryUuid" />
   </a-layout-content>
   <NavigationView />
 </template>

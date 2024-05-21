@@ -11,10 +11,12 @@ import {
 import MapPreviewComponent from '@/components/mobile/MapPreviewComponent.vue'
 import ReviewPreviewElement from '@/components/mobile/review/ReviewPreviewElement.vue'
 import HttpStatus from '@/api/http-status'
+import { useStoryZzimStore } from '@/stores/story-zzim'
 
 const axios = inject('axios')
 
 const router = useRouter()
+const storyZzimStore = useStoryZzimStore()
 
 const props = defineProps({
   modalOpen: Boolean,
@@ -45,7 +47,10 @@ const storyFullAddress = computed(() => {
 
 onMounted(() => {
   fetchReviews(props.story.uuid)
-  fetchZzims()
+  storyZzimStore.fetchZzims()
+  .then(zzims => {
+    isZzim.value = zzims.filter(s => s.uuid === props.story.uuid).length > 0
+  })
 })
 
 watch(props.story, () => {
@@ -58,29 +63,13 @@ function fetchReviews(storyUuid) {
   })
 }
 
-function fetchZzims() {
-  axios.get(`/users/me/zzims`).then((resp) => {
-    const myZzims = resp.data
-    isZzim.value = myZzims.filter((zzim) => zzim.storyUuid === props.story.uuid).length > 0
-  })
-}
-
-async function toggleZzim() {
-  axios.post(`/stories/${props.story.uuid}/zzims`).then((resp) => {
-    // 찜 처리됨
-    if (resp.status === HttpStatus.OK) {
-      isZzim.value = true
-    }
-    // 찜 해제 처리됨
-    else if (resp.status === HttpStatus.NO_CONTENT) {
-      isZzim.value = false
-    }
-  })
-}
-
 const fixedAverageReviewScore = computed(() => {
   return props.story.averageReviewScore.toFixed(1)
 })
+
+async function doToggleZzim() {
+  isZzim.value = await storyZzimStore.toggleZzim(props.story.uuid)
+}
 </script>
 
 <template>
@@ -100,7 +89,7 @@ const fixedAverageReviewScore = computed(() => {
           <!-- <span>v1</span> -->
         </a-col>
         <a-col>
-          <span @click="toggleZzim">
+          <span @click="doToggleZzim">
             <HeartOutlined v-if="!isZzim" />
             <HeartFilled v-if="isZzim" />
           </span>

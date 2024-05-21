@@ -50,8 +50,8 @@ function onStoryCardClicked(story) {
                 <h4>{{ story.title }}</h4>
                 <a-rate :value="story.averageReviewScore.toFixed(1)" disabled class="star-grade" />
                 <p style="display: flex; align-items: center">
-                  <EnvironmentOutlined style="margin-right: 0.3rem" /> {{ story.sido }}
-                  {{ story.gungu ? ' ' + story.gungu : '' }}
+                  <EnvironmentOutlined style="margin-right: 0.3rem" />
+                  {{ story.sido }} {{ story.gungu ? ' ' + story.gungu : '' }}
                 </p>
                 <p>Created By {{ story.authorNickname }}</p>
               </a-col>
@@ -66,6 +66,7 @@ function onStoryCardClicked(story) {
 <style scoped>
 h4 {
   margin: 0;
+  font-size: 1rem;
 }
 
 p {

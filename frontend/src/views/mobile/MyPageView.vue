@@ -137,18 +137,23 @@ if (!userStore.userInfo.loginId) {
     </a-card>
     <a-divider />
     <div id="project-info-container">
-      <a
-        href="https://www.flaticon.com/free-animated-icons/instagram-stories"
-        title="instagram stories animated icons"
-        >Instagram stories animated icons created by Freepik - Flaticon</a
-      >
-      <a href="https://www.flaticon.com/kr/free-icons/" title="번호 아이콘"
-        >번호 아이콘 제작자: riajulislam - Flaticon</a
-      >
-      <div>
-        Developed by Dabin Jeong <a href="https://github.com/allkong"><GithubOutlined /></a> & Yubin
+      <p>
+        <div>
+          Developed by Dabin Jeong <a href="https://github.com/allkong"><GithubOutlined /></a> & Yubin
         Park <a href="https://github.com/pcjs156"><GithubOutlined /></a>
-      </div>
+        </div>
+        <div>
+          Icons are created by 
+          <a
+          href="https://www.flaticon.com/free-animated-icons/instagram-stories"
+          title="instagram stories animated icons"
+          >Freepik</a
+        >,
+        <a href="https://www.flaticon.com/kr/free-icons/" title="번호 아이콘"
+          >riajulislam</a
+        > of Flaticon.
+        </div>
+      </p>
       <div>Copyright ©SAMSUNG All Rights Reserved.</div>
     </div>
   </a-layout-content>
