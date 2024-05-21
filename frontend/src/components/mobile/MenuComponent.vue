@@ -6,8 +6,10 @@ import {
   PlayCircleFilled,
   HistoryOutlined,
   UserOutlined,
+  HeartOutlined,
 } from '@ant-design/icons-vue'
-import { message } from 'ant-design-vue'
+import { message, Modal } from 'ant-design-vue'
+import SearchListModal from './modal/SearchListModal.vue'
 
 const axios = inject('axios')
 const router = useRouter()
@@ -55,10 +57,10 @@ onMounted(async () => {
       </RouterLink>
     </a-col>
     <a-col class="menu-item">
-      <RouterLink :to="{ name: 'search' }">
-        <SearchOutlined />
-        <p>검색</p>
-      </RouterLink>
+        <span @click="openZzimListModal">
+          <HeartOutlined />
+          <p>찜</p>
+        </span>
     </a-col>
     <a-col class="menu-item">
       <span @click="doPlayGame">
