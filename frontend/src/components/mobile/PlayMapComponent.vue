@@ -125,6 +125,7 @@ const onSpotEventClear = () => {
   axios
     .post('/playings/current/clear', {
       spotUuid: nextTargetSpot.value.uuid,
+      jsonEventContent: '',
     })
     .then(async (resp) => {
       return fetchPlayLogs()

@@ -24,10 +24,10 @@ const onCheckAnswer = () => {
   }
 
   if (inputAnswer.value === eventContent.answer) {
-    message.success('정답입니다!')
+    message.success('정답입니다! 👏')
     emit('spotEventClear')
   } else {
-    message.error('오답입니다.')
+    message.error('오답입니다. 😢')
   }
 }
 </script>
