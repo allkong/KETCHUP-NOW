@@ -463,7 +463,13 @@ const onCloseAddSpotModal = () => {
 
 const onEditSpotModal = (spot) => {
   const spotIndex = spots.value.indexOf(spot)
-  spot.previousSpotUuid = spots.value[spotIndex].uuid
+
+  if (spotIndex === 0) {
+    spot.previousSpotUuid = null
+  } else {
+    spot.previousSpotUuid = spots.value[spotIndex - 1].uuid
+  }
+
   clickedSpot.value = spot
   isEditSpotModalOpen.value = true
 }
@@ -473,6 +479,15 @@ const onCloseEditSpotModal = () => {
 }
 
 const onAddSpotEventModal = (spot) => {
+  const spotIndex = spots.value.indexOf(spot)
+
+  if (spotIndex === 0) {
+    spot.previousSpotUuid = null
+  } else {
+    spot.previousSpotUuid = spots.value[spotIndex - 1].uuid
+  }
+
+  clickedSpot.value = spot
   isAddSpotEventModalOpen.value = true
 }
 
@@ -673,7 +688,7 @@ const onDeleteSpot = (spot) => {
                     <PlusSquareOutlined />
                   </div>
                 </a-col>
-                <a-col :span="8" class="full-height" @click.stop="onDeleteSpotModal(element)">
+                <a-col :span="8" class="full-height" @click.stop="onDeleteSpot(element)">
                   <div class="action-container">
                     <DeleteOutlined />
                   </div>

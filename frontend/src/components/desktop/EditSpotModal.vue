@@ -1,5 +1,5 @@
 <script setup>
-import { ref, inject } from 'vue'
+import { ref, inject, watchEffect } from 'vue'
 import { useRoute } from 'vue-router'
 
 const route = useRoute()
@@ -13,23 +13,43 @@ const props = defineProps({
 
 const isOpen = ref(props.modalOpen)
 const editedSpot = ref({
-  previousSpotUuid: props.spot.previousSpotUuid,
-  latitude: props.spot.latitude,
-  longitude: props.spot.longitude,
-  title: props.spot.title,
-  description: props.spot.description,
-  imageFile: props.spot.imageFile,
-  eventType: props.spot.eventType,
-  jsonEventContent: props.spot.jsonEventContent,
+  previousSpotUuid: '',
+  latitude: 0,
+  longitude: 0,
+  title: '',
+  description: '',
+  imageFile: '',
+  eventType: '',
+  jsonEventContent: {},
+})
+
+const onSaveSpotToEditedSpot = (spot) => {
+  // console.log(spot)
+  editedSpot.value.previousSpotUuid = spot.previousSpotUuid
+  editedSpot.value.latitude = spot.latitude
+  editedSpot.value.longitude = spot.longitude
+  editedSpot.value.title = spot.title
+  editedSpot.value.description = spot.description
+  editedSpot.value.imageFile = spot.imageFile
+  editedSpot.value.eventType = spot.eventType
+  editedSpot.value.jsonEventContent = spot.jsonEventContent
+}
+
+watchEffect(() => {
+  if (isOpen.value) {
+    onSaveSpotToEditedSpot(props.spot)
+  }
 })
 
 const onEditSpot = () => {
+  console.log(editedSpot.value)
+  editedSpot.value.jsonEventContent = JSON.stringify(editedSpot.value.jsonEventContent)
   axios
-    .put(
-      `/stories/${route.params.uuid}/spots/${editedSpot.value.previousSpotUuid}`,
-      editedSpot.value,
-    )
-    .then((response) => emit('updateEditedSpot'))
+    .put(`/stories/${route.params.uuid}/spots/${props.spot.uuid}`, editedSpot.value)
+    .then((response) => {
+      console.log(response.data)
+      emit('updateEditedSpot')
+    })
     .catch((error) => console.error(error))
 }
 </script>
@@ -41,7 +61,7 @@ const onEditSpot = () => {
     width="25rem"
     centered
     cancelText="취소"
-    okText="등록"
+    okText="변경"
     @cancel="$emit('closeEditSpotModal')"
     @ok="onEditSpot"
   >
@@ -50,7 +70,7 @@ const onEditSpot = () => {
         <img src="@/assets/icon/flag.png" class="flag-icon" />
       </a-col>
       <a-col>
-        <h2>스팟 등록</h2>
+        <h2>스팟 정보</h2>
       </a-col>
     </a-row>
     <div class="input-container">
@@ -79,12 +99,6 @@ h2 {
   width: 2rem;
   height: 2rem;
   margin-right: 0.5rem;
-}
-
-.modal-button {
-  width: 4rem;
-  display: flex;
-  justify-content: center;
 }
 
 .input-container {
