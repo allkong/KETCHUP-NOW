@@ -8,14 +8,19 @@ import { useRouter } from 'vue-router'
 import { useStoryZzimStore } from '@/stores/story-zzim';
 
 const axios = inject('axios')
+const router = useRouter()
 const storyZzimStore = useStoryZzimStore()
 
 function onStoryCardClicked(story) {
-
+    router.push({name: 'search', query: {'story-uuid': story.uuid}})
 }
 
 function removeZzim(story) {
     storyZzimStore.toggleZzim(story.uuid)
+}
+
+function goToDetail(story) {
+    console.log(story);
 }
 
 const zzimStories = ref([])
@@ -67,7 +72,7 @@ onMounted(async () => {
                 </template>
                 <template #actions>
                   <close-outlined key="zzim" @click="() => removeZzim(story)" />
-                  <caret-right-outlined key="detail" />
+                  <caret-right-outlined key="detail" @click="() => goToDetail(story)" />
                 </template>
                 <a-card-meta :title="story.title" :description="story.description.length < 50 ? story.description : story.description.slice(0, 47) + '...'">
                 </a-card-meta>
