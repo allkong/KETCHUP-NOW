@@ -1,17 +1,20 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
-export const useLocationStore = defineStore('locationStore', () => {
-  // 초기 위치는 멀티캠퍼스
-  const coords = ref({
-    latitude: 37.5015109,
-    longitude: 127.0397022,
-  })
+const 경복궁 = {
+  latitude: 37.576624,
+  longitude: 126.978565,
+}
 
-  navigator.geolocation.getCurrentPosition((position) => {
-    const { latitude, longitude } = position.coords
-    coords.value.latitude = latitude
-    coords.value.longitude = longitude
+const 멀티캠퍼스_역삼 = {
+  latitude: 37.5015109,
+  longitude: 127.0397022,
+}
+
+export const useLocationStore = defineStore('locationStore', () => {
+  // 초기 위치
+  const coords = ref({
+    ...경복궁,
   })
 
   return { coords }
