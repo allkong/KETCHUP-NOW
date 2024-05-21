@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref } from 'vue'
+import { inject, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import {
   SearchOutlined,
@@ -9,16 +9,41 @@ import {
 } from '@ant-design/icons-vue'
 import { message } from 'ant-design-vue'
 
+const axios = inject('axios')
 const router = useRouter()
+
+const updatePlayingStatus = () => {
+  return axios
+    .get('playings/now')
+    .then((response) => {
+      if (response.data.status === 'PLAYING') {
+        isPlaying.value = true
+      } else {
+        isPlaying.value = false
+      }
+
+      return Promise.resolve(response.data)
+    })
+    .catch((error) => {
+      isPlaying.value = false
+      return Promise.reject(error)
+    })
+}
 
 const isPlaying = ref(false)
 function doPlayGame() {
-  if (isPlaying.value) {
-    router.push({ name: 'play' })
-  } else {
-    message.error('플레이 중인 스토리가 없어요 🥲')
-  }
+  updatePlayingStatus().finally(() => {
+    if (isPlaying.value) {
+      router.push({ name: 'play' })
+    } else {
+      message.error('플레이 중인 스토리가 없어요 🥲')
+    }
+  })
 }
+
+onMounted(async () => {
+  updatePlayingStatus()
+})
 </script>
 
 <template>
