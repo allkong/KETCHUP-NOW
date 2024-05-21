@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue'
-import { StarFilled } from '@ant-design/icons-vue'
+import { EnvironmentOutlined } from '@ant-design/icons-vue'
 
 const props = defineProps({
   modalOpen: Boolean,
@@ -48,10 +48,13 @@ function onStoryCardClicked(story) {
                 />
               </a-col>
               <a-col :span="14">
-                <p>{{ story.title }}</p>
+                <h4>{{ story.title }}</h4>
                 <a-rate :value="2" disabled class="star-grade" />
-                <p>{{ story.sido }} {{ story.gungu ? ' ' + story.gungu : '' }}</p>
-                <p>{{ story.authorNickname }}</p>
+                <p style="display: flex; align-items: center">
+                  <EnvironmentOutlined style="margin-right: 0.3rem" /> {{ story.sido }}
+                  {{ story.gungu ? ' ' + story.gungu : '' }}
+                </p>
+                <p>Created By {{ story.authorNickname }}</p>
               </a-col>
             </a-row>
           </a-card-grid>
@@ -62,6 +65,7 @@ function onStoryCardClicked(story) {
 </template>
 
 <style scoped>
+h4,
 p {
   margin: 0;
 }
@@ -71,6 +75,7 @@ p {
   height: 6rem;
   width: 6rem;
   border-radius: 0.5rem;
+  object-fit: cover;
 }
 
 .star-grade {
