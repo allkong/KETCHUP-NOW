@@ -1,5 +1,38 @@
 <script setup>
+import { onMounted } from 'vue'
 import { RouterView } from 'vue-router'
+import { useLocationStore } from '@/stores/location'
+const { VITE_APP_MODE } = import.meta.env
+
+const pressedKeys = new Set()
+
+const locationStore = useLocationStore()
+if (VITE_APP_MODE === 'DEBUG') {
+  console.log('VIRTUAL LOCATION MODE ENABLED')
+  const MOVING_UNIT = 0.0001
+
+  window.addEventListener(
+    'keydown',
+    (e) => {
+      pressedKeys.add(e.key)
+      if (pressedKeys.has('Shift')) {
+        if (pressedKeys.has('ArrowRight')) {
+          locationStore.coords.longitude += MOVING_UNIT
+        } else if (pressedKeys.has('ArrowLeft')) {
+          locationStore.coords.longitude -= MOVING_UNIT
+        } else if (pressedKeys.has('ArrowUp')) {
+          locationStore.coords.latitude += MOVING_UNIT
+        } else if (pressedKeys.has('ArrowDown')) {
+          locationStore.coords.latitude -= MOVING_UNIT
+        }
+      }
+    },
+    false,
+  )
+  window.addEventListener('keyup', (e) => {
+    pressedKeys.delete(e.key)
+  })
+}
 </script>
 
 <!-- 

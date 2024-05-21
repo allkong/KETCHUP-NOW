@@ -19,6 +19,7 @@ import MobileNotFoundView from '@/views/mobile/NotFoundView.vue'
 import MobileLoginView from '@/views/mobile/LoginView.vue'
 import MobileSignUpView from '@/views/mobile/SignUpView.vue'
 import { message } from 'ant-design-vue'
+import ReviewWritingView from '@/views/mobile/ReviewWritingView.vue'
 
 const desktopRouter = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -90,6 +91,11 @@ const mobileRouter = createRouter({
       path: '/stories/cleared/:storyUuid/:uuid',
       name: 'story:cleared-record',
       component: MobileStoryRecordView,
+    },
+    {
+      path: '/play/:playingUuid/review/register',
+      name: 'story:review:register',
+      component: ReviewWritingView,
     },
     {
       path: '/user/my-page',

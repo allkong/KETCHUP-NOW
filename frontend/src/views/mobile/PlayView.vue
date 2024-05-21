@@ -3,8 +3,11 @@ import { ref, inject, onMounted } from 'vue'
 import PlayMapComponent from '@/components/mobile/PlayMapComponent.vue'
 import HeaderView from '@/views/mobile/includes/HeaderView.vue'
 import NavigationView from '@/views/mobile/includes/NavigationView.vue'
+import { message } from 'ant-design-vue'
+import { useRouter } from 'vue-router'
 
 const axios = inject('axios')
+const router = useRouter()
 
 const isPlaying = ref(false)
 
@@ -19,16 +22,31 @@ const setVH = () => {
   document.documentElement.style.setProperty('--vh', `${vh}px`)
 }
 
-const checkPlaying = () => {
-  axios.get('playings/now').then((response) => {
-    if (response.data.status === 'PLAYING') {
-      isPlaying.value = true
-    }
-    console.log(isPlaying.value)
-  })
+const updatePlayingStatus = () => {
+  return axios
+    .get('playings/now')
+    .then((response) => {
+      if (response.data.status === 'PLAYING') {
+        isPlaying.value = true
+      } else {
+        isPlaying.value = false
+      }
+
+      return Promise.resolve(response.data)
+    })
+    .catch((error) => {
+      isPlaying.value = false
+      return Promise.reject(error)
+    })
 }
 
-checkPlaying()
+onMounted(async () => {
+  updatePlayingStatus().finally(() => {
+    if (!isPlaying.value) {
+      router.back()
+    }
+  })
+})
 </script>
 
 <template>
