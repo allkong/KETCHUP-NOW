@@ -5,7 +5,7 @@ import { useRoute } from 'vue-router'
 const route = useRoute()
 const axios = inject('axios')
 
-const emit = defineEmits(['closeAddSpotEventModal'])
+const emit = defineEmits(['closeAddSpotEventModal', 'updateSpotEvent'])
 const props = defineProps({
   modalOpen: Boolean,
   spot: Object,
@@ -57,7 +57,7 @@ const onAddSpotEvent = () => {
   editedSpot.value.jsonEventContent = JSON.stringify(editedSpot.value.jsonEventContent)
   axios
     .put(`/stories/${route.params.uuid}/spots/${props.spot.uuid}`, editedSpot.value)
-    .then((response) => emit('closeAddSpotEventModal'))
+    .then((response) => emit('updateSpotEvent'))
     .catch((error) => console.error(error))
 }
 </script>

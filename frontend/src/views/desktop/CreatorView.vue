@@ -490,6 +490,11 @@ const onAddSpotEventModal = (spot) => {
   isAddSpotEventModalOpen.value = true
 }
 
+const onUpdateSpotEvent = () => {
+  fetchSpots()
+  isAddSpotEventModalOpen.value = false
+}
+
 const onCloseAddSpotEventModal = () => {
   isAddSpotEventModalOpen.value = false
 }
@@ -534,6 +539,7 @@ const onDeleteSpot = (spot) => {
     :modal-open="isAddSpotEventModalOpen"
     :spot="clickedSpot"
     @close-add-spot-event-modal="onCloseAddSpotEventModal"
+    @update-spot-event="onUpdateSpotEvent"
   />
   <a-layout>
     <!-- 좌측 안쪽 사이드바 -->
