@@ -20,7 +20,7 @@ const editedSpot = ref({
   description: props.spot.description,
   imageFile: props.spot.imageFile,
   eventType: 'QUIZ',
-  jsonEventContent: props.spot.jsonEventContent,
+  jsonEventContent: JSON.parse(props.spot.jsonEventContent),
 })
 
 const quizEvent = ref({
@@ -31,6 +31,7 @@ const quizEvent = ref({
 })
 
 const onSaveSpotToEvent = (spot) => {
+  console.log(editedSpot.value)
   if (spot.eventType === 'QUIZ') {
     const eventContent = spot.jsonEventContent || ''
     if (eventContent !== null || eventConent === '') {
