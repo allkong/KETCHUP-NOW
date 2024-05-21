@@ -48,7 +48,7 @@ function requestAIGeneration() {
         v-model:value="additionalPrompt"
         placeholder="추가적인 요청 사항을 입력해 보세요! (50자 이상 입력 불가)"
         :status="isAdditionalPromptExceedsMaxLength ? 'error' : ''"
-        showCount="true"
+        :showCount="true"
         :rows="4"
         :autosize="{ minRows: 4, maxRows: 4 }"
       />

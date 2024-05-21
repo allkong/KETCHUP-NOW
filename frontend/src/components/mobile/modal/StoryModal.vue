@@ -97,11 +97,14 @@ async function doToggleZzim() {
       </a-row>
       <a-row align="middle" justify="space-between">
         <a-col>
-          <EnvironmentOutlined />
+          <EnvironmentOutlined style="margin-right: 0.3rem" />
           <span>{{ storyFullAddress }}</span>
         </a-col>
         <a-col>
-          <StarFilled /><span>{{ fixedAverageReviewScore }}</span> <CaretRightFilled /><span>{{
+          <StarFilled style="margin-right: 0.3rem" /><span style="margin-right: 0.8rem">{{
+            fixedAverageReviewScore
+          }}</span>
+          <CaretRightFilled style="margin-right: 0.1rem" /><span>{{
             props.story.totalPlayCount
           }}</span>
         </a-col>

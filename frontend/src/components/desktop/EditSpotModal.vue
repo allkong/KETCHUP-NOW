@@ -5,45 +5,51 @@ import { useRoute } from 'vue-router'
 const route = useRoute()
 const axios = inject('axios')
 
+const emit = defineEmits(['closeEditSpotModal', 'updateEditedSpot'])
 const props = defineProps({
   modalOpen: Boolean,
-  place: Object,
-  lastSpotUuid: String,
+  spot: Object,
 })
 
 const isOpen = ref(props.modalOpen)
-const spot = ref({
-  previousSpotUuid: props.lastSpotUuid,
+const editedSpot = ref({
+  previousSpotUuid: '',
   latitude: 0,
   longitude: 0,
   title: '',
   description: '',
   imageFile: '',
+  eventType: '',
+  jsonEventContent: {},
 })
 
-const onSavePlaceToSpot = (place) => {
-  if (place.placeType === 'keyword') {
-    spot.value.latitude = place.y
-    spot.value.longitude = place.x
-    spot.value.title = place.place_name
-  } else if (place.placeType === 'attraction') {
-    spot.value.latitude = place.latitude
-    spot.value.longitude = place.longitude
-    spot.value.title = place.title
-  }
+const onSaveSpotToEditedSpot = (spot) => {
+  // console.log(spot)
+  editedSpot.value.previousSpotUuid = spot.previousSpotUuid
+  editedSpot.value.latitude = spot.latitude
+  editedSpot.value.longitude = spot.longitude
+  editedSpot.value.title = spot.title
+  editedSpot.value.description = spot.description
+  editedSpot.value.imageFile = spot.imageFile
+  editedSpot.value.eventType = spot.eventType
+  editedSpot.value.jsonEventContent = spot.jsonEventContent
 }
 
 watchEffect(() => {
   if (isOpen.value) {
-    onSavePlaceToSpot(props.place)
+    onSaveSpotToEditedSpot(props.spot)
   }
 })
 
-const emit = defineEmits(['onCloseAddSpotModal', 'updateSpots'])
-const onAddSpot = () => {
+const onEditSpot = () => {
+  console.log(editedSpot.value)
+  editedSpot.value.jsonEventContent = JSON.stringify(editedSpot.value.jsonEventContent)
   axios
-    .post(`/stories/${route.params.uuid}/spots`, spot.value)
-    .then((response) => emit('updateSpots'))
+    .put(`/stories/${route.params.uuid}/spots/${props.spot.uuid}`, editedSpot.value)
+    .then((response) => {
+      console.log(response.data)
+      emit('updateEditedSpot')
+    })
     .catch((error) => console.error(error))
 }
 </script>
@@ -55,29 +61,29 @@ const onAddSpot = () => {
     width="25rem"
     centered
     cancelText="취소"
-    okText="등록"
-    @cancel="$emit('closeAddSpotModal')"
-    @ok="onAddSpot"
+    okText="변경"
+    @cancel="$emit('closeEditSpotModal')"
+    @ok="onEditSpot"
   >
     <a-row align="middle" justify="center">
       <a-col>
         <img src="@/assets/icon/flag.png" class="flag-icon" />
       </a-col>
       <a-col>
-        <h2>스팟 등록</h2>
+        <h2>스팟 정보</h2>
       </a-col>
     </a-row>
     <div class="input-container">
       <a-row justify="center" class="input-form">
         <a-col class="input-label">이름</a-col>
         <a-col>
-          <a-input v-model:value="spot.title" class="input-box" />
+          <a-input v-model:value="editedSpot.title" class="input-box" />
         </a-col>
       </a-row>
       <a-row justify="center" class="input-form">
         <a-col class="input-label">설명</a-col>
         <a-col>
-          <a-textarea v-model:value="spot.description" class="input-box" />
+          <a-textarea v-model:value="editedSpot.description" class="input-box" />
         </a-col>
       </a-row>
     </div>
@@ -93,12 +99,6 @@ h2 {
   width: 2rem;
   height: 2rem;
   margin-right: 0.5rem;
-}
-
-.modal-button {
-  width: 4rem;
-  display: flex;
-  justify-content: center;
 }
 
 .input-container {
