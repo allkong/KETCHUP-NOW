@@ -34,7 +34,7 @@
 <script setup>
 import { createVNode, inject, onMounted, ref } from 'vue'
 import { Modal } from 'ant-design-vue'
-import { WarningOutlined } from '@ant-design/icons-vue'
+import { WarningOutlined, CrownOutlined } from '@ant-design/icons-vue'
 
 import NavigationView from '@/views/mobile/includes/NavigationView.vue'
 import ReviewPreviewElement from '@/components/mobile/review/ReviewPreviewElement.vue'

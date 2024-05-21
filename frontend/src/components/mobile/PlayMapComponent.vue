@@ -1,20 +1,22 @@
 <script setup>
-import { ref, onMounted, onUnmounted, watch, inject, computed } from 'vue'
-import { message } from 'ant-design-vue'
 const { VITE_KAKAO_MAP_KEY, VITE_APP_MODE } = import.meta.env
+import { ref, onMounted, onUnmounted, watch, inject, computed, createVNode, h } from 'vue'
+import { message, Modal } from 'ant-design-vue'
 import FindSpot from '@/components/mobile/modal/FindSpot.vue'
 import { useLocationStore } from '@/stores/location'
 import HttpStatus from '@/api/http-status'
-import { Modal } from 'ant-design-vue';
+import { CrownOutlined } from '@ant-design/icons-vue'
+import { useRouter } from 'vue-router'
 
 const axios = inject('axios')
+const router = useRouter()
 
 const [messageApi, contextHolder] = message.useMessage()
 const mapContainer = ref(null)
 let mapInstance = null
 let currentPositionMarker = null
-
 let inRangeTargetMarker = null
+
 
 function getHaversineMeter(lat1, lon1, lat2, lon2) {
   // 라디안 단위로 변환하는 함수
@@ -102,7 +104,24 @@ function updateGame({latitude, longitude}) {
             .catch(error => {
               // 만약 다음 타겟 스팟이 없으면 게임이 종료되었다는 의미
               if (error.response.status === HttpStatus.CONFLICT && error.response.data.detailCode === 'E0005') {
-                  message.success('🎊 스토리 클리어를 축하합니다! 🎊')
+                Modal.confirm({
+                  title: '스토리 클리어!',
+                  icon: () => createVNode(CrownOutlined),
+                  content: '긴 여정이 끝났습니다. 여행자님의 생생한 후기를 들려주세요!',
+                  content: () => h('div', {}, [
+                    h('div', '긴 여정이 끝났습니다.'),
+                    h('div', '여행자님의 생생한 후기를 들려 주세요!'),
+                  ]),
+                  okText: '좋아요 😍',
+                  onOk: () => {
+                    router.push({name: 'story:review:register', params: {playingUuid: playLogs.value[0].storyPlayingUuid}})
+                  },
+                  cancelText: '쉬고 싶어요 😅',
+                  onCancel: () => {
+                    message.info('플레이 해주셔서 감사합니다!')
+                    router.push({name: 'story:cleared-list'})
+                  }
+                })
               }
             })
           })
@@ -291,6 +310,7 @@ async function drawSpotMarkers() {
     strokeStyle: 'solid',
   })
 }
+
 
 const loadKakaoMap = (container) => {
   const script = document.createElement('script')
