@@ -40,7 +40,8 @@ watchEffect(() => {
 })
 
 const emit = defineEmits(['onCloseAddSpotModal', 'updateSpots'])
-const onAddSpot = () => {
+const onAddSpot = (e) => {
+  console.log('결과를 보여줘')
   axios
     .post(`/stories/${route.params.uuid}/spots`, spot.value)
     .then((response) => emit('updateSpots'))

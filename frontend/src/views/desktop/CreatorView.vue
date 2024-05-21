@@ -3,19 +3,22 @@ import { ref, inject, onMounted } from 'vue'
 import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router'
 import draggable from 'vuedraggable'
 const { VITE_KAKAO_MAP_KEY } = import.meta.env
-import { message } from 'ant-design-vue'
-import { Modal } from 'ant-design-vue'
+import { message, Modal } from 'ant-design-vue'
 import {
   SearchOutlined,
   FlagOutlined,
   RobotOutlined,
   VerticalAlignBottomOutlined,
+  EditOutlined,
+  PlusSquareOutlined,
+  DeleteOutlined,
 } from '@ant-design/icons-vue'
 import AttractionMarkerIcon from '@/assets/icon/marker/star-marker-sky.png'
 import SelectedAttractionMarkerIcon from '@/assets/icon/marker/star-marker-blue.png'
 import KeywordMarkerIcon from '@/assets/icon/marker/star-marker-orange.png'
 import SelectedKeywordMarkerIcon from '@/assets/icon/marker/star-marker-pink.png'
 import AddSpotModal from '@/components/desktop/AddSpotModal.vue'
+import AddSpotEventModal from '@/components/desktop/AddSpotEventModal.vue'
 import DefaultImage from '@/assets/default-image.jpg'
 import AIStoryGenerationBoard from '@/components/desktop/AIStoryGenerationBoard.vue'
 
@@ -49,9 +52,13 @@ const placeList = ref([])
 let keywordMarkers = []
 let selectedPlaceMarker = null
 
-const clickedMarker = ref()
 const isAddSpotModalOpen = ref(false)
+const isAddSpotEventModalOpen = ref(false)
+
+const clickedMarker = ref()
+const clickedSpot = ref()
 const spots = ref([])
+const MAX_SPOT_COUNT = 10
 let spotMarkers = []
 let spotMarkerPolyline = null
 
@@ -173,9 +180,12 @@ const getAttractions = () => {
         attraction.marker = marker
 
         window.kakao.maps.event.addListener(marker, 'click', () => {
-          clickedMarker.value = marker
-          isAddSpotModalOpen.value = true
-          console.log('관광지 클릭')
+          if (spots.value.length <= MAX_SPOT_COUNT) {
+            clickedMarker.value = marker
+            isAddSpotModalOpen.value = true
+          } else {
+            message.error('스팟은 최대 10개까지만 담을 수 있어요.')
+          }
         })
 
         attractionMarkers.push(marker)
@@ -229,9 +239,12 @@ const searchByKeyword = () => {
         marker.placeData = { ...place, placeType: 'keyword' }
 
         window.kakao.maps.event.addListener(marker, 'click', () => {
-          clickedMarker.value = marker
-          isAddSpotModalOpen.value = true
-          console.log('키워드 클릭')
+          if (spots.value.length <= MAX_SPOT_COUNT) {
+            clickedMarker.value = marker
+            isAddSpotModalOpen.value = true
+          } else {
+            message.error('스팟은 최대 10개까지만 담을 수 있어요.')
+          }
         })
 
         // LatLngBounds 객체에 좌표 추가
@@ -337,6 +350,10 @@ const onUpdateSpots = () => {
   isAddSpotModalOpen.value = false
 }
 
+const onCloseAddSpotEventModal = () => {
+  isAddSpotEventModalOpen.value = false
+}
+
 const fetchSpots = async () => {
   return axios.get(`/stories/${route.params.uuid}/spots`).then((response) => {
     spots.value = response.data
@@ -423,12 +440,34 @@ async function drawSpotMarkers() {
   })
 }
 
-function focusToSpotMarker(spot) {
+const focusToSpotMarker = (spot) => {
   for (let spotMarker of spotMarkers) {
     if (spot.uuid === spotMarker.spotUuid) {
       mapInstance.setCenter(new window.kakao.maps.LatLng(spot.latitude, spot.longitude))
     }
   }
+}
+
+const onEidtSpot = (spot) => {}
+
+const onAddSpotEvent = (spot) => {}
+
+const onDeleteSpot = (spot) => {
+  // /stories/f03c3bb1-0f83-11ef-bec7-0242ac110002/spots/f03e2f02-0f83-11ef-bec7-0242ac110002
+  // axios
+  //   .delete(`/stories/${route.params.uuid}/spots/${spot.uuid}`)
+  //   .then((response) => {
+  //     const spotIndex = spots.value.indexOf(spot)
+  //     spots.value.splice(spotIndex, 1)
+  //     // 기존에 그려져 있던 스팟 마커와 경로 모두 삭제
+  //     removeAllMarkers(spotMarkers)
+  //     spotMarkers = []
+  //     spotMarkerPolyline.setMap(null)
+  //     spotMarkerPolyline = null
+  //     // 다시 그리기
+  //     drawSpotMarkers()
+  //   })
+  //   .catch((error) => console.error(error))
 }
 </script>
 
@@ -441,6 +480,12 @@ function focusToSpotMarker(spot) {
     :last-spot-uuid="spots.length > 0 ? spots[spots.length - 1].uuid : null"
     @close-add-spot-modal="onCloseAddSpotModal"
     @update-spots="onUpdateSpots"
+  />
+  <AddSpotEventModal
+    v-if="isAddSpotEventModalOpen"
+    :modal-open="isAddSpotEventModalOpen"
+    :spot="clickedSpot"
+    @close-add-spot-event-modal="onCloseAddSpotEventModal"
   />
   <a-layout>
     <!-- 좌측 안쪽 사이드바 -->
@@ -471,7 +516,7 @@ function focusToSpotMarker(spot) {
       class="left-sider-shadow"
     >
       <div class="sider-content">
-        <div v-show="selectedKeys[0] === '1'" style="height: 100%">
+        <div v-show="selectedKeys[0] === '1'" class="full-height">
           <h2 style="text-align: center">키워드 검색</h2>
           <a-row justify="center">
             <a-col>
@@ -491,7 +536,7 @@ function focusToSpotMarker(spot) {
               </div>
             </a-col>
           </a-row>
-          <a-row style="height: 100%">
+          <a-row class="full-height">
             <a-card class="sider-cards">
               <a-card-grid
                 v-for="place in placeList"
@@ -507,7 +552,7 @@ function focusToSpotMarker(spot) {
             </a-card>
           </a-row>
         </div>
-        <div v-show="selectedKeys[0] === '2'" style="height: 100%">
+        <div v-show="selectedKeys[0] === '2'" class="full-height">
           <h2 style="text-align: center">관광지 목록</h2>
           <a-card class="sider-cards">
             <p v-show="attractionList.length === 0">관광지 버튼을 클릭해 주세요!</p>
@@ -527,7 +572,7 @@ function focusToSpotMarker(spot) {
             </a-card-grid>
           </a-card>
         </div>
-        <div v-show="selectedKeys[0] === '3'" style="height: 100%">
+        <div v-show="selectedKeys[0] === '3'" class="full-height">
           <AIStoryGenerationBoard :spots="spots" />
         </div>
       </div>
@@ -566,9 +611,9 @@ function focusToSpotMarker(spot) {
           @change="onChangeSpot"
         >
           <template #item="{ element }">
-            <a-card hoverable class="spot-card" @click="() => focusToSpotMarker(element)">
-              <a-row style="height: 100%">
-                <a-col :span="8" style="height: 100%">
+            <a-card hoverable class="spot-card">
+              <a-row style="margin: 1rem" @click="focusToSpotMarker(element)">
+                <a-col :span="8">
                   <img
                     :src="element.thumnailUri || DefaultImage"
                     alt=""
@@ -577,10 +622,27 @@ function focusToSpotMarker(spot) {
                   />
                 </a-col>
                 <a-col :span="16" class="card-text">
-                  <a-card-meta
-                    :title="element.title"
-                    :description="element.description"
-                  ></a-card-meta>
+                  <a-card-meta :title="element.title" :description="element.description">
+                  </a-card-meta>
+                </a-col>
+              </a-row>
+              <a-divider class="horizontal-divider" />
+
+              <a-row align="middle" justify="center" class="card-actions">
+                <a-col :span="8" class="full-height" @click.stop="onEditSpot(element)">
+                  <div class="action-container">
+                    <EditOutlined />
+                  </div>
+                </a-col>
+                <a-col :span="8" class="full-height" @click.stop="onAddSpotEvent(element)">
+                  <div class="action-container middle-border">
+                    <PlusSquareOutlined />
+                  </div>
+                </a-col>
+                <a-col :span="8" class="full-height" @click.stop="onDeleteSpot(element)">
+                  <div class="action-container">
+                    <DeleteOutlined />
+                  </div>
                 </a-col>
               </a-row>
             </a-card>
@@ -647,17 +709,18 @@ function focusToSpotMarker(spot) {
 
 .spot-card {
   width: 100%;
-  height: 8rem;
+  /* height: 8rem; */
   margin-bottom: 0.5rem;
 }
 
 :deep(.spot-card .ant-card-body) {
   height: 100%;
+  padding: 0;
 }
 
 .spot-cover-image {
   width: 100%;
-  height: 100%;
+  height: 5rem;
   object-fit: cover;
 }
 
@@ -672,5 +735,51 @@ function focusToSpotMarker(spot) {
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
+}
+
+.horizontal-divider {
+  margin: 0;
+  height: 1px;
+  background-color: #e8e8e8;
+}
+
+.card-actions {
+  display: flex;
+  justify-content: space-around;
+  height: 3rem;
+}
+
+card-actions {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  margin: 1rem 0;
+}
+
+.action-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+.middle-border {
+  position: relative;
+}
+
+.middle-border::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 50%;
+  border-left: 1px solid #e8e8e8;
+  border-right: 1px solid #e8e8e8;
+}
+
+.full-height {
+  height: 100%;
 }
 </style>
