@@ -47,23 +47,6 @@ onMounted(async () => {
 </script>
 
 <template>
-  <!-- <a-menu id="menu-items">
-    <a-menu-item class="menu-item">
-      <RouterLink :to="{ name: 'search' }"><span>검색</span></RouterLink>
-    </a-menu-item>
-    <a-menu-item class="menu-item">
-      <RouterLink :to="{ name: 'play' }"><span>플레이</span></RouterLink>
-    </a-menu-item>
-    <a-menu-item class="menu-item">
-      <RouterLink :to="{ name: 'search' }"><span>검색</span></RouterLink>
-    </a-menu-item>
-    <a-menu-item class="menu-item">
-      <RouterLink :to="{ name: 'story:cleared-list' }"><span>추천</span></RouterLink>
-    </a-menu-item>
-    <a-menu-item class="menu-item">
-      <RouterLink :to="{ name: 'user:my-page' }"><span>MY</span></RouterLink>
-    </a-menu-item>
-  </a-menu> -->
   <a-row id="menu-items" justify="space-around">
     <a-col class="menu-item">
       <RouterLink :to="{ name: 'search' }">

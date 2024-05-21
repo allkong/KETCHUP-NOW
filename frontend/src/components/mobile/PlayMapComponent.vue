@@ -1,10 +1,10 @@
 <script setup>
 const { VITE_KAKAO_MAP_KEY, VITE_APP_MODE } = import.meta.env
 import { ref, onMounted, onUnmounted, watch, inject, computed, createVNode, h } from 'vue'
-import { message, Modal } from 'ant-design-vue'
+import { message, Modal, FloatButton } from 'ant-design-vue'
 import { useLocationStore } from '@/stores/location'
 import HttpStatus from '@/api/http-status'
-import { CrownOutlined } from '@ant-design/icons-vue'
+import { CrownOutlined, DeleteOutlined } from '@ant-design/icons-vue'
 import { useRouter } from 'vue-router'
 import SpotEventModal from '@/components/mobile/modal/SpotEventModal.vue'
 
@@ -376,6 +376,25 @@ const startSyncPositionAndMarker = () => {
   }
 }
 
+async function onPlayingGiveUpBtnClicked() {
+  Modal.confirm({
+    title: '플레이 중단',
+    content: () =>
+      h('div', {}, [
+        h('div', '플레이 기록이 모두 사라지며, 되돌릴 수 없어요.'),
+        h('div', '그래도 종료하시겠어요?'),
+      ]),
+    okText: '네',
+    onOk: async () => {
+      axios.delete('/playings/now').then(() => {
+        message.success('플레이가 중단되었어요.')
+        router.push({ name: 'search' })
+      })
+    },
+    cancelText: '아니오',
+  })
+}
+
 onMounted(async () => {
   loadKakaoMap(mapContainer.value)
   fetchPlayLogs().then((fetchedLogs) => {
@@ -406,8 +425,24 @@ const onCloseSpotEventModal = () => {
     @spot-event-clear="onSpotEventClear"
   />
   <div id="map-wrap">
+    <<<<<<< HEAD
     <div ref="mapContainer" style="height: 100%"></div>
+    =======
+    <div ref="mapContainer" style="height: 100%">
+      <!-- <context-holder /> -->
+    </div>
+    <FloatButton @click="onPlayingGiveUpBtnClicked">
+      <template #icon>
+        <DeleteOutlined />
+      </template>
+    </FloatButton>
+    >>>>>>> frontend
   </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.ant-float-btn {
+  background-color: tomato;
+  bottom: 7rem;
+}
+</style>
