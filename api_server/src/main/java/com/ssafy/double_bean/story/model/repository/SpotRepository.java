@@ -73,9 +73,9 @@ public interface SpotRepository {
     @Update("UPDATE spots SET latitude=#{dto.latitude}, longitude=#{dto.longitude}, order_index=#{dto.orderIndex}, " +
             "title=#{dto.title}, description=#{dto.description}, modified_at=CURRENT_TIMESTAMP, " +
             "event_type=#{dto.eventType, typeHandler=com.ssafy.double_bean.story.model.repository.type_handler.SpotEventTypeTypeHandler} " +
-            "WHERE sp_id=#{targetId}")
+            "WHERE id=#{targetId}")
     void updateSpot(int targetId, SpotEntity dto);
 
-    @Delete("DELETE FROM spots WHERE sp_id=#{id}")
+    @Delete("DELETE FROM spots WHERE id=#{id}")
     void deleteSpot(int id);
 }
