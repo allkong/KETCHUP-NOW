@@ -1,5 +1,5 @@
 <script setup>
-import { computed, inject, onMounted, ref, watch } from 'vue'
+import { computed, inject, onMounted, ref, watch, watchEffect } from 'vue'
 import { useRouter } from 'vue-router'
 import {
   HeartOutlined,
@@ -29,6 +29,7 @@ const props = defineProps({
 const isOpen = ref(props.modalOpen)
 const reviews = ref([])
 const isZzim = ref(false)
+
 const activeKey = ref('1')
 
 const handleOk = (e) => {
@@ -49,12 +50,13 @@ onMounted(() => {
   fetchReviews(props.story.uuid)
   storyZzimStore.fetchZzims()
   .then(zzims => {
-    isZzim.value = zzims.filter(s => s.uuid === props.story.uuid).length > 0
+    isZzim.value = zzims.filter(zzim => zzim.storyUuid === props.story.uuid).length > 0
   })
 })
 
-watch(props.story, () => {
+watchEffect(() => {
   fetchReviews(props.story.uuid)
+  isZzim.value = storyZzimStore.zzims.filter(zzim => zzim.storyUuid === props.story.uuid).length > 0
 })
 
 function fetchReviews(storyUuid) {
