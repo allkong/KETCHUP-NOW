@@ -49,7 +49,6 @@ function getSidoFromCode(sidoCode) {
 }
 
 const onDropdownVisibleChange = (isOpened) => {
-  console.log(selectedRegionValue.value)
   if (!isOpened) {
     // 닫혔는데 시/도를 선택하지 않았거나 시/도는 선택했지만 군/구까지 선택되지 않았다면
     if (selectedRegionValue.value.length <= 1) {

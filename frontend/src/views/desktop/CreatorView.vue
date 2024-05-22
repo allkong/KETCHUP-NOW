@@ -2,6 +2,7 @@
 import { ref, inject, onMounted } from 'vue'
 import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router'
 import draggable from 'vuedraggable'
+import HttpStatus from '@/api/http-status'
 const { VITE_KAKAO_MAP_KEY } = import.meta.env
 import { message, Modal } from 'ant-design-vue'
 import {
@@ -12,6 +13,9 @@ import {
   ExportOutlined,
   VerticalAlignBottomOutlined,
   EditOutlined,
+  StarFilled,
+  CaretRightFilled,
+  EnvironmentFilled,
   PlusSquareOutlined,
   DeleteOutlined,
 } from '@ant-design/icons-vue'
@@ -22,6 +26,7 @@ import SelectedKeywordMarkerIcon from '@/assets/icon/marker/star-marker-pink.png
 import DefaultImage from '@/assets/default-image.jpg'
 import AIStoryGenerationBoard from '@/components/desktop/AIStoryGenerationBoard.vue'
 
+import EditStoryModal from '@/components/desktop/modal/EditStoryModal.vue'
 import AddSpotModal from '@/components/desktop/modal/AddSpotModal.vue'
 import EditSpotModal from '@/components/desktop/modal/EditSpotModal.vue'
 import AddSpotEventModal from '@/components/desktop/modal/AddSpotEventModal.vue'
@@ -56,9 +61,11 @@ const placeList = ref([])
 let keywordMarkers = []
 let selectedPlaceMarker = null
 
+const isEditStoryModalOpen = ref(false)
 const isAddSpotModalOpen = ref(false)
 const isEditSpotModalOpen = ref(false)
 const isAddSpotEventModalOpen = ref(false)
+const isDeleting = ref(false)
 
 const clickedMarker = ref()
 const clickedSpot = ref()
@@ -98,18 +105,23 @@ const onExit = (routerName) => {
 }
 
 onBeforeRouteLeave((to, from, next) => {
-  Modal.confirm({
-    title: '정말 나가시겠습니까?',
-    content: '현재 페이지를 벗어나면 변경 사항이 저장되지 않을 수 있으니 꼭 저장해 주세요!',
-    okText: '그래도 나갈래요',
-    cancelText: '안나갈래요',
-    onOk() {
-      next()
-    },
-    onCancel() {
-      next(false)
-    },
-  })
+  // 스토리를 삭제하려는 경우, 모달창을 띄우지 않음
+  if (isDeleting.value) {
+    next()
+  } else {
+    Modal.confirm({
+      title: '정말 나가시겠습니까?',
+      content: '스토리는 자동 저장되니 걱정하지 마세요.',
+      okText: '나가기',
+      cancelText: '취소',
+      onOk() {
+        next()
+      },
+      onCancel() {
+        next(false)
+      },
+    })
+  }
 })
 
 const loadKakaoMap = (container) => {
@@ -444,20 +456,72 @@ async function drawSpotMarkers() {
 }
 
 const onPublishStory = () => {
-  console.log(story.value)
-  axios
-    .put(`stories/${route.params.uuid}`, {
-      status: 'PUBLISHED',
-      title: story.value.title,
-      description: story.value.description,
-      sido: story.value.sido,
-      gungu: story.value.gungu,
-    })
-    .then((response) => {
-      fetchStory()
-      message.success('당신의 스토리가 완성되었어요! ✨')
-    })
-    .catch((error) => console.error(error))
+  rightCollapsed.value = true
+
+  Modal.confirm({
+    title: '정말 배포하시겠습니까?',
+    content: '한 번 배포하면 플레이어를 위해 수정할 수 없어요.',
+    okText: '배포',
+    cancelText: '취소',
+    onOk() {
+      axios
+        .put(`stories/${route.params.uuid}`, {
+          status: 'PUBLISHED',
+          title: story.value.title,
+          description: story.value.description,
+          sido: story.value.sido,
+          gungu: story.value.gungu,
+        })
+        .then((response) => {
+          fetchStory()
+          message.success('당신의 스토리가 완성되었어요! ✨')
+        })
+        .catch((error) => console.error(error))
+    },
+    onCancel() {},
+  })
+}
+
+const onUpdateStory = () => {
+  fetchStory()
+  isEditStoryModalOpen.value = false
+}
+
+const onEditStoryModal = () => {
+  isEditStoryModalOpen.value = true
+}
+
+const onCloseEditStoryModal = () => {
+  isEditStoryModalOpen.value = false
+}
+
+const onDeleteStory = () => {
+  Modal.confirm({
+    title: '정말 삭제하시겠습니까?',
+    content: '한 번 삭제한 스토리는 되돌릴 수 없어요.',
+    okText: '삭제',
+    cancelText: '취소',
+    onOk() {
+      isDeleting.value = true
+      axios
+        .delete(`stories/${route.params.uuid}`)
+        .then((response) => {
+          message.success('스토리가 삭제되었습니다. 🗑')
+          router.push({ name: 'my-stories' })
+        })
+        .catch((error) => {
+          // 플레이 중인 유저가 있으면 스토리 삭제 불가
+          if (
+            error.response.status === HttpStatus.CONFLICT &&
+            error.response.data.detailCode === 'E0003'
+          ) {
+            message.error('이미 유저가 플레이한 스토리는 삭제할 수 없어요.')
+          }
+          isDeleting.value = false
+        })
+    },
+    onCancel() {},
+  })
 }
 
 const focusToSpotMarker = (spot) => {
@@ -474,7 +538,6 @@ const onUpdateEditedSpot = async () => {
 }
 
 const onCloseAddSpotModal = () => {
-  console.log('닫기')
   isAddSpotModalOpen.value = false
 }
 
@@ -536,7 +599,13 @@ const onDeleteSpot = (spot) => {
 </script>
 
 <template>
-  <!-- <a-layout-header> </a-layout-header> -->
+  <EditStoryModal
+    v-if="isEditStoryModalOpen"
+    :modal-open="isEditStoryModalOpen"
+    :story="story"
+    @close-edit-story-modal="onCloseEditStoryModal"
+    @update-story="onUpdateStory"
+  />
   <AddSpotModal
     v-if="isAddSpotModalOpen"
     :modal-open="isAddSpotModalOpen"
@@ -565,7 +634,7 @@ const onDeleteSpot = (spot) => {
       <a-menu v-model:selectedKeys="selectedKeys" theme="light">
         <div style="height: 4.5rem; border-bottom: 1px solid #e8e8e8 !important">
           <a-menu-item key="0" @click="onExit('home')" id="home-item">
-            <img src="@/assets/icon/tomato.png" alt="" style="width: 2rem; height: 2rem" />
+            <img src="@/assets/logo.png" alt="" style="width: 2.5rem; height: 2.5rem" />
           </a-menu-item>
         </div>
         <a-menu-item key="1" @click="openLeftSider">
@@ -640,66 +709,100 @@ const onDeleteSpot = (spot) => {
       collapsible
       class="left-sider-shadow"
     >
-      <div class="sider-content">
-        <div v-show="selectedKeys[0] === '2'" class="full-height">
-          <h2 style="text-align: center">키워드 검색</h2>
-          <a-row justify="center">
-            <a-col>
-              <div>
-                <a-input
-                  v-model:value="keyword"
-                  placeholder="키워드 검색"
-                  @keyup.enter="searchByKeyword"
-                >
-                  <template #prefix>
-                    <SearchOutlined
-                      style="color: tomato; margin-right: 0.5rem"
-                      @click="searchByKeyword"
-                    />
-                  </template>
-                </a-input>
-              </div>
-            </a-col>
-          </a-row>
-          <a-row class="full-height">
-            <a-card class="sider-cards">
-              <a-card-grid
-                v-for="place in placeList"
-                :key="place.id"
-                class="attraction-item"
-                @click="moveToPlaceLocation(place)"
-              >
-                <h3>{{ place.place_name }}</h3>
-                <p>{{ place.address_name }}</p>
-                <p>{{ place.road_address_name }}</p>
-                <p>{{ place.phone }}</p>
-              </a-card-grid>
-            </a-card>
-          </a-row>
+      <div v-show="selectedKeys[0] === '1'" class="story-info sider-content">
+        <h2 style="text-align: center">스토리 정보</h2>
+        <div>
+          <a-image
+            :src="story.imageUri || DefaultImage"
+            alt=""
+            class="story-cover-image"
+            @error="$replaceDefaultImage"
+          />
         </div>
-        <div v-show="selectedKeys[0] === '3'" class="full-height">
-          <h2 style="text-align: center">관광지 목록</h2>
+        <a-descriptions bordered layout="horizontal" size="middle">
+          <a-descriptions-item label="상태" :span="3">{{ story.status }}</a-descriptions-item>
+          <a-descriptions-item label="제목" :span="3">{{ story.title }}</a-descriptions-item>
+          <a-descriptions-item label="설명" :span="3">{{ story.description }}</a-descriptions-item>
+          <a-descriptions-item label="위치" :span="3"
+            ><EnvironmentFilled /> {{ story.sido }} {{ story.gungu }}</a-descriptions-item
+          >
+          <a-descriptions-item label="별점" :span="3"
+            ><StarFilled /> {{ story.averageReviewScore }}</a-descriptions-item
+          >
+          <a-descriptions-item label="플레이수" :span="3"
+            ><CaretRightFilled /> {{ story.totalPlayCount }}</a-descriptions-item
+          >
+        </a-descriptions>
+        <a-button
+          v-if="story.status === 'WRITING'"
+          type="primary"
+          danger
+          style="margin-top: 1rem; width: 100%"
+          @click="onEditStoryModal"
+          >수정하기</a-button
+        >
+        <a-button danger style="margin-top: 1rem; width: 100%" @click="onDeleteStory"
+          >삭제하기</a-button
+        >
+      </div>
+      <div v-show="selectedKeys[0] === '2'" class="sider-content">
+        <h2 style="text-align: center">키워드 검색</h2>
+        <a-row justify="center">
+          <a-col>
+            <div>
+              <a-input
+                v-model:value="keyword"
+                placeholder="키워드 검색"
+                @keyup.enter="searchByKeyword"
+              >
+                <template #prefix>
+                  <SearchOutlined
+                    style="color: tomato; margin-right: 0.5rem"
+                    @click="searchByKeyword"
+                  />
+                </template>
+              </a-input>
+            </div>
+          </a-col>
+        </a-row>
+        <a-row class="full-height">
           <a-card class="sider-cards">
-            <p v-show="attractionList.length === 0">관광지 버튼을 클릭해 주세요!</p>
             <a-card-grid
-              v-for="attraction in attractionList"
-              :key="attraction.id"
+              v-for="place in placeList"
+              :key="place.id"
               class="attraction-item"
-              @click="moveToAttractionLocation(attraction)"
+              @click="moveToPlaceLocation(place)"
             >
-              <img
-                :src="attraction.secondImageUrl"
-                @error="$replaceDefaultImage"
-                style="width: 10rem"
-              />
-              <h3>{{ attraction.title }}</h3>
-              <p>{{ attraction.address }}</p>
+              <h3>{{ place.place_name }}</h3>
+              <p>{{ place.address_name }}</p>
+              <p>{{ place.road_address_name }}</p>
+              <p>{{ place.phone }}</p>
             </a-card-grid>
           </a-card>
-        </div>
-        <div v-show="selectedKeys[0] === '4'" class="full-height">
-          <AIStoryGenerationBoard :spots="spots" :story="story" @refresh-spots="fetchSpots" />
-        </div>
+        </a-row>
+      </div>
+      <div v-show="selectedKeys[0] === '3'" class="full-height">
+        <h2 style="text-align: center">관광지 목록</h2>
+        <a-card class="sider-cards">
+          <p v-show="attractionList.length === 0">관광지 버튼을 클릭해 주세요!</p>
+          <a-card-grid
+            v-for="attraction in attractionList"
+            :key="attraction.id"
+            class="attraction-item"
+            @click="moveToAttractionLocation(attraction)"
+          >
+            <img
+              :src="attraction.secondImageUrl"
+              @error="$replaceDefaultImage"
+              style="width: 10rem"
+            />
+            <h3>{{ attraction.title }}</h3>
+            <p>{{ attraction.address }}</p>
+          </a-card-grid>
+        </a-card>
+      </div>
+      <div v-show="selectedKeys[0] === '4'" class="full-height">
+        <AIStoryGenerationBoard :spots="spots" :story="story" @refresh-spots="fetchSpots" />
       </div>
     </a-layout-sider>
     <!-- 지도 -->
@@ -739,11 +842,11 @@ const onDeleteSpot = (spot) => {
             <a-card hoverable class="spot-card">
               <a-row style="margin: 1rem" @click="focusToSpotMarker(element)">
                 <a-col :span="8">
-                  <img
+                  <a-image
                     :src="element.imageUri || DefaultImage"
                     alt=""
                     class="spot-cover-image"
-                    @error="replaceDefaultImage"
+                    @error="$replaceDefaultImage"
                   />
                 </a-col>
                 <a-col :span="16" class="card-text">
@@ -852,6 +955,19 @@ const onDeleteSpot = (spot) => {
   z-index: 1;
 }
 
+:deep(.ant-image) {
+  width: 100%;
+}
+
+:deep(.story-cover-image),
+:deep(.story-info .ant-image .ant-image-mask) {
+  width: 100%;
+  height: 15rem;
+  object-fit: cover;
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+}
+
 .sider-cards {
   overflow: auto;
   height: 100%;
@@ -885,10 +1001,12 @@ const onDeleteSpot = (spot) => {
   padding: 0;
 }
 
-.spot-cover-image {
+:deep(.spot-cover-image),
+:deep(.spot-card .ant-image .ant-image-mask) {
   width: 100%;
   height: 5rem;
   object-fit: cover;
+  border-radius: 0.5rem;
 }
 
 .card-text {

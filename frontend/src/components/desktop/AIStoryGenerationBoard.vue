@@ -130,7 +130,7 @@ async function applySuggestedFlow() {
       <a-tooltip placement="right" color="silver">
         <template #title>
           <div>🤖</div>
-          <div>선택한 스팟의 제목과 내용을 참고하여 스토리의 내용을 작성해 줍니다</div>
+          <div>선택한 스팟의 제목과 내용을 참고하여 스토리의 내용을 작성해 줍니다.</div>
         </template>
         <a-badge>
           <template #count>

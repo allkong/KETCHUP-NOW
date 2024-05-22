@@ -23,7 +23,6 @@ const editedSpot = ref({
 })
 
 const onSaveSpotToEditedSpot = (spot) => {
-  // console.log(spot)
   editedSpot.value.previousSpotUuid = spot.previousSpotUuid
   editedSpot.value.latitude = spot.latitude
   editedSpot.value.longitude = spot.longitude
@@ -48,10 +47,7 @@ const onEditSpot = () => {
   }
   axios
     .put(`/stories/${route.params.uuid}/spots/${props.spot.uuid}`, editedSpot.value)
-    .then((response) => {
-      console.log(response.data)
-      emit('updateEditedSpot')
-    })
+    .then((response) => emit('updateEditedSpot'))
     .catch((error) => console.error(error))
 }
 </script>

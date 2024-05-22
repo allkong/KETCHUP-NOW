@@ -52,7 +52,7 @@ const onUpdateStories = async () => {
         <div class="typing-wrapper">
           <div class="typing-text">새로운 스토리 작성을 원한다면</div>
         </div>
-        <a-button @click="onAddSpotModal">스토리 만들기</a-button>
+        <a-button size="large" @click="onAddSpotModal">스토리 만들기</a-button>
       </a-col>
     </a-row>
     <div class="grid-container">
@@ -66,13 +66,12 @@ const onUpdateStories = async () => {
           <a-card hoverable>
             <template #cover>
               <img
-                :src="story.imageUri || defaultImage"
+                :src="story.thumbnailImageUri || defaultImage"
                 alt=""
                 class="story-cover-image"
                 @error="$replaceDefaultImage"
               />
             </template>
-            <!-- <a-tag color="green">v{{ story.version }}</a-tag> -->
             <a-row justify="space-between" style="margin-bottom: 1rem">
               <a-col>
                 <a-tag color="blue">{{ story.status }}</a-tag>
