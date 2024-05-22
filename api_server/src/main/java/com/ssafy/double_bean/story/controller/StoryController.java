@@ -45,7 +45,8 @@ public class StoryController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "생성 성공",
                     content = @Content(mediaType = "multipart/form-data", schema = @Schema(implementation = StoryResponseDto.class)))})
-    public ResponseEntity<StoryResponseDto> createFirstStory(@Valid @RequestBody StoryCreateRequestDto createDto, @RequestPart(required = false) MultipartFile imageFile) throws IOException, URISyntaxException {
+    public ResponseEntity<StoryResponseDto> createFirstStory(@Valid @RequestPart StoryCreateRequestDto createDto,
+                                                             @RequestPart(required = false) MultipartFile imageFile) throws IOException, URISyntaxException {
         StoryEntity createdStory = storyService.createFirstStory(requestedUser, createDto, imageFile);
         StoryResponseDto dto = createdStory.toResponseDto();
         return ResponseEntity.status(HttpStatus.CREATED).body(dto);
@@ -136,9 +137,9 @@ public class StoryController {
     // 단, 스토리의 상태가 WRITING일 때에만 가능하다.
     @PostMapping("/stories/{story-uuid}/spots")
     public ResponseEntity<SpotResponseDto> insertSpotTo(@PathVariable("story-uuid") UUID storyUuid,
-                                                        @Valid @RequestBody SpotInsertRequestDto requestDto,
-                                                        @RequestParam(required = false) MultipartFile imageFile) throws IOException {
-        SpotEntity insertedEntity = spotService.insertSpotTo(storyUuid, requestDto, imageFile, requestedUser);
+                                                        @Valid @RequestPart SpotInsertRequestDto createDto,
+                                                        @RequestPart(required = false) MultipartFile imageFile) throws IOException {
+        SpotEntity insertedEntity = spotService.insertSpotTo(storyUuid, createDto, imageFile, requestedUser);
         SpotResponseDto dto = SpotResponseDto.fromEntity(insertedEntity);
         return ResponseEntity.status(HttpStatus.CREATED).body(dto);
     }

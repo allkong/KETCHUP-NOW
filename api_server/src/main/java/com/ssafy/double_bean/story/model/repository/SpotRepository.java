@@ -35,7 +35,7 @@ public interface SpotRepository {
             @Result(property = "eventType", column = "event_type", typeHandler = SpotEventTypeTypeHandler.class),
             @Result(property = "eventImageUri", column = "event_image_uri", typeHandler = URITypeHandler.class),
             @Result(property = "eventThumbnailImageUri", column = "event_thumbnail_image_uri", typeHandler = URITypeHandler.class),
-            @Result(property = "jsonEventContent", column = "jsonEventContent")
+            @Result(property = "jsonEventContent", column = "json_event_content")
     })
     List<SpotEntity> getAll();
 
@@ -69,7 +69,8 @@ public interface SpotRepository {
 
     @Update("UPDATE spots SET latitude=#{dto.latitude}, longitude=#{dto.longitude}, order_index=#{dto.orderIndex}, " +
             "title=#{dto.title}, description=#{dto.description}, modified_at=CURRENT_TIMESTAMP, " +
-            "event_type=#{dto.eventType, typeHandler=com.ssafy.double_bean.story.model.repository.type_handler.SpotEventTypeTypeHandler} " +
+            "event_type=#{dto.eventType, typeHandler=com.ssafy.double_bean.story.model.repository.type_handler.SpotEventTypeTypeHandler}," +
+            "json_event_content=#{dto.jsonEventContent} " +
             "WHERE id=#{targetId}")
     void updateSpot(int targetId, SpotEntity dto);
 
