@@ -81,4 +81,21 @@ body {
   border: none !important;
   color: inherit !important;
 }
+
+/* 스크롤바 컨테이너 스타일 */
+body::-webkit-scrollbar {
+  width: 0.6rem;
+}
+
+/* 스크롤바 핸들 스타일 */
+body::-webkit-scrollbar-thumb {
+  background: rgb(255, 131, 117);
+  border-radius: 0.5rem;
+}
+
+/* 스크롤바 트랙 스타일 */
+body::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 1rem;
+}
 </style>
