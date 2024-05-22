@@ -756,25 +756,15 @@ const onDeleteSpot = (spot) => {
       </div>
       <div v-if="selectedKeys[0] === '2'" class="sider-content">
         <h2 style="text-align: center">키워드 검색</h2>
-        <a-row justify="center">
-          <a-col>
-            <div>
-              <a-input
-                v-model:value="keyword"
-                placeholder="키워드 검색"
-                @keyup.enter="searchByKeyword"
-              >
-                <template #prefix>
-                  <SearchOutlined
-                    style="color: tomato; margin-right: 0.5rem"
-                    @click="searchByKeyword"
-                  />
-                </template>
-              </a-input>
-            </div>
-          </a-col>
-        </a-row>
-        <a-row class="full-height">
+        <a-input-search
+          v-model:value="keyword"
+          placeholder="키워드 검색"
+          size="large"
+          enter-button
+          style="width: 100%; margin-bottom: 1rem"
+          @search="searchByKeyword"
+        />
+        <a-row style="height: 90%">
           <a-card class="sider-cards">
             <a-card-grid
               v-for="place in placeList"
@@ -896,6 +886,10 @@ const onDeleteSpot = (spot) => {
 </template>
 
 <style scoped>
+:deep(.ant-btn-primary) {
+  background-color: tomato;
+}
+
 .logo-image {
   height: 6vh;
 }
