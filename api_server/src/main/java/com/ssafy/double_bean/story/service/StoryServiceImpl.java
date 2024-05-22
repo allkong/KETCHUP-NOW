@@ -113,7 +113,8 @@ public class StoryServiceImpl implements StoryService {
 
     @Override
     public List<StoryEntity> getStoriesOf(UUID storyBaseUuid, AuthenticatedUser requestedUser) {
-        return storyRepository.getSubStoriesOf(storyBaseUuid.toString(), requestedUser.getUuid().toString());
+        List<StoryEntity> entities = storyRepository.getSubStoriesOf(storyBaseUuid.toString(), requestedUser.getUuid().toString());
+        return entities.stream().map(this::setDynamicFields).toList();
     }
 
     @Override
