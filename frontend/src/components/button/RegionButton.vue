@@ -1,5 +1,5 @@
 <script setup>
-import { ref, inject, onMounted } from 'vue'
+import { ref, inject, onMounted, watch } from 'vue'
 
 const axios = inject('axios')
 
@@ -11,6 +11,14 @@ const selectedRegionValue = ref([])
 onMounted(() => {
   getParentAreas()
 })
+
+// Cascader에서 x 눌렀을 때 반영하기
+// watch(selectedRegionValue, (newValue) => {
+//   console.log(newValue)
+//   if (newValue === undefined) {
+//     console.log('clear')
+//   }
+// })
 
 const getParentAreas = () => {
   axios

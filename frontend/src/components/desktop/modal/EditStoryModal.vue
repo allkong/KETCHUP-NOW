@@ -1,6 +1,7 @@
 <script setup>
 import { ref, inject, watchEffect } from 'vue'
 import { useRoute } from 'vue-router'
+import RegionButton from '@/components/button/RegionButton.vue'
 
 const route = useRoute()
 const axios = inject('axios')
@@ -34,9 +35,12 @@ watchEffect(() => {
   }
 })
 
-const onEditStory = () => {
-  console.log(editedStory.value)
+const onSaveRegion = (...args) => {
+  editedStory.value.sido = args[0]
+  editedStory.value.gungu = args[1]
+}
 
+const onEditStory = () => {
   axios
     .put(`/stories/${route.params.uuid}`, editedStory.value)
     .then((response) => emit('updateStory'))
@@ -73,6 +77,17 @@ const onEditStory = () => {
         <a-col class="input-label">설명</a-col>
         <a-col>
           <a-textarea v-model:value="editedStory.description" class="input-box" />
+        </a-col>
+      </a-row>
+      <a-row justify="center" class="input-form">
+        <a-col class="input-label">지역</a-col>
+        <a-col>
+          <RegionButton class="input-box" @area-select-event="onSaveRegion" />
+        </a-col>
+        <a-col>
+          <span style="color: lightgray; font-size: 0.9em"
+            >지역을 선택하지 않으면 기존 지역이 반영돼요.</span
+          >
         </a-col>
       </a-row>
     </div>
