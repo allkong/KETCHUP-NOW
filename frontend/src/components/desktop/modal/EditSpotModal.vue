@@ -81,7 +81,7 @@ const onEditSpot = () => {
       <a-row justify="center" class="input-form">
         <a-col class="input-label">설명</a-col>
         <a-col>
-          <a-textarea v-model:value="editedSpot.description" class="input-box" />
+          <a-textarea v-model:value="editedSpot.description" class="textarea-box" />
         </a-col>
       </a-row>
     </div>
@@ -116,5 +116,27 @@ h2 {
 
 .input-box {
   width: 18rem;
+}
+
+.textarea-box {
+  width: 18rem;
+  height: 6rem;
+}
+
+/* 스크롤바 컨테이너 스타일 */
+.textarea-box::-webkit-scrollbar {
+  width: 0.4rem;
+}
+
+/* 스크롤바 핸들 스타일 */
+.textarea-box::-webkit-scrollbar-thumb {
+  background: #cacaca;
+  border-radius: 10px;
+}
+
+/* 스크롤바 트랙 스타일 */
+.textarea-box::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 1rem;
 }
 </style>
