@@ -626,8 +626,8 @@ const onDeleteSpot = (spot) => {
             </a-card-grid>
           </a-card>
         </div>
-        <div v-show="selectedKeys[0] === '3'" class="full-height">
-          <AIStoryGenerationBoard :spots="spots" />
+        <div v-show="selectedKeys[0] === '3'" style="height: 100%">
+          <AIStoryGenerationBoard :spots="spots" :story="story" @refresh-spots="fetchSpots" />
         </div>
       </div>
     </a-layout-sider>

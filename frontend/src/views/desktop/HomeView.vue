@@ -65,6 +65,9 @@ if (VITE_APP_MODE === 'DEBUG') {
 }
 </script>
 
+
+
+
 <template>
   <HeaderView />
   <div class="sticky-parent">
@@ -106,4 +109,152 @@ if (VITE_APP_MODE === 'DEBUG') {
   <div class="tomato-line"></div>
 </template>
 
-<style scoped></style>
+
+<style scoped>
+.sticky-parent {
+  height: 700vh;
+}
+
+.sticky {
+  position: sticky;
+  top: 0px;
+  max-height: 100vh;
+  overflow-x: hidden;
+  overflow-y: hidden;
+}
+
+.horizontal {
+  display: flex;
+}
+
+.dim {
+  display: block;
+  min-width: 100vw;
+  height: 100vh;
+  position: relative;
+}
+
+.tomato-line {
+  position: fixed;
+  bottom: 3rem;
+  width: 100%;
+  height: 5px;
+  background-color: #ff2f2f;
+}
+
+.logo-text-container {
+  display: flex;
+  margin-top: 10vh;
+  margin-left: 12vh;
+  min-height: 70vh;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 100vw;
+}
+
+.logo-text-container-right {
+  display: flex;
+  margin-top: 10vh;
+  margin-left: 12vh;
+  min-height: 70vh;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.logo-text {
+  font-family: 'Bagel Fat One' !important;
+  color: #ff2f2f;
+  font-size: 7rem;
+  margin-top: -1rem;
+  margin-bottom: 1rem;
+
+}
+
+#logo-text-ketchup {
+  margin-bottom: -1rem;
+}
+
+#logo-text-now {
+  color: white;
+  -webkit-text-stroke: 1.5px #ff2f2f;
+  margin-bottom: 5rem;
+}
+
+#logo-text-to-travel {
+  color: white;
+  -webkit-text-stroke: 1.5px #ff2f2f;
+}
+
+#logo-text-add-story {
+  margin-bottom: -3rem;
+}
+
+.jump-animation {
+  animation: jump 2s infinite;
+}
+
+.jumping-image {
+  width: 35vh;
+  position: fixed;
+  bottom: 33vh;
+  transition: left 0.1s linear; /* Smooth movement */
+  z-index: 1000;
+  animation: jump 3s infinite;
+
+}
+
+@keyframes jump {
+  0%, 25%, 50%, 75%, 100% {
+      transform: translateY(0);
+  }
+  12.5%, 37.5%, 62.5%, 87.5% {
+      transform: translateY(-20px); /* Adjust jump height */
+  }
+}
+
+#first-page {
+  display: flex;
+  width: 90vh;
+}
+
+#login-btn-box {
+  display: flex;
+  align-items: center;
+  margin-right: 5rem;
+}
+
+#attraction-img-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 100vh;
+}
+
+#attraction-img-container > img {
+  display: block;
+  width: 28vh;
+  height: 60vh;
+  object-fit: cover;
+}
+
+#scroll-right {
+  z-index: 500;
+  display: flex;
+  align-items: center;
+}
+
+#scroll-right > * {
+  color: silver;
+  animation: flicker 1s linear alternate infinite;
+}
+
+@keyframes flicker {
+  0% {
+    filter: brightness(60%);
+  }
+
+  100% {
+    filter: brightness(100%);
+  }
+}
+</style>
