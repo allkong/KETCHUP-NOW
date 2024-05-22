@@ -20,9 +20,9 @@ import SelectedKeywordMarkerIcon from '@/assets/icon/marker/star-marker-pink.png
 import DefaultImage from '@/assets/default-image.jpg'
 import AIStoryGenerationBoard from '@/components/desktop/AIStoryGenerationBoard.vue'
 
-import AddSpotModal from '@/components/desktop/AddSpotModal.vue'
-import EditSpotModal from '@/components/desktop/EditSpotModal.vue'
-import AddSpotEventModal from '@/components/desktop/AddSpotEventModal.vue'
+import AddSpotModal from '@/components/desktop/modal/AddSpotModal.vue'
+import EditSpotModal from '@/components/desktop/modal/EditSpotModal.vue'
+import AddSpotEventModal from '@/components/desktop/modal/AddSpotEventModal.vue'
 
 const route = useRoute()
 const router = useRouter()
