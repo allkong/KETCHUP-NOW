@@ -2,35 +2,35 @@
 import { onMounted, ref } from 'vue'
 import { RouterView, useRoute } from 'vue-router'
 import { useLocationStore } from '@/stores/location'
-import HeaderView from '@/views/desktop/includes/HeaderView.vue'
 const { VITE_APP_MODE } = import.meta.env
 
 const route = useRoute()
 
-let sticky = ref();
-let stickyParent = ref();
+let sticky = ref()
+let stickyParent = ref()
 
 onMounted(async () => {
-    // Adding scroll event listener
-    document.addEventListener('scroll', horizontalScroll);
+  // Adding scroll event listener
+  document.addEventListener('scroll', horizontalScroll)
 
-    //Selecting Elements
-    sticky.value = document.querySelector('.sticky');
-    stickyParent.value = document.querySelector('.sticky-parent');
-    let scrollWidth = sticky.value.scrollWidth;
-    let verticalScrollHeight = stickyParent.value.getBoundingClientRect().height - sticky.value.getBoundingClientRect().height;
+  //Selecting Elements
+  sticky.value = document.querySelector('.sticky')
+  stickyParent.value = document.querySelector('.sticky-parent')
+  let scrollWidth = sticky.value.scrollWidth
+  let verticalScrollHeight =
+    stickyParent.value.getBoundingClientRect().height - sticky.value.getBoundingClientRect().height
 
-    //Scroll function 
-    function horizontalScroll() {
-        //Checking whether the sticky element has entered into view or not
-        let stickyPosition = sticky.value.getBoundingClientRect().top;
-        if (stickyPosition > 1) {
-            return;
-        } else {
-            let scrolled = stickyParent.value.getBoundingClientRect().top; //how much is scrolled?
-            sticky.value.scrollLeft = (scrollWidth / verticalScrollHeight) * (-scrolled) * 0.85;
-        }
+  //Scroll function
+  function horizontalScroll() {
+    //Checking whether the sticky element has entered into view or not
+    let stickyPosition = sticky.value.getBoundingClientRect().top
+    if (stickyPosition > 1) {
+      return
+    } else {
+      let scrolled = stickyParent.value.getBoundingClientRect().top //how much is scrolled?
+      sticky.value.scrollLeft = (scrollWidth / verticalScrollHeight) * -scrolled * 0.85
     }
+  }
 })
 
 // 가상 GPS 시뮬레이션 ===========================================================================
@@ -65,19 +65,20 @@ if (VITE_APP_MODE === 'DEBUG') {
 }
 </script>
 
-
-
-
 <template>
-  <HeaderView />
   <div class="sticky-parent">
     <div class="sticky">
       <div class="horizontal">
-        <div id="first-page" class="dim" style="background-color: ghostwhite;">
+        <div id="first-page" class="dim" style="background-color: ghostwhite">
           <div class="logo-text-container">
             <div class="logo-text" id="logo-text-ketchup">KETCHUP,</div>
             <div>
-              <img src="@/assets/logo.png" alt="Jumping Image" class="jumping-image" ref="jumpingImage">
+              <img
+                src="@/assets/logo.png"
+                alt="Jumping Image"
+                class="jumping-image"
+                ref="jumpingImage"
+              />
             </div>
             <div class="logo-text" id="logo-text-now">NOW!</div>
           </div>
@@ -85,30 +86,29 @@ if (VITE_APP_MODE === 'DEBUG') {
             <div>SCROLL DOWN</div>
           </div>
         </div>
-        <div class="dim" style="background-color: ghostwhite;">
+        <div class="dim" style="background-color: ghostwhite">
           <div class="logo-text-container-right">
             <div class="logo-text" id="logo-text-to-travel">여행에</div>
             <div class="logo-text" id="logo-text-add-story">이야기를 더하다!</div>
           </div>
         </div>
-        <div class="dim" style="background-color: ghostwhite;">
+        <div class="dim" style="background-color: ghostwhite">
           <div id="attraction-img-container">
-            <img src="@/assets/img/landing-page/1.png" alt="">
-            <img src="@/assets/img/landing-page/2.png" alt="">
-            <img src="@/assets/img/landing-page/3.png" alt="">
-            <img src="@/assets/img/landing-page/4.png" alt="">
-            <img src="@/assets/img/landing-page/5.png" alt="">
+            <img src="@/assets/img/landing-page/1.png" alt="" />
+            <img src="@/assets/img/landing-page/2.png" alt="" />
+            <img src="@/assets/img/landing-page/3.png" alt="" />
+            <img src="@/assets/img/landing-page/4.png" alt="" />
+            <img src="@/assets/img/landing-page/5.png" alt="" />
           </div>
         </div>
-        <div class="dim" style="background-color: rgb(247, 0, 255);"></div>
-        <div class="dim" style="background-color: rgb(27, 24, 179);"></div>
-        <div class="dim" style="background-color:black"></div>
+        <div class="dim" style="background-color: rgb(247, 0, 255)"></div>
+        <div class="dim" style="background-color: rgb(27, 24, 179)"></div>
+        <div class="dim" style="background-color: black"></div>
       </div>
     </div>
   </div>
   <div class="tomato-line"></div>
 </template>
-
 
 <style scoped>
 .sticky-parent {
@@ -168,7 +168,6 @@ if (VITE_APP_MODE === 'DEBUG') {
   font-size: 7rem;
   margin-top: -1rem;
   margin-bottom: 1rem;
-
 }
 
 #logo-text-ketchup {
@@ -201,15 +200,21 @@ if (VITE_APP_MODE === 'DEBUG') {
   transition: left 0.1s linear; /* Smooth movement */
   z-index: 1000;
   animation: jump 3s infinite;
-
 }
 
 @keyframes jump {
-  0%, 25%, 50%, 75%, 100% {
-      transform: translateY(0);
+  0%,
+  25%,
+  50%,
+  75%,
+  100% {
+    transform: translateY(0);
   }
-  12.5%, 37.5%, 62.5%, 87.5% {
-      transform: translateY(-20px); /* Adjust jump height */
+  12.5%,
+  37.5%,
+  62.5%,
+  87.5% {
+    transform: translateY(-20px); /* Adjust jump height */
   }
 }
 
