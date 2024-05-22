@@ -235,22 +235,6 @@ public class SpotService {
             requestEntity.setOrderIndex(targetSpot.getOrderIndex());
         }
 
-//        // 이미지 파일이 있는 경우 이미지 할당
-//        if (spotImageFile != null) {
-//            // 원래 이미지가 있었다면 삭제
-//            s3Service.removeItem(targetSpot.getImageUri());
-//            s3Service.removeItem(targetSpot.getThumbnailImageUri());
-//            uploadAndSetImage(requestedUser, requestEntity, spotImageFile);
-//        }
-//
-//        // 이벤트 이미지 파일이 있는 경우 이미지 할당
-//        if (eventImageFile != null) {
-//            // 원래 이미지가 있었다면 삭제
-//            s3Service.removeItem(targetSpot.getEventImageUri());
-//            s3Service.removeItem(targetSpot.getEventThumbnailImageUri());
-//            uploadAndSetEventImage(requestedUser, requestEntity, eventImageFile);
-//        }
-
         // 갱신 요청 및 Presign
         spotRepository.updateSpot(targetSpot.getId(), requestEntity);
         SpotEntity updatedEntity = spotRepository.findSpotById(targetSpot.getId())
