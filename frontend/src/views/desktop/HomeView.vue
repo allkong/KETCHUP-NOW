@@ -113,6 +113,7 @@ if (VITE_APP_MODE === 'DEBUG') {
 <style scoped>
 .sticky-parent {
   height: 700vh;
+  z-index: 5;
 }
 
 .sticky {
