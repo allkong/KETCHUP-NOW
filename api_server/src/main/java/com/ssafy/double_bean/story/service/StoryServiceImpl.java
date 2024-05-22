@@ -127,6 +127,8 @@ public class StoryServiceImpl implements StoryService {
             throw new HttpResponseException(ErrorCode.HAS_NO_OWNERSHIP);
         }
 
+        setDynamicFields(story);
+
         return story;
     }
 
@@ -147,37 +149,14 @@ public class StoryServiceImpl implements StoryService {
         targetStory.setSido(updateDto.sido());
         targetStory.setGungu(updateDto.gungu());
 
-//        // 이미지 추가/변경이 요청되었다면
-//        if (newImage != null) {
-//            // 이미 있었던 경우 기존 이미지 삭제해주고
-//            s3Service.removeItem(targetStory.getImageUri());
-//            s3Service.removeItem(targetStory.getThumbnailImageUri());
-//
-//            // 새 이미지 할당
-//            String[] objectKeys = s3Service.getImageObjectKeys(requestedUser, newImage);
-//            String originalKey = objectKeys[0];
-//            String thumbnailKey = objectKeys[1];
-//
-//            s3Service.uploadFile(originalKey, newImage);
-//            URI originalUri = s3Service.getUri(originalKey);
-//            URI thumbnailUri = s3Service.getUri(thumbnailKey);
-//
-//            targetStory.setImageUri(originalUri);
-//            targetStory.setThumbnailImageUri(thumbnailUri);
-//        }
-//        // 이미지 삭제가 요청되었다면
-//        else if (newImage == null && targetStory.getImageUri() == null) {
-//            // 이미지 삭제 및 연결 해제
-//            s3Service.removeItem(targetStory.getImageUri());
-//            s3Service.removeItem(targetStory.getThumbnailImageUri());
-//            targetStory.setImageUri(null);
-//            targetStory.setThumbnailImageUri(null);
-//        }
-
         // 최종 수정 요청
         storyRepository.updateStory(storyUuid.toString(), targetStory);
 
-        return targetStory;
+        StoryEntity updatedStory = storyRepository.getStoryByUuid(storyUuid.toString())
+                .orElseThrow(() -> new RuntimeException("Failed to update story."));
+        setDynamicFields(updatedStory);
+
+        return updatedStory;
     }
 
     @Override
