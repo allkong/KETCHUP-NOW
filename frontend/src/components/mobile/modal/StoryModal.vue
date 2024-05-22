@@ -12,6 +12,7 @@ import MapPreviewComponent from '@/components/mobile/MapPreviewComponent.vue'
 import ReviewPreviewElement from '@/components/mobile/review/ReviewPreviewElement.vue'
 import HttpStatus from '@/api/http-status'
 import { useStoryZzimStore } from '@/stores/story-zzim'
+import { message } from 'ant-design-vue'
 
 const axios = inject('axios')
 
@@ -33,7 +34,17 @@ const isZzim = ref(false)
 const activeKey = ref('1')
 
 const handleOk = (e) => {
-  router.push({ name: 'play' })
+  axios
+  .post(`/stories/${props.story.uuid}/play`)
+  .then(() => {
+    message.success('플레이를 시작합니다!')
+    router.push({ name: 'play' })
+  })
+  .catch(error => {
+    if (error.response.status === HttpStatus.CONFLICT && error.response.data.detailCode === 'E0002') {
+      message.error('한 번에 하나의 스토리만 플레이 할 수 있습니다.')
+    }
+  })
 }
 
 const storyFullAddress = computed(() => {
