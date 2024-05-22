@@ -457,6 +457,7 @@ const onUpdateEditedSpot = async () => {
 }
 
 const onCloseAddSpotModal = () => {
+  console.log('닫기')
   isAddSpotModalOpen.value = false
 }
 
@@ -683,17 +684,17 @@ const onDeleteSpot = (spot) => {
               <a-divider class="horizontal-divider" />
 
               <a-row align="middle" justify="center" class="card-actions">
-                <a-col :span="8" class="full-height" @click.stop="onEditSpotModal(element)">
+                <a-col :span="8" class="full-height" @click="onEditSpotModal(element)">
                   <div class="action-container">
                     <EditOutlined />
                   </div>
                 </a-col>
-                <a-col :span="8" class="full-height" @click.stop="onAddSpotEventModal(element)">
+                <a-col :span="8" class="full-height" @click="onAddSpotEventModal(element)">
                   <div class="action-container middle-border">
                     <PlusSquareOutlined />
                   </div>
                 </a-col>
-                <a-col :span="8" class="full-height" @click.stop="onDeleteSpot(element)">
+                <a-col :span="8" class="full-height" @click="onDeleteSpot(element)">
                   <div class="action-container">
                     <DeleteOutlined />
                   </div>

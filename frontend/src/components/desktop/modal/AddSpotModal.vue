@@ -39,7 +39,7 @@ watchEffect(() => {
   }
 })
 
-const emit = defineEmits(['onCloseAddSpotModal', 'updateSpots'])
+const emit = defineEmits(['closeAddSpotModal', 'updateSpots'])
 const onAddSpot = () => {
   axios
     .post(`/stories/${route.params.uuid}/spots`, spot.value)

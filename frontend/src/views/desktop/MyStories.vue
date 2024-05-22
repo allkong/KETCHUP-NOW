@@ -5,10 +5,12 @@ import { StarFilled, CaretRightFilled } from '@ant-design/icons-vue'
 import defaultImage from '@/assets/default-image.jpg'
 import HeaderView from '@/views/desktop/includes/HeaderView.vue'
 import FooterView from '@/views/desktop/includes/FooterView.vue'
+import AddStoryModal from '@/components/desktop/modal/AddStoryModal.vue'
 
 const axios = inject('axios')
 
 const stories = ref([])
+const isAddStoryModalOpen = ref(false)
 
 onMounted(async () => {
   fetchMyStories()
@@ -17,9 +19,28 @@ onMounted(async () => {
 const fetchMyStories = () => {
   axios.get('/story-bases').then((response) => (stories.value = response.data))
 }
+
+const onAddSpotModal = () => {
+  isAddStoryModalOpen.value = true
+}
+
+const onCloseAddStoryModal = () => {
+  isAddStoryModalOpen.value = false
+}
+
+const onUpdateStories = async () => {
+  await fetchMyStories()
+  isAddStoryModalOpen.value = false
+}
 </script>
 
 <template>
+  <AddStoryModal
+    v-if="isAddStoryModalOpen"
+    :modal-open="isAddStoryModalOpen"
+    @close-add-story-modal="onCloseAddStoryModal"
+    @update-stories="onUpdateStories"
+  />
   <HeaderView />
   <a-layout-content class="content-layout">
     <a-row align="middle" justify="space-between" class="title-container">
@@ -30,7 +51,7 @@ const fetchMyStories = () => {
         <h1>내 스토리</h1>
         <p>새로운 스토리 작성을 원한다면</p>
         <p style="margin: 0.5rem 0">|</p>
-        <a-button>스토리 만들기</a-button>
+        <a-button @click="onAddSpotModal">스토리 만들기</a-button>
       </a-col>
     </a-row>
     <div class="grid-container">

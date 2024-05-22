@@ -4,7 +4,7 @@ const { VITE_KAKAO_MAP_KEY } = import.meta.env
 import StoryMarkerIcon from '@/assets/icon/marker/flag-marker-red.png'
 import StoryModal from '@/components/mobile/modal/StoryModal.vue'
 import SearchListModal from '@/components/mobile/modal/SearchListModal.vue'
-import RegionButton from '@/components/mobile/button/RegionButton.vue'
+import RegionButton from '@/components/button/RegionButton.vue'
 
 import latLngByArea from '@/assets/data/latlng-by-area.json'
 
@@ -12,8 +12,8 @@ const axios = inject('axios')
 const props = defineProps({
   initialFocusStoryUuid: {
     type: String,
-    required: false
-  }
+    required: false,
+  },
 })
 
 const mapInfo = {
@@ -235,12 +235,16 @@ function onStorySelectedInListModal(...args) {
   <div id="map-wrap">
     <div ref="mapContainer" style="height: 100%"></div>
     <a-button class="map-button list-button" @click="openSearchListModal">목록</a-button>
-    <RegionButton @area-filter-updated="onAreaFilterUpdate" />
+    <RegionButton class="map-button region-button" @area-select-event="onAreaFilterUpdate" />
   </div>
 </template>
 
 <style scoped>
 .list-button {
   right: 1rem;
+}
+
+.region-button {
+  left: 1rem;
 }
 </style>
