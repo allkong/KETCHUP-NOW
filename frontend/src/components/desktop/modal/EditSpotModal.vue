@@ -18,7 +18,6 @@ const editedSpot = ref({
   longitude: 0,
   title: '',
   description: '',
-  imageFile: '',
   eventType: '',
   jsonEventContent: {},
 })
@@ -42,8 +41,11 @@ watchEffect(() => {
 })
 
 const onEditSpot = () => {
-  console.log(editedSpot.value)
-  editedSpot.value.jsonEventContent = JSON.stringify(editedSpot.value.jsonEventContent)
+  if (editedSpot.value.jsonEventContent === null) {
+    editedSpot.value.jsonEventContent = null
+  } else {
+    editedSpot.value.jsonEventContent = JSON.stringify(editedSpot.value.jsonEventContent)
+  }
   axios
     .put(`/stories/${route.params.uuid}/spots/${props.spot.uuid}`, editedSpot.value)
     .then((response) => {

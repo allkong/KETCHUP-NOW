@@ -30,11 +30,6 @@ const onSaveRegion = (...args) => {
   story.value.createDto.gungu = args[1]
 }
 
-// 파일이 정상적으로 업로드 되면 'name' attribute를 가짐
-// const isFileUploaded = computed(() => {
-//   return story.value.imageFile.name !== undefined
-// })
-
 const onFileChange = (e) => {
   // 파일이 선택되지 않은 상태로 파일 선택 창이 닫히면 입력 비우기
   if (!e.target.files.length) {
