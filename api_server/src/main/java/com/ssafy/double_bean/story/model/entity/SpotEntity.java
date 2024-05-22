@@ -16,6 +16,8 @@ public class SpotEntity implements Cloneable {
     private URI thumbnailImageUri;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
+    private int storyId;
+    private UUID storyUuid;
     // 이벤트 관련 ========================================
     private EventType eventType;
     private URI eventImageUri;
@@ -25,7 +27,7 @@ public class SpotEntity implements Cloneable {
     public SpotEntity() {
     }
 
-    public SpotEntity(int id, UUID uuid, double latitude, double longitude, double orderIndex, String title, String description, URI imageUri, URI thumbnailImageUri, LocalDateTime createdAt, LocalDateTime modifiedAt, EventType eventType, URI eventImageUri, URI eventThumbnailImageUri, String jsonEventContent) {
+    public SpotEntity(int id, UUID uuid, double latitude, double longitude, double orderIndex, String title, String description, URI imageUri, URI thumbnailImageUri, LocalDateTime createdAt, LocalDateTime modifiedAt, int storyId, UUID storyUuid, EventType eventType, URI eventImageUri, URI eventThumbnailImageUri, String jsonEventContent) {
         this.id = id;
         this.uuid = uuid;
         this.latitude = latitude;
@@ -37,6 +39,8 @@ public class SpotEntity implements Cloneable {
         this.thumbnailImageUri = thumbnailImageUri;
         this.createdAt = createdAt;
         this.modifiedAt = modifiedAt;
+        this.storyId = storyId;
+        this.storyUuid = storyUuid;
         this.eventType = eventType;
         this.eventImageUri = eventImageUri;
         this.eventThumbnailImageUri = eventThumbnailImageUri;
@@ -163,22 +167,34 @@ public class SpotEntity implements Cloneable {
         this.jsonEventContent = jsonEventContent;
     }
 
+    public int getStoryId() {
+        return storyId;
+    }
+
+    public void setStoryId(int storyId) {
+        this.storyId = storyId;
+    }
+
+    public UUID getStoryUuid() {
+        return storyUuid;
+    }
+
+    public void setStoryUuid(UUID storyUuid) {
+        this.storyUuid = storyUuid;
+    }
+
     @Override
     public SpotEntity clone() {
-        try {
-            SpotEntity clone = (SpotEntity) super.clone();
-            clone.setUuid(null);
-            clone.setLatitude(latitude);
-            clone.setLongitude(longitude);
-            clone.setOrderIndex(orderIndex);
-            clone.setTitle(title);
-            clone.setDescription(description);
-            clone.setCreatedAt(LocalDateTime.now());
-            clone.setModifiedAt(null);
-            return clone;
-        } catch (CloneNotSupportedException e) {
-            throw new AssertionError();
-        }
+        SpotEntity clone = new SpotEntity();
+        clone.setUuid(null);
+        clone.setLatitude(latitude);
+        clone.setLongitude(longitude);
+        clone.setOrderIndex(orderIndex);
+        clone.setTitle(title);
+        clone.setDescription(description);
+        clone.setCreatedAt(LocalDateTime.now());
+        clone.setModifiedAt(null);
+        return clone;
     }
 
     public enum EventType {

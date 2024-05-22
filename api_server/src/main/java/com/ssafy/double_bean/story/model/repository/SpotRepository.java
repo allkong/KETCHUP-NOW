@@ -16,8 +16,9 @@ public interface SpotRepository {
     String SELECT_ALL_SQL = "SELECT sp.id 'sp_id', sp.uuid 'sp_uuid', latitude, longitude, order_index, " +
             "sp.title 'sp_title', sp.description 'sp_description', sp.image_uri 'sp_image_uri', " +
             "sp.thumbnail_image_uri 'sp_thumbnail_image_uri', sp.created_at 'sp_created_at', sp.modified_at 'sp_modified_at'," +
-            "event_type, event_image_uri, event_thumbnail_image_uri, json_event_content " +
-            "FROM spots sp";
+            "event_type, event_image_uri, event_thumbnail_image_uri, json_event_content, " +
+            "s.id 's_id', s.uuid 's_uuid'" +
+            "FROM spots sp JOIN stories s ON sp.story_id = s.id";
 
     @Select(SELECT_ALL_SQL)
     @Results(id = "spots", value = {
@@ -35,7 +36,9 @@ public interface SpotRepository {
             @Result(property = "eventType", column = "event_type", typeHandler = SpotEventTypeTypeHandler.class),
             @Result(property = "eventImageUri", column = "event_image_uri", typeHandler = URITypeHandler.class),
             @Result(property = "eventThumbnailImageUri", column = "event_thumbnail_image_uri", typeHandler = URITypeHandler.class),
-            @Result(property = "jsonEventContent", column = "jsonEventContent")
+            @Result(property = "jsonEventContent", column = "json_event_content"),
+            @Result(property = "storyId", column = "s_id"),
+            @Result(property = "storyUuid", column = "s_uuid", typeHandler = UUIDTypeHandler.class)
     })
     List<SpotEntity> getAll();
 
@@ -43,7 +46,7 @@ public interface SpotRepository {
     @ResultMap("spots")
     List<SpotEntity> getSpotsOf(String storyUuid);
 
-    @Select(SELECT_ALL_SQL + " WHERE id=#{id}")
+    @Select(SELECT_ALL_SQL + " WHERE sp.id=#{id}")
     @ResultMap("spots")
     Optional<SpotEntity> findSpotById(int id);
 

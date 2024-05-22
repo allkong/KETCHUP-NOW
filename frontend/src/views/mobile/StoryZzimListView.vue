@@ -11,30 +11,33 @@ const axios = inject('axios')
 const router = useRouter()
 const storyZzimStore = useStoryZzimStore()
 
-function onStoryCardClicked(story) {
-    router.push({name: 'search', query: {'story-uuid': story.uuid}})
-}
 
 function removeZzim(story) {
     storyZzimStore.toggleZzim(story.uuid)
+    .then(() => {
+        fetchZzimStories()
+    })
 }
 
 function goToDetail(story) {
-    console.log(story);
+    router.push({name: 'search', query: {'story-uuid': story.uuid}})
 }
 
 const zzimStories = ref([])
 
-onMounted(async () => {
+async function fetchZzimStories() {
     zzimStories.value = []
     await storyZzimStore.fetchZzims()
     for(let zzim of storyZzimStore.zzims) {
         axios.get(`/stories/${zzim.storyUuid}`)
         .then(resp => {
-            console.log(resp.data);
             zzimStories.value.push(resp.data)
         })
     }
+}
+
+onMounted(async () => {
+    fetchZzimStories()
 })
 </script>
 
@@ -58,8 +61,7 @@ onMounted(async () => {
             <div v-if="storyZzimStore.zzims.length > 0" style="overflow: auto; height: 90vh">
               <a-card hoverable style="width: 300px"
               v-for="story in zzimStories"
-              :key="story.uuid"
-              @click="() => onStoryCardClicked(story)">
+              :key="story.uuid">
                 <template #extra>
                     <!-- <sub>{{ story.sido }} {{ story.gungu }}</sub> -->
                     <a-rate v-model:value="story.averageReviewScore" />
