@@ -155,10 +155,10 @@ const onSpotEventClear = () => {
               h('div', '여행자님의 생생한 후기를 들려 주세요!'),
             ]),
           okText: '좋아요 😍',
-          onOk: () => {
+          onOk: async () => {
             router.push({
               name: 'story:review:register',
-              params: { playingUuid: playLogs.value[0].storyPlayingUuid },
+              params: { storyUuid: playLogs.value[0].storyUuid },
             })
           },
           cancelText: '쉬고 싶어요 😅',
@@ -425,9 +425,6 @@ const onCloseSpotEventModal = () => {
     @spot-event-clear="onSpotEventClear"
   />
   <div id="map-wrap">
-    <<<<<<< HEAD
-    <div ref="mapContainer" style="height: 100%"></div>
-    =======
     <div ref="mapContainer" style="height: 100%">
       <!-- <context-holder /> -->
     </div>
@@ -436,7 +433,6 @@ const onCloseSpotEventModal = () => {
         <DeleteOutlined />
       </template>
     </FloatButton>
-    >>>>>>> frontend
   </div>
 </template>
 

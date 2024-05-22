@@ -94,7 +94,7 @@ const mobileRouter = createRouter({
       component: MobileStoryRecordView,
     },
     {
-      path: '/play/:playingUuid/review/register',
+      path: '/stories/:storyUuid/reviews/write',
       name: 'story:review:register',
       component: ReviewWritingView,
     },
