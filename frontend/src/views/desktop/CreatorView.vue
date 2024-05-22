@@ -5,9 +5,11 @@ import draggable from 'vuedraggable'
 const { VITE_KAKAO_MAP_KEY } = import.meta.env
 import { message, Modal } from 'ant-design-vue'
 import {
+  FormOutlined,
   SearchOutlined,
-  FlagOutlined,
-  RobotOutlined,
+  FlagFilled,
+  RobotFilled,
+  ExportOutlined,
   VerticalAlignBottomOutlined,
   EditOutlined,
   PlusSquareOutlined,
@@ -20,9 +22,9 @@ import SelectedKeywordMarkerIcon from '@/assets/icon/marker/star-marker-pink.png
 import DefaultImage from '@/assets/default-image.jpg'
 import AIStoryGenerationBoard from '@/components/desktop/AIStoryGenerationBoard.vue'
 
-import AddSpotModal from '@/components/desktop/AddSpotModal.vue'
-import EditSpotModal from '@/components/desktop/EditSpotModal.vue'
-import AddSpotEventModal from '@/components/desktop/AddSpotEventModal.vue'
+import AddSpotModal from '@/components/desktop/modal/AddSpotModal.vue'
+import EditSpotModal from '@/components/desktop/modal/EditSpotModal.vue'
+import AddSpotEventModal from '@/components/desktop/modal/AddSpotEventModal.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -65,9 +67,7 @@ const MAX_SPOT_COUNT = 10
 let spotMarkers = []
 let spotMarkerPolyline = null
 
-const story = ref({
-  status: 'PUBLISHED',
-})
+const story = ref({})
 
 onMounted(() => {
   loadKakaoMap(mapContainer.value)
@@ -92,9 +92,9 @@ const openLeftSider = () => {
   leftCollapsed.value = false
 }
 
-const onExit = () => {
+const onExit = (routerName) => {
   leftCollapsed.value = true
-  router.push({ name: 'my-stories' })
+  router.push({ name: routerName })
 }
 
 onBeforeRouteLeave((to, from, next) => {
@@ -443,6 +443,23 @@ async function drawSpotMarkers() {
   })
 }
 
+const onPublishStory = () => {
+  console.log(story.value)
+  axios
+    .put(`stories/${route.params.uuid}`, {
+      status: 'PUBLISHED',
+      title: story.value.title,
+      description: story.value.description,
+      sido: story.value.sido,
+      gungu: story.value.gungu,
+    })
+    .then((response) => {
+      fetchStory()
+      message.success('당신의 스토리가 완성되었어요! ✨')
+    })
+    .catch((error) => console.error(error))
+}
+
 const focusToSpotMarker = (spot) => {
   for (let spotMarker of spotMarkers) {
     if (spot.uuid === spotMarker.spotUuid) {
@@ -457,6 +474,7 @@ const onUpdateEditedSpot = async () => {
 }
 
 const onCloseAddSpotModal = () => {
+  console.log('닫기')
   isAddSpotModalOpen.value = false
 }
 
@@ -543,19 +561,72 @@ const onDeleteSpot = (spot) => {
   />
   <a-layout>
     <!-- 좌측 안쪽 사이드바 -->
-    <a-layout-sider width="4rem" class="left-inner-sider">
-      <a-menu v-model:selectedKeys="selectedKeys" theme="light" mode="inline">
+    <a-layout-sider width="4.5rem" class="left-inner-sider">
+      <a-menu v-model:selectedKeys="selectedKeys" theme="light">
+        <div style="height: 4.5rem; border-bottom: 1px solid #e8e8e8 !important">
+          <a-menu-item key="0" @click="onExit('home')" id="home-item">
+            <img src="@/assets/icon/tomato.png" alt="" style="width: 2rem; height: 2rem" />
+          </a-menu-item>
+        </div>
         <a-menu-item key="1" @click="openLeftSider">
-          <SearchOutlined />
+          <a-row justify="center">
+            <a-col>
+              <FormOutlined />
+            </a-col>
+            <a-col>
+              <span>스토리</span>
+            </a-col>
+          </a-row>
         </a-menu-item>
-        <a-menu-item key="2" @click="openLeftSider">
-          <FlagOutlined />
+        <a-menu-item v-if="story.status === 'WRITING'" key="2" @click="openLeftSider">
+          <a-row justify="center">
+            <a-col>
+              <SearchOutlined />
+            </a-col>
+            <a-col>
+              <span>키워드</span>
+            </a-col>
+          </a-row>
         </a-menu-item>
-        <a-menu-item key="3" @click="openLeftSider" v-if="story.status === 'WRITING'">
-          <RobotOutlined />
+        <a-menu-item v-if="story.status === 'WRITING'" key="3" @click="openLeftSider">
+          <a-row justify="center">
+            <a-col>
+              <FlagFilled />
+            </a-col>
+            <a-col>
+              <span>관광지</span>
+            </a-col>
+          </a-row>
         </a-menu-item>
-        <a-menu-item key="4" @click="onExit">
-          <VerticalAlignBottomOutlined style="transform: rotate(90deg)" />
+        <a-menu-item v-if="story.status === 'WRITING'" key="4" @click="openLeftSider">
+          <a-row justify="center">
+            <a-col>
+              <RobotFilled />
+            </a-col>
+            <a-col>
+              <span>AI</span>
+            </a-col>
+          </a-row>
+        </a-menu-item>
+        <a-menu-item v-if="story.status === 'WRITING'" key="5" @click="onPublishStory">
+          <a-row justify="center">
+            <a-col>
+              <ExportOutlined />
+            </a-col>
+            <a-col>
+              <span>배포</span>
+            </a-col>
+          </a-row>
+        </a-menu-item>
+        <a-menu-item key="6" @click="onExit('my-stories')">
+          <a-row justify="center">
+            <a-col>
+              <VerticalAlignBottomOutlined style="transform: rotate(90deg)" />
+            </a-col>
+            <a-col>
+              <span>나가기</span>
+            </a-col>
+          </a-row>
         </a-menu-item>
       </a-menu>
     </a-layout-sider>
@@ -570,7 +641,7 @@ const onDeleteSpot = (spot) => {
       class="left-sider-shadow"
     >
       <div class="sider-content">
-        <div v-show="selectedKeys[0] === '1'" class="full-height">
+        <div v-show="selectedKeys[0] === '2'" class="full-height">
           <h2 style="text-align: center">키워드 검색</h2>
           <a-row justify="center">
             <a-col>
@@ -606,7 +677,7 @@ const onDeleteSpot = (spot) => {
             </a-card>
           </a-row>
         </div>
-        <div v-show="selectedKeys[0] === '2'" class="full-height">
+        <div v-show="selectedKeys[0] === '3'" class="full-height">
           <h2 style="text-align: center">관광지 목록</h2>
           <a-card class="sider-cards">
             <p v-show="attractionList.length === 0">관광지 버튼을 클릭해 주세요!</p>
@@ -626,7 +697,7 @@ const onDeleteSpot = (spot) => {
             </a-card-grid>
           </a-card>
         </div>
-        <div v-show="selectedKeys[0] === '3'" style="height: 100%">
+        <div v-show="selectedKeys[0] === '4'" class="full-height">
           <AIStoryGenerationBoard :spots="spots" :story="story" @refresh-spots="fetchSpots" />
         </div>
       </div>
@@ -669,7 +740,7 @@ const onDeleteSpot = (spot) => {
               <a-row style="margin: 1rem" @click="focusToSpotMarker(element)">
                 <a-col :span="8">
                   <img
-                    :src="element.thumnailUri || DefaultImage"
+                    :src="element.imageUri || DefaultImage"
                     alt=""
                     class="spot-cover-image"
                     @error="replaceDefaultImage"
@@ -682,18 +753,23 @@ const onDeleteSpot = (spot) => {
               </a-row>
               <a-divider class="horizontal-divider" />
 
-              <a-row align="middle" justify="center" class="card-actions">
-                <a-col :span="8" class="full-height" @click.stop="onEditSpotModal(element)">
+              <a-row
+                v-if="story.status === 'WRITING'"
+                align="middle"
+                justify="center"
+                class="card-actions"
+              >
+                <a-col :span="8" class="full-height" @click="onEditSpotModal(element)">
                   <div class="action-container">
                     <EditOutlined />
                   </div>
                 </a-col>
-                <a-col :span="8" class="full-height" @click.stop="onAddSpotEventModal(element)">
+                <a-col :span="8" class="full-height" @click="onAddSpotEventModal(element)">
                   <div class="action-container middle-border">
                     <PlusSquareOutlined />
                   </div>
                 </a-col>
-                <a-col :span="8" class="full-height" @click.stop="onDeleteSpot(element)">
+                <a-col :span="8" class="full-height" @click="onDeleteSpot(element)">
                   <div class="action-container">
                     <DeleteOutlined />
                   </div>
@@ -727,7 +803,44 @@ const onDeleteSpot = (spot) => {
 }
 
 .left-inner-sider {
-  border-inline-end: 1px solid rgba(5, 5, 5, 0.06);
+  border-inline-end: 1px solid #e8e8e8;
+}
+
+.left-inner-sider span {
+  font-size: 0.75rem;
+}
+
+:deep(.ant-menu-item) {
+  width: inherit;
+  height: 4rem;
+  line-height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.left-inner-sider .anticon {
+  font-size: 1.2rem;
+  margin-bottom: 0.4rem;
+}
+
+:deep(#home-item) {
+  height: 100%;
+}
+
+:deep(.ant-menu-item-selected) {
+  background: tomato;
+  color: white !important;
+}
+
+:deep(#home-item.ant-menu-item-selected) {
+  background: white;
+}
+
+:deep(.ant-menu-title-content) {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .ant-menu-light.ant-menu-root.ant-menu-inline {

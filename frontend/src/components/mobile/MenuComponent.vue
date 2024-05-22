@@ -8,8 +8,7 @@ import {
   UserOutlined,
   HeartOutlined,
 } from '@ant-design/icons-vue'
-import { message, Modal } from 'ant-design-vue'
-import SearchListModal from './modal/SearchListModal.vue'
+import { message } from 'ant-design-vue'
 
 const axios = inject('axios')
 const router = useRouter()
@@ -57,10 +56,10 @@ onMounted(async () => {
       </RouterLink>
     </a-col>
     <a-col class="menu-item">
-          <RouterLink :to="{name: 'user:zzim-stories'}">
-            <HeartOutlined />
-            <p>찜</p>
-          </RouterLink>
+      <RouterLink :to="{ name: 'user:zzim-stories' }">
+        <HeartOutlined />
+        <p>찜</p>
+      </RouterLink>
     </a-col>
     <a-col class="menu-item">
       <span @click="doPlayGame">

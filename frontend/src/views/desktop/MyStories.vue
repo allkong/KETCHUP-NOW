@@ -5,10 +5,12 @@ import { StarFilled, CaretRightFilled } from '@ant-design/icons-vue'
 import defaultImage from '@/assets/default-image.jpg'
 import HeaderView from '@/views/desktop/includes/HeaderView.vue'
 import FooterView from '@/views/desktop/includes/FooterView.vue'
+import AddStoryModal from '@/components/desktop/modal/AddStoryModal.vue'
 
 const axios = inject('axios')
 
 const stories = ref([])
+const isAddStoryModalOpen = ref(false)
 
 onMounted(async () => {
   fetchMyStories()
@@ -17,9 +19,28 @@ onMounted(async () => {
 const fetchMyStories = () => {
   axios.get('/story-bases').then((response) => (stories.value = response.data))
 }
+
+const onAddSpotModal = () => {
+  isAddStoryModalOpen.value = true
+}
+
+const onCloseAddStoryModal = () => {
+  isAddStoryModalOpen.value = false
+}
+
+const onUpdateStories = async () => {
+  await fetchMyStories()
+  isAddStoryModalOpen.value = false
+}
 </script>
 
 <template>
+  <AddStoryModal
+    v-if="isAddStoryModalOpen"
+    :modal-open="isAddStoryModalOpen"
+    @close-add-story-modal="onCloseAddStoryModal"
+    @update-stories="onUpdateStories"
+  />
   <HeaderView />
   <a-layout-content class="content-layout">
     <a-row align="middle" justify="space-between" class="title-container">
@@ -28,9 +49,10 @@ const fetchMyStories = () => {
       </a-col>
       <a-col class="title-text">
         <h1>내 스토리</h1>
-        <p>새로운 스토리 작성을 원한다면</p>
-        <p style="margin: 0.5rem 0">|</p>
-        <a-button>스토리 만들기</a-button>
+        <div class="typing-wrapper">
+          <div class="typing-text">새로운 스토리 작성을 원한다면</div>
+        </div>
+        <a-button @click="onAddSpotModal">스토리 만들기</a-button>
       </a-col>
     </a-row>
     <div class="grid-container">
@@ -51,12 +73,18 @@ const fetchMyStories = () => {
               />
             </template>
             <!-- <a-tag color="green">v{{ story.version }}</a-tag> -->
-            <div style="margin-bottom: 1rem">
-              <a-tag color="blue">{{ story.status }}</a-tag>
-              <a-tag color="green">{{ story.sido }} {{ story.gungu }}</a-tag>
-              <StarFilled class="star-icon" /><span>{{ story.averageReviewScore }}</span>
-              <CaretRightFilled /><span>{{ story.totalPlayCount }}</span>
-            </div>
+            <a-row justify="space-between" style="margin-bottom: 1rem">
+              <a-col>
+                <a-tag color="blue">{{ story.status }}</a-tag>
+                <a-tag color="green">{{ story.sido }} {{ story.gungu }}</a-tag>
+              </a-col>
+              <a-col class="icon-box">
+                <StarFilled class="star-icon" /><span style="margin-right: 0.5rem">{{
+                  story.averageReviewScore
+                }}</span>
+                <CaretRightFilled class="play-icon" /><span>{{ story.totalPlayCount }}</span>
+              </a-col>
+            </a-row>
 
             <a-card-meta :title="story.title" :description="story.description"></a-card-meta>
 
@@ -101,6 +129,33 @@ p {
   margin-right: 3rem;
 }
 
+.typing-wrapper {
+  display: grid;
+  place-items: center;
+  margin-bottom: 1rem;
+}
+
+.typing-text {
+  width: 22ch;
+  animation: typing 2s steps(20), blink 0.5s step-end infinite alternate;
+  white-space: nowrap;
+  overflow: hidden;
+  border-right: 2px solid;
+  font-size: 1.5rem;
+}
+
+@keyframes typing {
+  from {
+    width: 0;
+  }
+}
+
+@keyframes blink {
+  50% {
+    border-color: transparent;
+  }
+}
+
 .grid-container {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(19rem, 1fr));
@@ -115,21 +170,32 @@ p {
 
 :deep(.ant-card-image),
 :deep(.ant-card-body) {
-  width: 19rem;
+  width: 20rem;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .story-cover-image {
-  height: 11rem;
+  height: 12rem;
   width: 100%;
   object-fit: cover;
+}
+
+.icon-box {
+  display: flex;
+  align-items: center;
 }
 
 .star-icon {
   color: #fadb14;
   margin-right: 0.3rem;
+}
+
+.play-icon {
+  color: tomato;
+  font-size: 1rem;
+  margin-right: 0.1rem;
 }
 
 :deep(.ant-card-meta-description) {
