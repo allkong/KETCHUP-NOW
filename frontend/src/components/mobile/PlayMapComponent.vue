@@ -137,7 +137,14 @@ const onSpotEventClear = () => {
       inRangeTargetMarker.setMap(null)
       inRangeTargetMarker = null
 
-      message.success('이벤트 클리어! 다음 이벤트로 이동하세요 🎉')
+      // 클리어 스팟 목록 갱신
+      fetchPlayLogs()
+      .then(() => {
+        message.success('이벤트 클리어! 다음 이벤트로 이동하세요 🎉')
+      })
+      .catch((error) => {
+        return Promise.resolve(error)
+      })
     })
     .catch((error) => {
       // 만약 다음 타겟 스팟이 없으면 게임이 종료되었다는 의미
@@ -156,10 +163,13 @@ const onSpotEventClear = () => {
             ]),
           okText: '좋아요 😍',
           onOk: async () => {
-            router.push({
-              name: 'story:review:register',
-              params: { storyUuid: playLogs.value[0].storyUuid },
-            })
+              const playings = (await axios.get('/playings')).data
+              const storyPlayingUuid = playLogs.value[0].storyPlayingUuid
+              const currentPlaying = playings.filter(p => p.uuid === storyPlayingUuid)[0]
+              router.push({
+                name: 'story:review:register',
+                params: { storyUuid: currentPlaying.storyUuid },
+              })
           },
           cancelText: '쉬고 싶어요 😅',
           onCancel: () => {
