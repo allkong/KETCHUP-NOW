@@ -53,7 +53,7 @@ const onAddSpotEvent = () => {
   if (editedSpot.value.eventType === 'QUIZ') {
     editedSpot.value.jsonEventContent = quizEvent.value
   }
-  console.log(editedSpot.value)
+
   editedSpot.value.jsonEventContent = JSON.stringify(editedSpot.value.jsonEventContent)
   axios
     .put(`/stories/${route.params.uuid}/spots/${props.spot.uuid}`, editedSpot.value)

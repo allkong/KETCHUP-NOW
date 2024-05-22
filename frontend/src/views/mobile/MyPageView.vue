@@ -137,17 +137,20 @@ if (!userStore.userInfo.loginId) {
     </a-card>
     <a-divider />
     <div id="project-info-container">
-        <div>
-          Developed by Dabin Jeong <a href="https://github.com/allkong"><GithubOutlined /></a>
-           & Yubin Park <a href="https://github.com/pcjs156"><GithubOutlined /></a>
-        </div>
-      <div>Copyright ©SAMSUNG All Rights Reserved.</div>
+      <div>
+        Developed by Dabin Jeong <a href="https://github.com/allkong"><GithubOutlined /></a> & Yubin
+        Park <a href="https://github.com/pcjs156"><GithubOutlined /></a>
+      </div>
+      <div>Copyright ©SSAFY All Rights Reserved.</div>
     </div>
   </a-layout-content>
   <NavigationView />
 </template>
 
 <style scoped lang="scss">
+p {
+  margin: 0;
+}
 #content-container {
   background: $whiteBackgroundColor;
   padding: 1rem;

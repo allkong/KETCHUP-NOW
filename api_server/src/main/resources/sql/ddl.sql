@@ -167,6 +167,5 @@ create table if not exists double_bean.story_playing_logs
     created_at         timestamp   default CURRENT_TIMESTAMP not null,
     constraint fk_story_playing_logs_story_playings_story_playing_id foreign key (story_playing_id) references double_bean.story_playings (id) on delete cascade,
     constraint fk_story_playing_logs_spots_spot_id foreign key (spot_id) references double_bean.spots (id) on delete cascade,
-    constraint fk_story_playing_logs_users_user_id foreign key (user_id) references double_bean.users (id) on delete cascade,
-    constraint unique_story_playing_logs_spot_id_user_id unique (spot_id, user_id)
+    constraint fk_story_playing_logs_users_user_id foreign key (user_id) references double_bean.users (id) on delete cascade
 );

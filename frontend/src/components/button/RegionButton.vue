@@ -1,10 +1,9 @@
 <script setup>
 import { ref, inject, onMounted } from 'vue'
-import { CloseOutlined, SearchOutlined } from '@ant-design/icons-vue'
 
 const axios = inject('axios')
 
-const emit = defineEmits(['areaFilterUpdated'])
+const emit = defineEmits(['areaSelectEvent'])
 
 const options = ref([])
 const selectedRegionValue = ref([])
@@ -50,9 +49,10 @@ function getSidoFromCode(sidoCode) {
 }
 
 const onDropdownVisibleChange = (isOpened) => {
+  console.log(selectedRegionValue.value)
   if (!isOpened) {
-    // 닫혔는데 군/구까지 선택되지 않았다면
-    if (selectedRegionValue.value.length == 1) {
+    // 닫혔는데 시/도를 선택하지 않았거나 시/도는 선택했지만 군/구까지 선택되지 않았다면
+    if (selectedRegionValue.value.length <= 1) {
       // 옵션 초기화
       selectedRegionValue.value = []
       return
@@ -62,30 +62,21 @@ const onDropdownVisibleChange = (isOpened) => {
       // 부모로 선택된 시/도, 군/구를 알림
       const [sidoCode, gungu] = selectedRegionValue.value
       const sido = getSidoFromCode(sidoCode)
-      emit('areaFilterUpdated', sido, gungu)
+      emit('areaSelectEvent', sido, gungu)
     }
   }
 }
 </script>
 
 <template>
-  <!-- <a-button class="map-button region-button" @click="searchByRegion">
-    <SearchOutlined />
-    지역으로 찾기
-  </a-button> -->
   <a-cascader
-    class="map-button region-button"
     v-model:value="selectedRegionValue"
     :options="options"
     :load-data="getChildrenAreas"
-    placeholder="지역으로 찾기"
+    placeholder="지역 선택"
     @dropdownVisibleChange="onDropdownVisibleChange"
     change-on-select
   />
 </template>
 
-<style scoped>
-.region-button {
-  left: 1rem;
-}
-</style>
+<style scoped></style>
