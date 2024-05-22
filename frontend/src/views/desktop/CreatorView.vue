@@ -102,7 +102,7 @@ const openLeftSider = () => {
 watch(leftCollapsed, (newValue) => {
   // 왼쪽 안쪽 사이드바 옵션을 클릭했을 때
   // 왼쪽 바깥쪽 사이드바를 사용하는 옵션이 아니면 열지 못하게 막는다
-  if (!newValue && !['1', '2', '3'].includes(selectedKeys.value[0])) {
+  if (!newValue && !['1', '2', '3', '4'].includes(selectedKeys.value[0])) {
     leftCollapsed.value = true
     message.info('메뉴를 선택하세요.')
   }
