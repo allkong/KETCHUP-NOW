@@ -17,5 +17,6 @@ function goBack() {
   margin-top: 0.5rem;
   margin-left: 0.5rem;
   font-size: large;
+  z-index: 10;
 }
 </style>

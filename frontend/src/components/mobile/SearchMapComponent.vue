@@ -9,6 +9,12 @@ import RegionButton from '@/components/mobile/button/RegionButton.vue'
 import latLngByArea from '@/assets/data/latlng-by-area.json'
 
 const axios = inject('axios')
+const props = defineProps({
+  initialFocusStoryUuid: {
+    type: String,
+    required: false
+  }
+})
 
 const mapInfo = {
   'left-bottom-latitude': 0,
@@ -34,19 +40,34 @@ const selectedStory = ref(null)
 const sido = ref(null)
 const gungu = ref(null)
 
-onMounted(() => {
-  loadKakaoMap(mapContainer.value)
+onMounted(async () => {
+  let initialFocusStory = null
+  if (props.initialFocusStoryUuid) {
+    initialFocusStory = (await axios.get(`/stories/${props.initialFocusStoryUuid}`)).data
+  }
+  loadKakaoMap(mapContainer.value, initialFocusStory)
 })
 
-const loadKakaoMap = (container) => {
+const loadKakaoMap = async (container, initialFocusStory) => {
   const script = document.createElement('script')
   script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${VITE_KAKAO_MAP_KEY}&autoload=false`
   document.head.appendChild(script)
 
+  let initialLatitude = 37.578
+  let initialLongitude = 126.976
+
+  // 초깃값이 주어졌으면 해당 스토리의 첫 번째 스팟 위치로 화면 이동
+  if (initialFocusStory) {
+    const spots = (await axios.get(`/stories/${initialFocusStory.uuid}/spots`)).data
+    spots.sort((s1, s2) => s1.orderIdx - s2.orderIdx)
+    initialLatitude = spots[0].latitude
+    initialLongitude = spots[0].longitude
+  }
+
   script.onload = () => {
     window.kakao.maps.load(() => {
       const options = {
-        center: new window.kakao.maps.LatLng(37.578, 126.976), // 지도 중심 좌표
+        center: new window.kakao.maps.LatLng(initialLatitude, initialLongitude), // 지도 중심 좌표
         level: 3, // 지도 확대 레벨
         maxLevel: 5, // 지도 축소 제한 레벨
       }
@@ -61,6 +82,12 @@ const loadKakaoMap = (container) => {
           drawStoryMarkers()
         })
       })
+
+      if (initialFocusStory) {
+        // 초깃값이 주어졌으면 해당 스토리 모달 자동 열기
+        storyModalOpen.value = true
+        selectedStory.value = initialFocusStory
+      }
     })
   }
 }

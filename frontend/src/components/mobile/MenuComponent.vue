@@ -6,8 +6,10 @@ import {
   PlayCircleFilled,
   HistoryOutlined,
   UserOutlined,
+  HeartOutlined,
 } from '@ant-design/icons-vue'
-import { message } from 'ant-design-vue'
+import { message, Modal } from 'ant-design-vue'
+import SearchListModal from './modal/SearchListModal.vue'
 
 const axios = inject('axios')
 const router = useRouter()
@@ -47,23 +49,6 @@ onMounted(async () => {
 </script>
 
 <template>
-  <!-- <a-menu id="menu-items">
-    <a-menu-item class="menu-item">
-      <RouterLink :to="{ name: 'search' }"><span>검색</span></RouterLink>
-    </a-menu-item>
-    <a-menu-item class="menu-item">
-      <RouterLink :to="{ name: 'play' }"><span>플레이</span></RouterLink>
-    </a-menu-item>
-    <a-menu-item class="menu-item">
-      <RouterLink :to="{ name: 'search' }"><span>검색</span></RouterLink>
-    </a-menu-item>
-    <a-menu-item class="menu-item">
-      <RouterLink :to="{ name: 'story:cleared-list' }"><span>추천</span></RouterLink>
-    </a-menu-item>
-    <a-menu-item class="menu-item">
-      <RouterLink :to="{ name: 'user:my-page' }"><span>MY</span></RouterLink>
-    </a-menu-item>
-  </a-menu> -->
   <a-row id="menu-items" justify="space-around">
     <a-col class="menu-item">
       <RouterLink :to="{ name: 'search' }">
@@ -72,10 +57,10 @@ onMounted(async () => {
       </RouterLink>
     </a-col>
     <a-col class="menu-item">
-      <RouterLink :to="{ name: 'search' }">
-        <SearchOutlined />
-        <p>검색</p>
-      </RouterLink>
+          <RouterLink :to="{name: 'user:zzim-stories'}">
+            <HeartOutlined />
+            <p>찜</p>
+          </RouterLink>
     </a-col>
     <a-col class="menu-item">
       <span @click="doPlayGame">

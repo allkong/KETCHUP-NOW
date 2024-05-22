@@ -1,12 +1,12 @@
 <script setup>
 const { VITE_KAKAO_MAP_KEY, VITE_APP_MODE } = import.meta.env
 import { ref, onMounted, onUnmounted, watch, inject, computed, createVNode, h } from 'vue'
-import { message, Modal } from 'ant-design-vue'
-import FindSpot from '@/components/mobile/modal/FindSpot.vue'
+import { message, Modal, FloatButton } from 'ant-design-vue'
 import { useLocationStore } from '@/stores/location'
 import HttpStatus from '@/api/http-status'
-import { CrownOutlined } from '@ant-design/icons-vue'
+import { CrownOutlined, DeleteOutlined } from '@ant-design/icons-vue'
 import { useRouter } from 'vue-router'
+import SpotEventModal from '@/components/mobile/modal/SpotEventModal.vue'
 
 const axios = inject('axios')
 const router = useRouter()
@@ -17,6 +17,7 @@ let mapInstance = null
 let currentPositionMarker = null
 let inRangeTargetMarker = null
 
+const isSpotEventModalOpen = ref(false)
 
 function getHaversineMeter(lat1, lon1, lat2, lon2) {
   // 라디안 단위로 변환하는 함수
@@ -56,112 +57,118 @@ function isAround(currentLat, currentLng, spot) {
   return meterDistance <= 30.0
 }
 
-function updateGame({latitude, longitude}) {
-      // 남은 스팟이 있고
-    if (nextTargetSpot) {
-      const isTargetAround = isAround(
-        latitude,
-        longitude,
-        nextTargetSpot,
-      )
-      // 근처에 있으며
-      if (isTargetAround) {
-        // 하이라이팅이 만들어져 있지 않다면
-        if (!inRangeTargetMarker) {
-          // 첫 진입이므로 화면에 표시
-          const markerIcon = new window.kakao.maps.MarkerImage(
-            // '/icon/numbers/spot-on-map-10.png',
-            '/icon/active-spot.gif',
-            new window.kakao.maps.Size(60, 60),
-            {
-              offset: new window.kakao.maps.Point(30.5, 32.5),
-            },
-          )
-          inRangeTargetMarker = new window.kakao.maps.Marker({
-            position: new window.kakao.maps.LatLng(
-              nextTargetSpot.value.latitude,
-              nextTargetSpot.value.longitude,
-            ),
-            image: markerIcon,
-          })
+function updateGame({ latitude, longitude }) {
+  // 남은 스팟이 있고
+  if (nextTargetSpot) {
+    const isTargetAround = isAround(latitude, longitude, nextTargetSpot)
+    // 근처에 있으며
+    if (isTargetAround) {
+      // 하이라이팅이 만들어져 있지 않다면
+      if (!inRangeTargetMarker) {
+        // 첫 진입이므로 화면에 표시
+        const markerIcon = new window.kakao.maps.MarkerImage(
+          // '/icon/numbers/spot-on-map-10.png',
+          '/icon/active-spot.gif',
+          new window.kakao.maps.Size(60, 60),
+          {
+            offset: new window.kakao.maps.Point(30.5, 32.5),
+          },
+        )
+        inRangeTargetMarker = new window.kakao.maps.Marker({
+          position: new window.kakao.maps.LatLng(
+            nextTargetSpot.value.latitude,
+            nextTargetSpot.value.longitude,
+          ),
+          image: markerIcon,
+        })
 
-          window.kakao.maps.event.addListener(inRangeTargetMarker, 'click', () => {
-            axios.post('/playings/current/clear', {
-              spotUuid: nextTargetSpot.value.uuid
-            })
-            .then(async (resp) => {
-              return fetchPlayLogs()
-            })
-            .then(async (logs) => {
-              drawSpotMarkers()
+        window.kakao.maps.event.addListener(inRangeTargetMarker, 'click', () => {
+          isSpotEventModalOpen.value = true
+        })
 
-              // 스팟 활성화 하이라이팅 삭제
-              inRangeTargetMarker.setMap(null)
-              inRangeTargetMarker = null
-
-              message.success('이벤트 클리어! 다음 이벤트로 이동하세요 🎉')
-            })
-            .catch(error => {
-              // 만약 다음 타겟 스팟이 없으면 게임이 종료되었다는 의미
-              if (error.response.status === HttpStatus.CONFLICT && error.response.data.detailCode === 'E0005') {
-                Modal.confirm({
-                  title: '스토리 클리어!',
-                  icon: () => createVNode(CrownOutlined),
-                  content: '긴 여정이 끝났습니다. 여행자님의 생생한 후기를 들려주세요!',
-                  content: () => h('div', {}, [
-                    h('div', '긴 여정이 끝났습니다.'),
-                    h('div', '여행자님의 생생한 후기를 들려 주세요!'),
-                  ]),
-                  okText: '좋아요 😍',
-                  onOk: () => {
-                    router.push({name: 'story:review:register', params: {playingUuid: playLogs.value[0].storyPlayingUuid}})
-                  },
-                  cancelText: '쉬고 싶어요 😅',
-                  onCancel: () => {
-                    message.info('플레이 해주셔서 감사합니다!')
-                    router.push({name: 'story:cleared-list'})
-                  }
-                })
-              }
-            })
-          })
-
-          // 마커에 이벤트 수행 물어보는 이벤트 등록
-          inRangeTargetMarker.setMap(mapInstance)
-          message.info('이벤트 발생!')
-        }
-      }
-      // 또는, 근처에 없으나
-      else {
-        // 하이라이팅이 화면에 남아 있다면, 제거
-        if (inRangeTargetMarker) {
-          inRangeTargetMarker.setMap(null)
-          inRangeTargetMarker = null
-        }
+        // 마커에 이벤트 수행 물어보는 이벤트 등록
+        inRangeTargetMarker.setMap(mapInstance)
+        message.info('이벤트 발생!')
       }
     }
-
-    // 사용자 위치 갱신 =========================================================
-    const currentPosition = new window.kakao.maps.LatLng(
-      latitude,
-      longitude,
-    )
-    mapInstance.setCenter(currentPosition)
-
-    if (currentPositionMarker !== null) {
-      currentPositionMarker.setMap(null)
+    // 또는, 근처에 없으나
+    else {
+      // 하이라이팅이 화면에 남아 있다면, 제거
+      if (inRangeTargetMarker) {
+        inRangeTargetMarker.setMap(null)
+        inRangeTargetMarker = null
+      }
     }
+  }
 
-    // 현재 위치 마커 생성
-    currentPositionMarker = new window.kakao.maps.Marker({
-      map: mapInstance,
-      position: currentPosition,
+  // 사용자 위치 갱신 =========================================================
+  const currentPosition = new window.kakao.maps.LatLng(latitude, longitude)
+  mapInstance.setCenter(currentPosition)
+
+  if (currentPositionMarker !== null) {
+    currentPositionMarker.setMap(null)
+  }
+
+  // 현재 위치 마커 생성
+  currentPositionMarker = new window.kakao.maps.Marker({
+    map: mapInstance,
+    position: currentPosition,
+  })
+  // 위치 이동하면 마커 업데이트
+  currentPositionMarker.setPosition(currentPosition)
+  // 사용자 위치 갱신 =========================================================
+}
+
+const onSpotEventClear = () => {
+  isSpotEventModalOpen.value = false
+
+  axios
+    .post('/playings/current/clear', {
+      spotUuid: nextTargetSpot.value.uuid,
+      jsonEventContent: '',
     })
-    // 위치 이동하면 마커 업데이트
-    currentPositionMarker.setPosition(currentPosition)
-    // 사용자 위치 갱신 =========================================================
+    .then(async (resp) => {
+      return fetchPlayLogs()
+    })
+    .then(async (logs) => {
+      drawSpotMarkers()
 
-    
+      // 스팟 활성화 하이라이팅 삭제
+      inRangeTargetMarker.setMap(null)
+      inRangeTargetMarker = null
+
+      message.success('이벤트 클리어! 다음 이벤트로 이동하세요 🎉')
+    })
+    .catch((error) => {
+      // 만약 다음 타겟 스팟이 없으면 게임이 종료되었다는 의미
+      if (
+        error.response.status === HttpStatus.CONFLICT &&
+        error.response.data.detailCode === 'E0005'
+      ) {
+        Modal.confirm({
+          title: '스토리 클리어!',
+          icon: () => createVNode(CrownOutlined),
+          content: '긴 여정이 끝났습니다. 여행자님의 생생한 후기를 들려주세요!',
+          content: () =>
+            h('div', {}, [
+              h('div', '긴 여정이 끝났습니다.'),
+              h('div', '여행자님의 생생한 후기를 들려 주세요!'),
+            ]),
+          okText: '좋아요 😍',
+          onOk: async () => {
+            router.push({
+              name: 'story:review:register',
+              params: { storyUuid: playLogs.value[0].storyUuid },
+            })
+          },
+          cancelText: '쉬고 싶어요 😅',
+          onCancel: () => {
+            message.info('플레이 해주셔서 감사합니다!')
+            router.push({ name: 'story:cleared-list' })
+          },
+        })
+      }
+    })
 }
 
 const locationStore = useLocationStore()
@@ -254,8 +261,10 @@ async function drawSpotMarkers() {
       unclearedSpotMarkerPositions.push(markerPosition)
     }
 
-    const iconPath = foundNextTarget ? `/icon/numbers/spot-on-map-${idx + 1}.png` : `/icon/numbers/cleared-spot-on-map-${idx + 1}.png`
-    
+    const iconPath = foundNextTarget
+      ? `/icon/numbers/spot-on-map-${idx + 1}.png`
+      : `/icon/numbers/cleared-spot-on-map-${idx + 1}.png`
+
     const markerIcon = new window.kakao.maps.MarkerImage(
       iconPath,
       new window.kakao.maps.Size(23, 23),
@@ -277,8 +286,6 @@ async function drawSpotMarkers() {
     marker.setMap(mapInstance)
     mapInstance.setBounds(bounds)
   })
-
-  
 
   if (clearedSpotMarkerPositions.length > 0) {
     unclearedSpotMarkerPositions.push(clearedSpotMarkerPositions[0])
@@ -310,7 +317,6 @@ async function drawSpotMarkers() {
     strokeStyle: 'solid',
   })
 }
-
 
 const loadKakaoMap = (container) => {
   const script = document.createElement('script')
@@ -354,20 +360,39 @@ const loadKakaoMap = (container) => {
 let positionInterval = null
 const startSyncPositionAndMarker = () => {
   if (navigator.geolocation) {
-      positionInterval = setInterval(() => {
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            let {latitude, longitude} = position.coords
-            updateGame({latitude, longitude})
-          },
-          (error) => {
-            console.error('위치 업데이트 에러:', error)
-          },
-        )
-      }, 1000)
+    positionInterval = setInterval(() => {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          let { latitude, longitude } = position.coords
+          updateGame({ latitude, longitude })
+        },
+        (error) => {
+          console.error('위치 업데이트 에러:', error)
+        },
+      )
+    }, 1000)
   } else {
     console.log('geolocation 사용 불가')
   }
+}
+
+async function onPlayingGiveUpBtnClicked() {
+  Modal.confirm({
+    title: '플레이 중단',
+    content: () =>
+      h('div', {}, [
+        h('div', '플레이 기록이 모두 사라지며, 되돌릴 수 없어요.'),
+        h('div', '그래도 종료하시겠어요?'),
+      ]),
+    okText: '네',
+    onOk: async () => {
+      axios.delete('/playings/now').then(() => {
+        message.success('플레이가 중단되었어요.')
+        router.push({ name: 'search' })
+      })
+    },
+    cancelText: '아니오',
+  })
 }
 
 onMounted(async () => {
@@ -385,14 +410,35 @@ onUnmounted(async () => {
     clearInterval(positionInterval)
   }
 })
+
+const onCloseSpotEventModal = () => {
+  isSpotEventModalOpen.value = false
+}
 </script>
 
 <template>
+  <SpotEventModal
+    v-if="isSpotEventModalOpen"
+    :modal-open="isSpotEventModalOpen"
+    :spot="nextTargetSpot"
+    @close-spot-event-modal="onCloseSpotEventModal"
+    @spot-event-clear="onSpotEventClear"
+  />
   <div id="map-wrap">
     <div ref="mapContainer" style="height: 100%">
       <!-- <context-holder /> -->
     </div>
+    <FloatButton @click="onPlayingGiveUpBtnClicked">
+      <template #icon>
+        <DeleteOutlined />
+      </template>
+    </FloatButton>
   </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.ant-float-btn {
+  background-color: tomato;
+  bottom: 7rem;
+}
+</style>

@@ -18,6 +18,7 @@ import MobileMyReviewListView from '@/views/mobile/MyReviewListView.vue'
 import MobileNotFoundView from '@/views/mobile/NotFoundView.vue'
 import MobileLoginView from '@/views/mobile/LoginView.vue'
 import MobileSignUpView from '@/views/mobile/SignUpView.vue'
+import MobileStoryZzimListView from '@/views/mobile/StoryZzimListView.vue'
 import { message } from 'ant-design-vue'
 import ReviewWritingView from '@/views/mobile/ReviewWritingView.vue'
 
@@ -93,7 +94,7 @@ const mobileRouter = createRouter({
       component: MobileStoryRecordView,
     },
     {
-      path: '/play/:playingUuid/review/register',
+      path: '/stories/:storyUuid/reviews/write',
       name: 'story:review:register',
       component: ReviewWritingView,
     },
@@ -106,6 +107,11 @@ const mobileRouter = createRouter({
       path: '/user/my-reviews',
       name: 'user:my-reviews',
       component: MobileMyReviewListView,
+    },
+    {
+      path: '/user/zzim-stories',
+      name: 'user:zzim-stories',
+      component: MobileStoryZzimListView,
     },
     {
       path: '/auth/login',
