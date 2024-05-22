@@ -134,6 +134,9 @@ onBeforeRouteLeave((to, from, next) => {
 })
 
 const loadKakaoMap = (container) => {
+  onRightCollapse(true)
+  onLeftCollapse(true)
+
   const script = document.createElement('script')
   script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${VITE_KAKAO_MAP_KEY}&autoload=false&libraries=services`
   document.head.appendChild(script)
@@ -149,7 +152,6 @@ const loadKakaoMap = (container) => {
       mapInstance = new window.kakao.maps.Map(container, options) // 지도 생성
       places = new window.kakao.maps.services.Places()
 
-      onRightCollapse(true)
       fetchSpots().then(() => {
         drawSpotMarkers()
       })
@@ -239,6 +241,7 @@ const handleChange = () => {
 const searchByKeyword = () => {
   if (keyword.value === '') {
     removeAllMarkers(keywordMarkers)
+    placeList.value = []
     return
   }
   places.keywordSearch(keyword.value, (data, status, pagination) => {
@@ -446,6 +449,7 @@ async function drawSpotMarkers() {
     })
 
     marker.spotUuid = spot.uuid
+    marker.setZIndex(5)
 
     bounds.extend(markerPosition)
 
@@ -641,67 +645,67 @@ const onDeleteSpot = (spot) => {
     <!-- 좌측 안쪽 사이드바 -->
     <a-layout-sider width="4.5rem" class="left-inner-sider">
       <a-menu v-model:selectedKeys="selectedKeys" theme="light">
-        <div style="height: 4.5rem; border-bottom: 1px solid #e8e8e8 !important">
+        <div style="height: 5rem; border-bottom: 1px solid #e8e8e8 !important">
           <a-menu-item key="0" @click="onExit('home')" id="home-item">
             <img src="@/assets/logo.png" alt="" style="width: 2.5rem; height: 2.5rem" />
           </a-menu-item>
         </div>
         <a-menu-item key="1" @click="openLeftSider">
           <a-row justify="center">
-            <a-col>
+            <a-col :span="24" class="center-content">
               <FormOutlined />
             </a-col>
-            <a-col>
+            <a-col :span="24" class="center-content">
               <span>스토리</span>
             </a-col>
           </a-row>
         </a-menu-item>
         <a-menu-item v-if="story.status === 'WRITING'" key="2" @click="openLeftSider">
           <a-row justify="center">
-            <a-col>
+            <a-col :span="24" class="center-content">
               <SearchOutlined />
             </a-col>
-            <a-col>
+            <a-col :span="24" class="center-content">
               <span>키워드</span>
             </a-col>
           </a-row>
         </a-menu-item>
         <a-menu-item v-if="story.status === 'WRITING'" key="3" @click="openLeftSider">
           <a-row justify="center">
-            <a-col>
+            <a-col :span="24" class="center-content">
               <FlagFilled />
             </a-col>
-            <a-col>
+            <a-col :span="24" class="center-content">
               <span>관광지</span>
             </a-col>
           </a-row>
         </a-menu-item>
         <a-menu-item v-if="story.status === 'WRITING'" key="4" @click="openLeftSider">
           <a-row justify="center">
-            <a-col>
+            <a-col :span="24" class="center-content">
               <RobotFilled />
             </a-col>
-            <a-col>
+            <a-col :span="24" class="center-content">
               <span>AI</span>
             </a-col>
           </a-row>
         </a-menu-item>
         <a-menu-item v-if="story.status === 'WRITING'" key="5" @click="onPublishStory">
           <a-row justify="center">
-            <a-col>
+            <a-col :span="24" class="center-content">
               <ExportOutlined />
             </a-col>
-            <a-col>
+            <a-col :span="24" class="center-content">
               <span>배포</span>
             </a-col>
           </a-row>
         </a-menu-item>
         <a-menu-item key="6" @click="onExit('my-stories')">
           <a-row justify="center">
-            <a-col>
+            <a-col :span="24" class="center-content">
               <VerticalAlignBottomOutlined style="transform: rotate(90deg)" />
             </a-col>
-            <a-col>
+            <a-col :span="24" class="center-content">
               <span>나가기</span>
             </a-col>
           </a-row>
@@ -733,13 +737,16 @@ const onDeleteSpot = (spot) => {
           <a-descriptions-item label="제목" :span="3">{{ story.title }}</a-descriptions-item>
           <a-descriptions-item label="설명" :span="3">{{ story.description }}</a-descriptions-item>
           <a-descriptions-item label="위치" :span="3"
-            ><EnvironmentFilled /> {{ story.sido }} {{ story.gungu }}</a-descriptions-item
+            ><EnvironmentFilled style="color: cornflowerblue" /> {{ story.sido }}
+            {{ story.gungu }}</a-descriptions-item
           >
           <a-descriptions-item label="별점" :span="3"
-            ><StarFilled /> {{ story.averageReviewScore }}</a-descriptions-item
+            ><StarFilled style="color: #fadb14" />
+            {{ story.averageReviewScore }}</a-descriptions-item
           >
           <a-descriptions-item label="플레이수" :span="3"
-            ><CaretRightFilled /> {{ story.totalPlayCount }}</a-descriptions-item
+            ><CaretRightFilled style="color: tomato" />
+            {{ story.totalPlayCount }}</a-descriptions-item
           >
         </a-descriptions>
         <a-button
@@ -755,52 +762,55 @@ const onDeleteSpot = (spot) => {
         >
       </div>
       <div v-if="selectedKeys[0] === '2'" class="sider-content">
-        <h2 style="text-align: center">키워드 검색</h2>
-        <a-input-search
-          v-model:value="keyword"
-          placeholder="키워드 검색"
-          size="large"
-          enter-button
-          style="width: 100%; margin-bottom: 1rem"
-          @search="searchByKeyword"
-        />
-        <a-row style="height: 90%">
-          <a-card class="sider-cards">
-            <a-card-grid
-              v-for="place in placeList"
-              :key="place.id"
-              class="attraction-item"
-              @click="moveToPlaceLocation(place)"
-            >
-              <h3>{{ place.place_name }}</h3>
-              <p>{{ place.address_name }}</p>
-              <p>{{ place.road_address_name }}</p>
-              <p>{{ place.phone }}</p>
-            </a-card-grid>
-          </a-card>
-        </a-row>
+        <div style="height: 12vh">
+          <h2 style="text-align: center">키워드 검색</h2>
+          <a-input-search
+            v-model:value="keyword"
+            placeholder="키워드 검색"
+            size="large"
+            enter-button
+            style="width: 100%; margin-bottom: 1rem"
+            @search="searchByKeyword"
+          />
+        </div>
+
+        <a-card class="sider-cards" style="height: 80vh">
+          <p v-show="placeList.length === 0">키워드로 장소를 검색해 보세요!</p>
+          <a-card-grid
+            v-for="place in placeList"
+            :key="place.id"
+            class="attraction-item"
+            @click="moveToPlaceLocation(place)"
+          >
+            <h3>{{ place.place_name }}</h3>
+            <p>{{ place.address_name }}</p>
+            <p>{{ place.road_address_name }}</p>
+            <p>{{ place.phone }}</p>
+          </a-card-grid>
+        </a-card>
       </div>
-      <div v-if="selectedKeys[0] === '3'" class="full-height">
+      <div v-if="selectedKeys[0] === '3'" class="sider-content">
         <h2 style="text-align: center">관광지 목록</h2>
         <a-card class="sider-cards">
-          <p v-show="attractionList.length === 0">관광지 버튼을 클릭해 주세요!</p>
+          <p v-show="attractionList.length === 0">지도 위의 관광지 버튼을 클릭해 주세요!</p>
           <a-card-grid
             v-for="attraction in attractionList"
             :key="attraction.id"
             class="attraction-item"
             @click="moveToAttractionLocation(attraction)"
           >
-            <img
+            <a-image
               :src="attraction.secondImageUrl"
+              class="spot-cover-image"
+              style="height: 9rem"
               @error="$replaceDefaultImage"
-              style="width: 10rem"
             />
             <h3>{{ attraction.title }}</h3>
-            <p>{{ attraction.address }}</p>
+            <span>{{ attraction.address }}</span>
           </a-card-grid>
         </a-card>
       </div>
-      <div v-if="selectedKeys[0] === '4'" class="full-height">
+      <div v-if="selectedKeys[0] === '4'" class="sider-content">
         <AIStoryGenerationBoard :spots="spots" :story="story" @refresh-spots="fetchSpots" />
       </div>
     </a-layout-sider>
@@ -808,13 +818,14 @@ const onDeleteSpot = (spot) => {
     <a-layout-content>
       <div id="map-wrap">
         <div ref="mapContainer" style="width: 100%; height: 100vh"></div>
-        <a-checkable-tag
-          class="map-button attraction-button"
+        <a-switch
           v-model:checked="selectAttractionTag"
+          checked-children="관광지"
+          un-checked-children="관광지"
+          class="map-button attraction-button"
+          style="top: 1.5rem"
           @change="handleChange"
-        >
-          관광지
-        </a-checkable-tag>
+        />
       </div>
     </a-layout-content>
     <!-- 오른쪽 사이드바 -->
@@ -829,7 +840,7 @@ const onDeleteSpot = (spot) => {
       reverseArrow
     >
       <div class="sider-content">
-        <h2>담은 스팟</h2>
+        <h2 style="text-align: center">담은 스팟</h2>
         <draggable
           :disabled="story.status === 'PUBLISHED'"
           v-model="spots"
@@ -837,7 +848,7 @@ const onDeleteSpot = (spot) => {
           class="sider-cards"
           @change="onChangeSpot"
         >
-          <template #item="{ element }">
+          <template #item="{ element, index }">
             <a-card hoverable class="spot-card">
               <a-row style="margin: 1rem" @click="focusToSpotMarker(element)">
                 <a-col :span="8">
@@ -845,11 +856,15 @@ const onDeleteSpot = (spot) => {
                     :src="element.imageUri || DefaultImage"
                     alt=""
                     class="spot-cover-image"
+                    style="height: 5rem"
                     @error="$replaceDefaultImage"
                   />
                 </a-col>
                 <a-col :span="16" class="card-text">
-                  <a-card-meta :title="element.title" :description="element.description">
+                  <a-card-meta
+                    :title="`${index + 1}. ${element.title}`"
+                    :description="element.description"
+                  >
                   </a-card-meta>
                 </a-col>
               </a-row>
@@ -885,9 +900,12 @@ const onDeleteSpot = (spot) => {
   </a-layout>
 </template>
 
-<style scoped>
-:deep(.ant-btn-primary) {
-  background-color: tomato;
+<style scoped lang="scss">
+.center-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
 }
 
 .logo-image {
@@ -932,6 +950,7 @@ const onDeleteSpot = (spot) => {
 
 :deep(#home-item) {
   height: 100%;
+  margin: 0;
 }
 
 :deep(.ant-menu-item-selected) {
@@ -971,22 +990,13 @@ const onDeleteSpot = (spot) => {
   margin-bottom: 1rem;
 }
 
-.sider-cards {
-  overflow: auto;
-  height: 90%;
-}
-
 .right-sider-shadow {
   box-shadow: -5px 0 5px -5px rgba(0, 0, 0, 0.2);
   z-index: 1;
 }
 
 .attraction-button {
-  left: 1rem;
-}
-
-.keyword-box {
-  top: 3rem;
+  left: 2rem;
 }
 
 .attraction-item {
@@ -1005,9 +1015,9 @@ const onDeleteSpot = (spot) => {
 }
 
 :deep(.spot-cover-image),
-:deep(.spot-card .ant-image .ant-image-mask) {
+:deep(.sider-content .ant-image .ant-image-mask) {
   width: 100%;
-  height: 5rem;
+  height: 100%;
   object-fit: cover;
   border-radius: 0.5rem;
 }
@@ -1069,5 +1079,69 @@ card-actions {
 
 .full-height {
   height: 100%;
+}
+
+/* antdv */
+:deep(.ant-btn-primary) {
+  background-color: tomato;
+}
+
+:deep(.ant-btn-primary:not(:disabled):hover) {
+  background-color: salmon;
+}
+
+:deep(.ant-input:hover) {
+  border-color: tomato;
+}
+
+:deep(.ant-input:focus) {
+  border-color: tomato;
+  box-shadow: 0 0 0 2px rgb(255 5 5 / 10%);
+}
+
+.sider-cards {
+  overflow: auto;
+  height: 90%;
+}
+
+/* 스크롤바 컨테이너 스타일 */
+.sider-cards::-webkit-scrollbar {
+  width: 0.3rem;
+}
+
+/* 스크롤바 핸들 스타일 */
+.sider-cards::-webkit-scrollbar-thumb {
+  background: #cacaca;
+  border-radius: 10px;
+}
+
+/* 스크롤바 트랙 스타일 */
+.sider-cards::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 1rem;
+}
+
+:deep(.ant-layout-sider-zero-width-trigger-left) {
+  background: rgb(255, 148, 164);
+  top: 5rem;
+  border-start-end-radius: 2rem;
+  border-end-end-radius: 2rem;
+}
+
+:deep(.ant-layout-sider-zero-width-trigger-right) {
+  background: rgb(255, 148, 164);
+  top: 5rem;
+  border-start-start-radius: 2rem;
+  border-end-start-radius: 2rem;
+}
+
+/* 관광지 토글 버튼 */
+.ant-switch {
+  background: gray;
+  transform: scale(1.3);
+}
+
+.ant-switch.ant-switch-checked {
+  background: #4096ff;
 }
 </style>

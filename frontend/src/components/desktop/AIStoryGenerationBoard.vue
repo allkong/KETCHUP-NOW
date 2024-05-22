@@ -155,7 +155,7 @@ async function applySuggestedFlow() {
         :loading="isGenerating"
         @click="requestAIGeneration"
         :disabled="isAdditionalPromptExceedsMaxLength"
-        >생성</a-button
+        >생성하기</a-button
       >
       <a-button v-show="isGenerated" id="apply-button" type="primary" @click="applySuggestedFlow"
         >적용하기</a-button
@@ -163,7 +163,7 @@ async function applySuggestedFlow() {
     </div>
     <div class="menu-container" v-show="isGenerated">
       <div class="list-body">
-        <a-list bordered>
+        <a-list>
           <a-list-item v-for="suggestion of aiGenerationResult" :key="suggestion.uuid">
             <BadgeRibbon
               :text="
@@ -188,12 +188,12 @@ async function applySuggestedFlow() {
 #box {
   display: flex;
   flex-direction: column;
-
-  padding: 2%;
 }
 
 h1 {
   text-align: center;
+  font-size: 1.4rem;
+  margin: 1rem 0;
 }
 
 h1 .anticon-question-circle {
@@ -237,5 +237,31 @@ h1 .anticon-question-circle {
 
 .order-change-info {
   font-size: small;
+}
+
+.menu-container {
+  overflow: auto;
+  height: 90%;
+}
+
+/* 스크롤바 컨테이너 스타일 */
+.menu-container::-webkit-scrollbar {
+  width: 0.3rem;
+}
+
+/* 스크롤바 핸들 스타일 */
+.menu-container::-webkit-scrollbar-thumb {
+  background: #cacaca;
+  border-radius: 10px;
+}
+
+/* 스크롤바 트랙 스타일 */
+.menu-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 1rem;
+}
+
+:deep(.ant-list-item) {
+  border-block-end: none;
 }
 </style>

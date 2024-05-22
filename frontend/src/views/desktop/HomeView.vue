@@ -3,6 +3,7 @@ import { onMounted, ref } from 'vue'
 import { RouterView, useRoute } from 'vue-router'
 import { useLocationStore } from '@/stores/location'
 const { VITE_APP_MODE } = import.meta.env
+import HeaderView from './includes/HeaderView.vue'
 
 const route = useRoute()
 
@@ -66,6 +67,7 @@ if (VITE_APP_MODE === 'DEBUG') {
 </script>
 
 <template>
+  <HeaderView class="header" />
   <div class="sticky-parent">
     <div class="sticky">
       <div class="horizontal">
@@ -111,6 +113,12 @@ if (VITE_APP_MODE === 'DEBUG') {
 </template>
 
 <style scoped>
+.header {
+  width: 100%;
+  position: fixed;
+  /* position: absolute; */
+}
+
 .sticky-parent {
   height: 700vh;
   z-index: 5;
