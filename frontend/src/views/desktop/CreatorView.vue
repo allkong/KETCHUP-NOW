@@ -1,5 +1,5 @@
 <script setup>
-import { ref, inject, onMounted } from 'vue'
+import { ref, inject, watch, onMounted } from 'vue'
 import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router'
 import draggable from 'vuedraggable'
 import HttpStatus from '@/api/http-status'
@@ -98,6 +98,15 @@ const onRightCollapse = (collapsed) => {
 const openLeftSider = () => {
   leftCollapsed.value = false
 }
+
+watch(leftCollapsed, (newValue) => {
+  // 왼쪽 안쪽 사이드바 옵션을 클릭했을 때
+  // 왼쪽 바깥쪽 사이드바를 사용하는 옵션이 아니면 열지 못하게 막는다
+  if (!newValue && !['1', '2', '3'].includes(selectedKeys.value[0])) {
+    leftCollapsed.value = true
+    message.info('메뉴를 선택하세요.')
+  }
+})
 
 const onExit = (routerName) => {
   leftCollapsed.value = true
@@ -456,7 +465,7 @@ async function drawSpotMarkers() {
 }
 
 const onPublishStory = () => {
-  rightCollapsed.value = true
+  leftCollapsed.value = true
 
   Modal.confirm({
     title: '정말 배포하시겠습니까?',
@@ -709,7 +718,7 @@ const onDeleteSpot = (spot) => {
       collapsible
       class="left-sider-shadow"
     >
-      <div v-show="selectedKeys[0] === '1'" class="story-info sider-content">
+      <div v-if="selectedKeys[0] === '1'" class="story-info sider-content">
         <h2 style="text-align: center">스토리 정보</h2>
         <div>
           <a-image
@@ -745,7 +754,7 @@ const onDeleteSpot = (spot) => {
           >삭제하기</a-button
         >
       </div>
-      <div v-show="selectedKeys[0] === '2'" class="sider-content">
+      <div v-if="selectedKeys[0] === '2'" class="sider-content">
         <h2 style="text-align: center">키워드 검색</h2>
         <a-row justify="center">
           <a-col>
@@ -781,7 +790,7 @@ const onDeleteSpot = (spot) => {
           </a-card>
         </a-row>
       </div>
-      <div v-show="selectedKeys[0] === '3'" class="full-height">
+      <div v-if="selectedKeys[0] === '3'" class="full-height">
         <h2 style="text-align: center">관광지 목록</h2>
         <a-card class="sider-cards">
           <p v-show="attractionList.length === 0">관광지 버튼을 클릭해 주세요!</p>
@@ -801,7 +810,7 @@ const onDeleteSpot = (spot) => {
           </a-card-grid>
         </a-card>
       </div>
-      <div v-show="selectedKeys[0] === '4'" class="full-height">
+      <div v-if="selectedKeys[0] === '4'" class="full-height">
         <AIStoryGenerationBoard :spots="spots" :story="story" @refresh-spots="fetchSpots" />
       </div>
     </a-layout-sider>
@@ -970,7 +979,7 @@ const onDeleteSpot = (spot) => {
 
 .sider-cards {
   overflow: auto;
-  height: 100%;
+  height: 90%;
 }
 
 .right-sider-shadow {
