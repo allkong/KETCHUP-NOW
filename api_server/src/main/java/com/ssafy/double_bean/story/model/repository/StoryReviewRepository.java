@@ -37,7 +37,8 @@ public interface StoryReviewRepository {
 
     @Select({
             SELECT_ALL_SQL,
-            "WHERE u.id=(SELECT id FROM users WHERE uuid=#{userUuid})"
+            "WHERE u.id=(SELECT id FROM users WHERE uuid=#{userUuid}) ",
+            "ORDER BY created_at DESC"
     })
     @ResultMap("storyReviewResult")
     List<StoryReviewEntity> getStoryReviewsWrittenBy(String userUuid);

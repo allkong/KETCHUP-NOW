@@ -33,7 +33,7 @@ async function onSubmitForm() {
     axios.post(`/stories/${route.params.storyUuid}/reviews`, reviewFormState.value)
     .then(() => {
         message.success('소중한 리뷰 감사합니다!')
-        router.push({name: 'search', query: {'story-uuid': route.params.storyUuid}})
+        router.push({name: 'story:cleared-list'})
     })
     .catch(error => {
         message.error('문제가 발생했어요, 다시 시도해 주세요.')
