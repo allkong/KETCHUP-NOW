@@ -421,6 +421,7 @@ const fetchSpots = async () => {
   return axios.get(`/stories/${route.params.uuid}/spots`).then((response) => {
     spots.value = response.data
     spots.value.sort((a, b) => a.orderIndex - b.orderIndex)
+    return Promise.resolve(spots.value)
   })
 }
 
