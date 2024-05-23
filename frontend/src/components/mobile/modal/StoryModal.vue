@@ -35,16 +35,19 @@ const activeKey = ref('1')
 
 const handleOk = (e) => {
   axios
-  .post(`/stories/${props.story.uuid}/play`)
-  .then(() => {
-    message.success('플레이를 시작합니다!')
-    router.push({ name: 'play' })
-  })
-  .catch(error => {
-    if (error.response.status === HttpStatus.CONFLICT && error.response.data.detailCode === 'E0002') {
-      message.error('한 번에 하나의 스토리만 플레이 할 수 있습니다.')
-    }
-  })
+    .post(`/stories/${props.story.uuid}/play`)
+    .then(() => {
+      message.success('플레이를 시작합니다!')
+      router.push({ name: 'play' })
+    })
+    .catch((error) => {
+      if (
+        error.response.status === HttpStatus.CONFLICT &&
+        error.response.data.detailCode === 'E0002'
+      ) {
+        message.error('한 번에 하나의 스토리만 플레이 할 수 있습니다.')
+      }
+    })
 }
 
 const storyFullAddress = computed(() => {
@@ -59,15 +62,15 @@ const storyFullAddress = computed(() => {
 
 onMounted(() => {
   fetchReviews(props.story.uuid)
-  storyZzimStore.fetchZzims()
-  .then(zzims => {
-    isZzim.value = zzims.filter(zzim => zzim.storyUuid === props.story.uuid).length > 0
+  storyZzimStore.fetchZzims().then((zzims) => {
+    isZzim.value = zzims.filter((zzim) => zzim.storyUuid === props.story.uuid).length > 0
   })
 })
 
 watchEffect(() => {
   fetchReviews(props.story.uuid)
-  isZzim.value = storyZzimStore.zzims.filter(zzim => zzim.storyUuid === props.story.uuid).length > 0
+  isZzim.value =
+    storyZzimStore.zzims.filter((zzim) => zzim.storyUuid === props.story.uuid).length > 0
 })
 
 function fetchReviews(storyUuid) {
@@ -99,7 +102,6 @@ async function doToggleZzim() {
       <a-row align="middle" justify="space-between">
         <a-col>
           <h2>{{ props.story.title }}</h2>
-          <!-- <span>v1</span> -->
         </a-col>
         <a-col>
           <span @click="doToggleZzim">
@@ -160,6 +162,7 @@ async function doToggleZzim() {
   height: 12rem;
   width: 100%;
   border-radius: 0.5rem;
+  object-fit: cover;
 }
 
 .anticon-heart {
