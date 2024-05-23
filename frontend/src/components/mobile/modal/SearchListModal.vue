@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue'
-import { EnvironmentOutlined } from '@ant-design/icons-vue'
+import { EnvironmentFilled, UserOutlined } from '@ant-design/icons-vue'
 
 const props = defineProps({
   modalOpen: Boolean,
@@ -50,10 +50,12 @@ function onStoryCardClicked(story) {
                 <h4 class="text-ellipsis">{{ story.title }}</h4>
                 <a-rate :value="story.averageReviewScore.toFixed(1)" disabled class="star-grade" />
                 <p style="display: flex; align-items: center">
-                  <EnvironmentOutlined style="margin-right: 0.3rem" />
+                  <EnvironmentFilled style="margin-right: 0.3rem; color: tomato" />
                   {{ story.sido }} {{ story.gungu ? ' ' + story.gungu : '' }}
                 </p>
-                <p class="text-ellipsis">Created By {{ story.authorNickname }}</p>
+                <p class="text-ellipsis">
+                  <UserOutlined style="margin-right: 0.3rem" />{{ story.authorNickname }}
+                </p>
               </a-col>
             </a-row>
           </a-card-grid>
