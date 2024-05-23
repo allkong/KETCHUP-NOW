@@ -17,7 +17,7 @@ onMounted(async () => {
 })
 
 const fetchMyStories = () => {
-  axios.get('/story-bases').then((response) => (stories.value = response.data))
+  axios.get('/story-bases').then((response) => (stories.value = response.data.reverse()))
 }
 
 const onAddSpotModal = () => {
