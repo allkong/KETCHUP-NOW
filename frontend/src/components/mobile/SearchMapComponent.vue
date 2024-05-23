@@ -45,7 +45,7 @@ onMounted(async () => {
   if (props.initialFocusStoryUuid) {
     initialFocusStory = (await axios.get(`/stories/${props.initialFocusStoryUuid}`)).data
   }
-  loadKakaoMap(mapContainer.value, initialFocusStory)
+  await loadKakaoMap(mapContainer.value, initialFocusStory)
 })
 
 const loadKakaoMap = async (container, initialFocusStory) => {
@@ -56,16 +56,16 @@ const loadKakaoMap = async (container, initialFocusStory) => {
   let initialLatitude = 37.578
   let initialLongitude = 126.976
 
-  // 초깃값이 주어졌으면 해당 스토리의 첫 번째 스팟 위치로 화면 이동
-  if (initialFocusStory) {
-    const spots = (await axios.get(`/stories/${initialFocusStory.uuid}/spots`)).data
-    spots.sort((s1, s2) => s1.orderIdx - s2.orderIdx)
-    initialLatitude = spots[0].latitude
-    initialLongitude = spots[0].longitude
-  }
+  script.onload = async () => {
+    window.kakao.maps.load(async () => {
+      // 초깃값이 주어졌으면 해당 스토리의 첫 번째 스팟 위치로 화면 이동
+      if (initialFocusStory) {
+        const spots = (await axios.get(`/stories/${initialFocusStory.uuid}/spots`)).data
+        spots.sort((s1, s2) => s1.orderIdx - s2.orderIdx)
+        initialLatitude = spots[0].latitude
+        initialLongitude = spots[0].longitude
+      }
 
-  script.onload = () => {
-    window.kakao.maps.load(() => {
       const options = {
         center: new window.kakao.maps.LatLng(initialLatitude, initialLongitude), // 지도 중심 좌표
         level: 3, // 지도 확대 레벨
@@ -76,13 +76,11 @@ const loadKakaoMap = async (container, initialFocusStory) => {
       fetchStories().then(() => {
         drawStoryMarkers()
       })
-
       window.kakao.maps.event.addListener(mapInstance, 'dragend', () => {
         fetchStories().then(() => {
           drawStoryMarkers()
         })
       })
-
       if (initialFocusStory) {
         // 초깃값이 주어졌으면 해당 스토리 모달 자동 열기
         storyModalOpen.value = true
