@@ -5,6 +5,7 @@ import { EnvironmentOutlined, EnvironmentFilled } from '@ant-design/icons-vue'
 import GoBackIcon from '@/components/mobile/functional-icons/GoBackIcon.vue'
 import MapPreviewComponent from '@/components/mobile/MapPreviewComponent.vue'
 import NavigationView from '@/views/mobile/includes/NavigationView.vue'
+import DefaultImage from '@/assets/default-image.jpg'
 
 const route = useRoute()
 const axios = inject('axios')
@@ -49,8 +50,6 @@ onMounted(async () => {
 })
 
 console.log(story.value)
-const narrationScriptExample =
-  '경복궁의 정전으로, 국가적인 대례를 거행하던 장소이다. 다포식 건축으로는 현존하는 것 중 국내 최대 규모이며, 2단의 석축기단 위에 정면 5칸, 측면 5칸의 2층 전각으로 구성되어 있는데, 천장에 있는 금박 입힌 2마리의 목조 용 조각의 발톱이 7개인 것이 특징이다. 1395년(태조 4년) 건설되었다가 1592년(선조 25년) 임진왜란으로 소실된 것을 1867년(고종 4년) 중건했다. 일제가 조선총독부를 지을 때도 철거당하지 않았으며 1985년 1월 8일 국보 제223호로 지정되었다.'
 </script>
 
 <template>
@@ -63,7 +62,6 @@ const narrationScriptExample =
       <a-row align="middle">
         <a-col :span="24">
           <h1>{{ story.title }}</h1>
-          <!-- <span> v.{{ story.version }}</span> -->
         </a-col>
         <a-col style="margin-top: 0.6rem">
           <EnvironmentFilled style="color: crimson; margin-right: 0.3rem" />
@@ -85,7 +83,15 @@ const narrationScriptExample =
           <a-timeline-item v-for="idx in story.logs.length" :key="idx">
             <a-collapse accordion>
               <a-collapse-panel key="1" :header="`스토리 : ${story.spots[idx - 1].title}`">
-                {{ story.spots[idx - 1].description }}
+                <div class="spot-cover-image">
+                  <a-image
+                    :src="story.spots[idx - 1].imageUri || DefaultImage"
+                    @error="$replaceDefaultImage"
+                  ></a-image>
+                </div>
+                <div>
+                  {{ story.spots[idx - 1].description }}
+                </div>
               </a-collapse-panel>
               <a-collapse-panel
                 key="2"
@@ -194,5 +200,31 @@ h1 {
 
 :deep(.ant-timeline .ant-timeline-item-head-blue) {
   border-color: tomato;
+}
+
+:deep(.ant-image) {
+  width: 100%;
+  height: 100%;
+  border-radius: 1rem;
+}
+
+:deep(.ant-image-img) {
+  width: 100%;
+  height: 100%;
+  border-radius: 1rem;
+  object-fit: cover;
+}
+
+:deep(.ant-image-mask) {
+  width: 8rem;
+  height: 8rem;
+  border-radius: 1rem;
+}
+
+.spot-cover-image {
+  width: 8rem;
+  height: 8rem;
+  border-radius: 1rem;
+  margin-bottom: 1rem;
 }
 </style>
