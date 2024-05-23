@@ -47,13 +47,13 @@ function onStoryCardClicked(story) {
                 />
               </a-col>
               <a-col :span="14">
-                <h4>{{ story.title }}</h4>
+                <h4 class="text-ellipsis">{{ story.title }}</h4>
                 <a-rate :value="story.averageReviewScore.toFixed(1)" disabled class="star-grade" />
                 <p style="display: flex; align-items: center">
                   <EnvironmentOutlined style="margin-right: 0.3rem" />
                   {{ story.sido }} {{ story.gungu ? ' ' + story.gungu : '' }}
                 </p>
-                <p>Created By {{ story.authorNickname }}</p>
+                <p class="text-ellipsis">Created By {{ story.authorNickname }}</p>
               </a-col>
             </a-row>
           </a-card-grid>
@@ -88,5 +88,12 @@ p {
 
 :deep(.ant-rate .ant-rate-star:not(:last-child)) {
   margin-inline-end: 0.2rem;
+}
+
+.text-ellipsis {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  word-break: break-all;
 }
 </style>
