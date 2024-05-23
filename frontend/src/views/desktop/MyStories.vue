@@ -74,12 +74,12 @@ const onUpdateStories = async () => {
             </template>
             <a-row justify="space-between" style="margin-bottom: 1rem">
               <a-col>
-                <a-tag :color="story.status === 'WRITING' ? 'cyan' : 'red'">{{
+                <a-tag :color="story.status === 'PUBLISHED' ? 'red' : 'cyan'">{{
                   story.status
                 }}</a-tag>
                 <a-tag color="green">{{ story.sido }} {{ story.gungu }}</a-tag>
               </a-col>
-              <a-col class="icon-box">
+              <a-col v-if="story.status === 'PUBLISHED'" class="icon-box">
                 <StarFilled class="star-icon" /><span style="margin-right: 0.5rem">{{
                   story.averageReviewScore
                 }}</span>
