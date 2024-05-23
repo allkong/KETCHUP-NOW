@@ -74,7 +74,9 @@ const onUpdateStories = async () => {
             </template>
             <a-row justify="space-between" style="margin-bottom: 1rem">
               <a-col>
-                <a-tag color="blue">{{ story.status }}</a-tag>
+                <a-tag :color="story.status === 'WRITING' ? 'blue' : 'red'">{{
+                  story.status
+                }}</a-tag>
                 <a-tag color="green">{{ story.sido }} {{ story.gungu }}</a-tag>
               </a-col>
               <a-col class="icon-box">
