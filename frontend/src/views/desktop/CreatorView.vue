@@ -741,11 +741,11 @@ const onDeleteSpot = (spot) => {
             ><EnvironmentFilled style="color: crimson" /> {{ story.sido }}
             {{ story.gungu }}</a-descriptions-item
           >
-          <a-descriptions-item label="별점" :span="3"
+          <a-descriptions-item v-if="story.status === 'PUBLISHED'" label="별점" :span="3"
             ><StarFilled style="color: #fadb14" />
             {{ story.averageReviewScore }}</a-descriptions-item
           >
-          <a-descriptions-item label="플레이수" :span="3"
+          <a-descriptions-item v-if="story.status === 'PUBLISHED'" label="플레이수" :span="3"
             ><CaretRightFilled style="color: cornflowerblue" />
             {{ story.totalPlayCount }}</a-descriptions-item
           >
@@ -852,6 +852,7 @@ const onDeleteSpot = (spot) => {
     >
       <div class="sider-content">
         <h2 style="text-align: center">담은 스팟</h2>
+        <p v-show="spots.length === 0">스팟을 생성해 보세요!</p>
         <draggable
           :disabled="story.status === 'PUBLISHED'"
           v-model="spots"
