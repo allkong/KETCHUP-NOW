@@ -51,10 +51,10 @@ body {
 }
 
 @font-face {
-  font-family: 'NanumSquareRound';
-  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_two@1.0/NanumSquareRound.woff')
+  font-family: 'Pretendard';
+  src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff')
     format('woff');
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
 }
 
@@ -72,7 +72,7 @@ body {
 .ant-tabs,
 .ant-card,
 .ant-btn {
-  font-family: 'NanumSquareRound';
+  font-family: 'Pretendard';
 }
 
 .ant-menu-horizontal,

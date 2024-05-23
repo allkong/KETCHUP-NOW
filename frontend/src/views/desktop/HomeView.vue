@@ -3,9 +3,11 @@ import { onMounted, ref } from 'vue'
 import { RouterView, useRoute } from 'vue-router'
 import { useLocationStore } from '@/stores/location'
 const { VITE_APP_MODE } = import.meta.env
+import { useRouter } from 'vue-router'
 import HeaderView from './includes/HeaderView.vue'
 
 const route = useRoute()
+const router = useRouter()
 
 let sticky = ref()
 let stickyParent = ref()
@@ -64,6 +66,10 @@ if (VITE_APP_MODE === 'DEBUG') {
     pressedKeys.delete(e.key)
   })
 }
+
+const goToSignUp = () => {
+  router.push({ name: 'auth:sign-up' })
+}
 </script>
 
 <template>
@@ -71,7 +77,7 @@ if (VITE_APP_MODE === 'DEBUG') {
   <div class="sticky-parent">
     <div class="sticky">
       <div class="horizontal">
-        <div id="first-page" class="dim" style="background-color: ghostwhite">
+        <div id="first-page" class="dim" style="background-color: white">
           <div class="logo-text-container">
             <div class="logo-text" id="logo-text-ketchup">KETCHUP,</div>
             <div>
@@ -82,19 +88,14 @@ if (VITE_APP_MODE === 'DEBUG') {
                 ref="jumpingImage"
               />
             </div>
+            <!-- <div class="text-travel">여행에 이야기를 더하다</div> -->
             <div class="logo-text" id="logo-text-now">NOW!</div>
           </div>
           <div id="scroll-right">
             <div>SCROLL DOWN</div>
           </div>
         </div>
-        <div class="dim" style="background-color: ghostwhite">
-          <div class="logo-text-container-right">
-            <div class="logo-text" id="logo-text-to-travel">여행에</div>
-            <div class="logo-text" id="logo-text-add-story">이야기를 더하다!</div>
-          </div>
-        </div>
-        <div class="dim" style="background-color: ghostwhite">
+        <div class="dim" style="background-color: white">
           <div id="attraction-img-container">
             <img src="@/assets/img/landing-page/1.png" alt="" />
             <img src="@/assets/img/landing-page/2.png" alt="" />
@@ -103,20 +104,25 @@ if (VITE_APP_MODE === 'DEBUG') {
             <img src="@/assets/img/landing-page/5.png" alt="" />
           </div>
         </div>
-        <div class="dim" style="background-color: rgb(247, 0, 255)"></div>
-        <div class="dim" style="background-color: rgb(27, 24, 179)"></div>
-        <div class="dim" style="background-color: black"></div>
+        <div class="dim"><img src="@/assets/home/desktop/home3.png" /></div>
+        <div class="dim"><img src="@/assets/home/desktop/home4.png" /></div>
+        <div class="dim" style="background-color: white">
+          <div>
+            <div class="logo-text last-logo" style="margin-top: 5rem">KETCHUP,</div>
+            <div class="logo-text last-logo last-now">NOW</div>
+            <div class="last-text">여행에 이야기를 더하다</div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
-  <div class="tomato-line"></div>
+  <!-- <div class="tomato-line"></div> -->
 </template>
 
 <style scoped>
 .header {
   width: 100%;
   position: fixed;
-  /* position: absolute; */
 }
 
 .sticky-parent {
@@ -180,21 +186,46 @@ if (VITE_APP_MODE === 'DEBUG') {
 
 #logo-text-ketchup {
   margin-bottom: -1rem;
+  justify-content: center;
+  display: flex;
 }
 
 #logo-text-now {
   color: white;
-  -webkit-text-stroke: 1.5px #ff2f2f;
+  -webkit-text-stroke: 2.5px #ff2f2f;
   margin-bottom: 5rem;
+  justify-content: center;
+  display: flex;
 }
 
-#logo-text-to-travel {
+.text-travel {
+  justify-content: end;
+  display: flex;
+  font-size: 2.5rem;
+  font-weight: 600;
+}
+
+.last-logo {
+  justify-content: center;
+  display: flex;
+}
+
+.last-now {
   color: white;
-  -webkit-text-stroke: 1.5px #ff2f2f;
+  -webkit-text-stroke: 2.5px #ff2f2f;
 }
 
-#logo-text-add-story {
-  margin-bottom: -3rem;
+.last-text {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  width: 100%;
+  font-size: 2.5rem;
+  font-weight: 600;
+  position: absolute;
+  bottom: 0;
+  margin-bottom: 8rem;
 }
 
 .jump-animation {
