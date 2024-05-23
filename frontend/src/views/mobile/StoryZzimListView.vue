@@ -64,7 +64,7 @@ onMounted(async () => {
               :key="story.uuid">
                 <template #extra>
                     <!-- <sub>{{ story.sido }} {{ story.gungu }}</sub> -->
-                    <a-rate v-model:value="story.averageReviewScore" />
+                    <a-rate v-model:value="story.averageReviewScore" disabled style="color: tomato" />
                 </template>
                 <template #cover>
                   <img
