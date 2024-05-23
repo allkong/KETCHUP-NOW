@@ -170,7 +170,7 @@ router.beforeEach((to, from, next) => {
   // 익명 사용자만 접근 가능한 화면에 로그인한 사용자가 접근한 경우
   else if (isLoggedIn && ANONYMOUS_ONLY_ROUTE_NAMES.filter((name) => name === to.name).length > 0) {
     message.error('이미 로그인 되어 있습니다.')
-    router.push({ name: 'home' })
+    router.push({ name: 'search' })
   } else {
     next()
   }
