@@ -68,8 +68,11 @@ function doLogin() {
 .ant-layout-content {
   padding: 1rem;
   background-color: $whiteBackgroundColor;
-  margin: 50% auto;
-  min-height: 100vh;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 #logo-container {
   display: flex;
