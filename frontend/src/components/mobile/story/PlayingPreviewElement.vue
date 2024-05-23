@@ -1,6 +1,7 @@
 <script setup>
 import { computed, ref } from 'vue'
 import { RouterLink } from 'vue-router'
+import { EnvironmentFilled, ClockCircleFilled } from '@ant-design/icons-vue'
 
 const props = defineProps({
   playing: {
@@ -39,26 +40,30 @@ const periodInfo = computed(() => {
       </template>
       <a-card-meta :title="props.playing.title">
         <template #description>
-          <div>{{ addressInfo }}</div>
-          <div>{{ periodInfo }}</div>
+          {{ props.playing.description }}
+          <a-divider></a-divider>
+          <a-row>
+            <a-col>
+              <div>
+                <EnvironmentFilled style="margin: 0.3rem; color: crimson" />{{ addressInfo }}
+              </div>
+            </a-col>
+            <a-col>
+              <div>
+                <ClockCircleFilled style="margin: 0.3rem; color: cornflowerblue" />{{ periodInfo }}
+              </div>
+            </a-col>
+          </a-row>
         </template>
       </a-card-meta>
-      <div class="cleared-story-container">
-        {{ props.playing.description }}
-      </div>
+      <div class="cleared-story-container"></div>
     </a-card>
   </RouterLink>
 </template>
 
 <style scoped lang="scss">
-#cleared-story-preview-cards-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
 .cleared-story-preview-card {
-  width: 95%;
+  width: 100%;
   margin-bottom: 1rem;
 }
 .cleared-story-container {
@@ -71,5 +76,14 @@ const periodInfo = computed(() => {
 .ant-card {
   width: 100%;
   min-width: 100%;
+}
+:deep(.ant-card .ant-card-body) {
+  padding: 1rem;
+}
+.ant-divider-horizontal {
+  margin: 1rem;
+}
+a {
+  width: 90%;
 }
 </style>
