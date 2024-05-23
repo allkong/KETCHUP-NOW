@@ -88,7 +88,9 @@ h1 {
 #main-article {
   border: 1px solid silver;
   margin: 0.1rem 0.3rem 0.2rem 0.3rem;
-  border-radius: 0.44cm;
+  border-radius: 0.5rem;
+  height: 80vh;
+  overflow: auto;
 }
 #menu-text {
   padding: 0.5rem;
@@ -118,5 +120,22 @@ h1 {
   flex-direction: column;
   align-items: center;
   text-align: center;
+}
+
+/* 스크롤바 컨테이너 스타일 */
+::-webkit-scrollbar {
+  width: 0.3rem;
+}
+
+/* 스크롤바 핸들 스타일 */
+::-webkit-scrollbar-thumb {
+  background: #cacaca;
+  border-radius: 2rem;
+}
+
+/* 스크롤바 트랙 스타일 */
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 1rem;
 }
 </style>
