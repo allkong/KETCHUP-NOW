@@ -66,7 +66,7 @@ const onUpdateStories = async () => {
           <a-card hoverable>
             <template #cover>
               <img
-                :src="story.thumbnailImageUri || defaultImage"
+                :src="story.imageUri || defaultImage"
                 alt=""
                 class="story-cover-image"
                 @error="$replaceDefaultImage"
