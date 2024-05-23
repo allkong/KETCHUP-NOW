@@ -74,7 +74,7 @@ const onUpdateStories = async () => {
             </template>
             <a-row justify="space-between" style="margin-bottom: 1rem">
               <a-col>
-                <a-tag :color="story.status === 'WRITING' ? 'blue' : 'red'">{{
+                <a-tag :color="story.status === 'WRITING' ? 'cyan' : 'red'">{{
                   story.status
                 }}</a-tag>
                 <a-tag color="green">{{ story.sido }} {{ story.gungu }}</a-tag>
@@ -194,7 +194,7 @@ p {
 }
 
 .play-icon {
-  color: tomato;
+  color: cornflowerblue;
   font-size: 1rem;
   margin-right: 0.1rem;
 }

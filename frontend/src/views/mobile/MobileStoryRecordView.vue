@@ -66,7 +66,7 @@ const narrationScriptExample =
           <!-- <span> v.{{ story.version }}</span> -->
         </a-col>
         <a-col style="margin-top: 0.6rem">
-          <EnvironmentFilled style="color: tomato; margin-right: 0.3rem" />
+          <EnvironmentFilled style="color: crimson; margin-right: 0.3rem" />
           <span>{{ story.sido }} {{ story.gungu }}</span>
         </a-col>
       </a-row>

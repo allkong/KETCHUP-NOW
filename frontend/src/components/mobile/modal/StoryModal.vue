@@ -4,9 +4,10 @@ import { useRouter } from 'vue-router'
 import {
   HeartOutlined,
   HeartFilled,
-  EnvironmentOutlined,
+  EnvironmentFilled,
   StarFilled,
   CaretRightFilled,
+  UserOutlined,
 } from '@ant-design/icons-vue'
 import MapPreviewComponent from '@/components/mobile/MapPreviewComponent.vue'
 import ReviewPreviewElement from '@/components/mobile/review/ReviewPreviewElement.vue'
@@ -105,29 +106,28 @@ async function doToggleZzim() {
         </a-col>
         <a-col>
           <span @click="doToggleZzim">
-            <HeartOutlined v-if="!isZzim" />
-            <HeartFilled v-if="isZzim" />
+            <HeartOutlined v-if="!isZzim" style="color: tomato" />
+            <HeartFilled v-if="isZzim" style="color: tomato" />
           </span>
         </a-col>
       </a-row>
       <a-row align="middle" justify="space-between">
         <a-col>
-          <EnvironmentOutlined style="margin-right: 0.3rem" />
+          <EnvironmentFilled style="margin-right: 0.3rem; color: crimson" />
           <span>{{ storyFullAddress }}</span>
         </a-col>
         <a-col>
-          <StarFilled style="margin-right: 0.3rem" /><span style="margin-right: 0.8rem">{{
-            fixedAverageReviewScore
-          }}</span>
-          <CaretRightFilled style="margin-right: 0.1rem" /><span>{{
+          <StarFilled style="margin-right: 0.3rem; color: #fadb14" /><span
+            style="margin-right: 0.8rem"
+            >{{ fixedAverageReviewScore }}</span
+          >
+          <CaretRightFilled style="margin-right: 0.1rem; color: cornflowerblue" /><span>{{
             props.story.totalPlayCount
           }}</span>
         </a-col>
       </a-row>
-
       <a-tabs v-model:activeKey="activeKey" class="tabs-container">
         <a-tab-pane key="1" tab="설명">
-          <u id="author-nickname">Created by {{ props.story.authorNickname }}</u>
           <div class="tab-textarea">
             {{ props.story.description }}
           </div>
@@ -152,6 +152,10 @@ async function doToggleZzim() {
           </div>
         </a-tab-pane>
       </a-tabs>
+      <a-divider></a-divider>
+      <UserOutlined style="margin-right: 0.3rem" />
+      <span>Created By </span>
+      <b style="color: black">{{ props.story.authorNickname }}</b>
     </a-modal>
   </div>
 </template>
@@ -178,6 +182,7 @@ async function doToggleZzim() {
 }
 
 .tab-textarea {
+  min-height: 3rem;
   max-height: 12rem;
   overflow: auto;
 }
@@ -193,9 +198,5 @@ async function doToggleZzim() {
 .tab-review {
   max-height: 17rem;
   overflow: auto;
-}
-
-#author-nickname {
-  text-underline-position: under;
 }
 </style>

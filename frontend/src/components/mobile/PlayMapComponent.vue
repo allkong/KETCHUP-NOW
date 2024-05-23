@@ -7,6 +7,7 @@ import HttpStatus from '@/api/http-status'
 import { CrownOutlined, DeleteOutlined } from '@ant-design/icons-vue'
 import { useRouter } from 'vue-router'
 import SpotEventModal from '@/components/mobile/modal/SpotEventModal.vue'
+import CurrentPositionMarkerIcon from '@/assets/icon/marker/current-marker.gif'
 
 const axios = inject('axios')
 const router = useRouter()
@@ -109,10 +110,17 @@ function updateGame({ latitude, longitude }) {
     currentPositionMarker.setMap(null)
   }
 
+  const currentPositionMarkerImage = new window.kakao.maps.MarkerImage(
+    CurrentPositionMarkerIcon,
+    new window.kakao.maps.Size(39, 39),
+    { offset: new window.kakao.maps.Point(19, 39) },
+  )
+
   // 현재 위치 마커 생성
   currentPositionMarker = new window.kakao.maps.Marker({
     map: mapInstance,
     position: currentPosition,
+    image: currentPositionMarkerImage,
   })
   // 위치 이동하면 마커 업데이트
   currentPositionMarker.setPosition(currentPosition)
@@ -139,12 +147,12 @@ const onSpotEventClear = () => {
 
       // 클리어 스팟 목록 갱신
       fetchPlayLogs()
-      .then(() => {
-        message.success('이벤트 클리어! 다음 이벤트로 이동하세요 🎉')
-      })
-      .catch((error) => {
-        return Promise.resolve(error)
-      })
+        .then(() => {
+          message.success('이벤트 클리어! 다음 이벤트로 이동하세요 🎉')
+        })
+        .catch((error) => {
+          return Promise.resolve(error)
+        })
     })
     .catch((error) => {
       // 만약 다음 타겟 스팟이 없으면 게임이 종료되었다는 의미
@@ -163,13 +171,13 @@ const onSpotEventClear = () => {
             ]),
           okText: '좋아요 😍',
           onOk: async () => {
-              const playings = (await axios.get('/playings')).data
-              const storyPlayingUuid = playLogs.value[0].storyPlayingUuid
-              const currentPlaying = playings.filter(p => p.uuid === storyPlayingUuid)[0]
-              router.push({
-                name: 'story:review:register',
-                params: { storyUuid: currentPlaying.storyUuid },
-              })
+            const playings = (await axios.get('/playings')).data
+            const storyPlayingUuid = playLogs.value[0].storyPlayingUuid
+            const currentPlaying = playings.filter((p) => p.uuid === storyPlayingUuid)[0]
+            router.push({
+              name: 'story:review:register',
+              params: { storyUuid: currentPlaying.storyUuid },
+            })
           },
           cancelText: '쉬고 싶어요 😅',
           onCancel: () => {
@@ -193,6 +201,8 @@ const spots = ref([])
 let spotMarkers = []
 let clearedSpotMarkerPolyline = null
 let unclearedSpotMarkerPolyline = null
+
+let animationFrameId = null
 
 const nextTargetSpot = computed(() => {
   // 배치 순서대로 정렬
@@ -353,10 +363,17 @@ const loadKakaoMap = (container) => {
           currentPositionMarker.setMap(null)
         }
 
+        const currentPositionMarkerImage = new window.kakao.maps.MarkerImage(
+          CurrentPositionMarkerIcon,
+          new window.kakao.maps.Size(39, 39),
+          { offset: new window.kakao.maps.Point(19, 39) },
+        )
+
         // 현재 위치 마커 생성
         currentPositionMarker = new window.kakao.maps.Marker({
           map: mapInstance,
           position: newCenter,
+          image: currentPositionMarkerImage,
         })
         // 위치 이동하면 마커 업데이트
         currentPositionMarker.setPosition(newCenter)
@@ -369,20 +386,30 @@ const loadKakaoMap = (container) => {
 
 let positionInterval = null
 const startSyncPositionAndMarker = () => {
-  if (navigator.geolocation) {
-    positionInterval = setInterval(() => {
+  const updatePosition = () => {
+    if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           let { latitude, longitude } = position.coords
           updateGame({ latitude, longitude })
+          animationFrameId = requestAnimationFrame(updatePosition)
         },
         (error) => {
           console.error('위치 업데이트 에러:', error)
         },
       )
-    }, 1000)
-  } else {
-    console.log('geolocation 사용 불가')
+    } else {
+      console.log('geolocation 사용 불가')
+    }
+  }
+
+  animationFrameId = requestAnimationFrame(updatePosition)
+}
+
+function stopSyncPositionAndMarker() {
+  if (animationFrameId) {
+    cancelAnimationFrame(animationFrameId)
+    animationFrameId = null
   }
 }
 
@@ -422,7 +449,7 @@ onUnmounted(async () => {
 })
 
 const onCloseSpotEventModal = () => {
-  isSpotEventModalOpen.value = false
+  stopSyncPositionAndMarker()
 }
 </script>
 

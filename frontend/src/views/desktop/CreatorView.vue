@@ -738,7 +738,7 @@ const onDeleteSpot = (spot) => {
           <a-descriptions-item label="제목" :span="3">{{ story.title }}</a-descriptions-item>
           <a-descriptions-item label="설명" :span="3">{{ story.description }}</a-descriptions-item>
           <a-descriptions-item label="위치" :span="3"
-            ><EnvironmentFilled style="color: cornflowerblue" /> {{ story.sido }}
+            ><EnvironmentFilled style="color: crimson" /> {{ story.sido }}
             {{ story.gungu }}</a-descriptions-item
           >
           <a-descriptions-item label="별점" :span="3"
@@ -746,7 +746,7 @@ const onDeleteSpot = (spot) => {
             {{ story.averageReviewScore }}</a-descriptions-item
           >
           <a-descriptions-item label="플레이수" :span="3"
-            ><CaretRightFilled style="color: tomato" />
+            ><CaretRightFilled style="color: cornflowerblue" />
             {{ story.totalPlayCount }}</a-descriptions-item
           >
         </a-descriptions>
