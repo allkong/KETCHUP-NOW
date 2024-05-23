@@ -66,8 +66,10 @@ async function requestAIGeneration() {
             aiGenerationResult.value[newIdx] = {
               ...originalSpotInfo,
               ...aiGenerationResult.value[newIdx],
-              oldIdx: oldIdx + 1,
-              newIdx: newIdx + 1,
+              oldIdx,
+              newIdx,
+              oldPreviousOrderIndex: oldIdx === 0 ? null : props.spots[oldIdx-1].uuid,
+              newPreviousOrderIndex: newIdx === 0 ? null : aiGenerationResult.value[newIdx-1].uuid
             }
           }
         }
@@ -92,34 +94,25 @@ async function applySuggestedFlow() {
     return
   }
 
-  console.log('before:', props.spots)
-
   for (let idx = 0; idx < aiGenerationResult.value.length; idx++) {
     const suggestion = aiGenerationResult.value[idx]
     // 새 스토리
     const newDescription = suggestion.story
     // 새 삽입 인덱스
-    const newIdx = suggestion.newIdx
     const oldIdx = suggestion.oldIdx
 
     // 새 삽입 위치에 있는 스팟의 uuid
-    const previousSpotUuid = props.spots[newIdx - 1].uuid
+    const previousSpotUuid = suggestion.newPreviousOrderIndex
 
     const updateBody = {
-      ...props.spots[oldIdx - 1],
+      ...props.spots[oldIdx],
       previousSpotUuid,
       description: newDescription,
     }
-
-    console.log('for', suggestion.uuid, ':', updateBody)
-
-    console.log('update : ', oldIdx, '~', newIdx)
     await axios.put(`/stories/${props.story.uuid}/spots/${suggestion.uuid}`, updateBody)
-    // props.spots = (await axios.get(`/stories/${props.story.uuid}/spots`)).data
-    emit('refreshSpots')
   }
-
-  console.log('after:', props.spots)
+  message.success('적용 완료!')
+  emit('refreshSpots')
 }
 </script>
 
@@ -168,8 +161,8 @@ async function applySuggestedFlow() {
             <BadgeRibbon
               :text="
                 suggestion.oldIdx === suggestion.newIdx
-                  ? suggestion.oldIdx
-                  : `${suggestion.oldIdx} -> ${suggestion.newIdx}`
+                  ? suggestion.oldIdx + 1
+                  : `${suggestion.oldIdx + 1} -> ${suggestion.newIdx + 1}`
               "
               :color="suggestion.oldIdx === suggestion.newIdx ? 'green' : 'tomato'"
             >
