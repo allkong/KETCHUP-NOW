@@ -12,6 +12,7 @@ import {
   RobotFilled,
   ExportOutlined,
   VerticalAlignBottomOutlined,
+  PhoneFilled,
   EditOutlined,
   StarFilled,
   CaretRightFilled,
@@ -783,9 +784,14 @@ const onDeleteSpot = (spot) => {
             @click="moveToPlaceLocation(place)"
           >
             <h3>{{ place.place_name }}</h3>
-            <p>{{ place.address_name }}</p>
-            <p>{{ place.road_address_name }}</p>
-            <p>{{ place.phone }}</p>
+            <p>
+              <EnvironmentFilled style="color: orange; margin-right: 0.3rem" />{{
+                place.road_address_name || place.address_name
+              }}
+            </p>
+            <p v-if="place.phone">
+              <PhoneFilled style="color: gray; margin-right: 0.3rem" />{{ place.phone }}
+            </p>
           </a-card-grid>
         </a-card>
       </div>
@@ -806,7 +812,11 @@ const onDeleteSpot = (spot) => {
               @error="$replaceDefaultImage"
             />
             <h3>{{ attraction.title }}</h3>
-            <span>{{ attraction.address }}</span>
+            <span
+              ><EnvironmentFilled style="color: cornflowerblue; margin-right: 0.3rem" />{{
+                attraction.address
+              }}</span
+            >
           </a-card-grid>
         </a-card>
       </div>
@@ -819,6 +829,7 @@ const onDeleteSpot = (spot) => {
       <div id="map-wrap">
         <div ref="mapContainer" style="width: 100%; height: 100vh"></div>
         <a-switch
+          v-if="story.status === 'WRITING'"
           v-model:checked="selectAttractionTag"
           checked-children="관광지"
           un-checked-children="관광지"
@@ -868,30 +879,27 @@ const onDeleteSpot = (spot) => {
                   </a-card-meta>
                 </a-col>
               </a-row>
-              <a-divider class="horizontal-divider" />
+              <div v-if="story.status === 'WRITING'">
+                <a-divider class="horizontal-divider" />
 
-              <a-row
-                v-if="story.status === 'WRITING'"
-                align="middle"
-                justify="center"
-                class="card-actions"
-              >
-                <a-col :span="8" class="full-height" @click="onEditSpotModal(element)">
-                  <div class="action-container">
-                    <EditOutlined />
-                  </div>
-                </a-col>
-                <a-col :span="8" class="full-height" @click="onAddSpotEventModal(element)">
-                  <div class="action-container middle-border">
-                    <PlusSquareOutlined />
-                  </div>
-                </a-col>
-                <a-col :span="8" class="full-height" @click="onDeleteSpot(element)">
-                  <div class="action-container">
-                    <DeleteOutlined />
-                  </div>
-                </a-col>
-              </a-row>
+                <a-row align="middle" justify="center" class="card-actions">
+                  <a-col :span="8" class="full-height" @click="onEditSpotModal(element)">
+                    <div class="action-container">
+                      <EditOutlined />
+                    </div>
+                  </a-col>
+                  <a-col :span="8" class="full-height" @click="onAddSpotEventModal(element)">
+                    <div class="action-container middle-border">
+                      <PlusSquareOutlined />
+                    </div>
+                  </a-col>
+                  <a-col :span="8" class="full-height" @click="onDeleteSpot(element)">
+                    <div class="action-container">
+                      <DeleteOutlined />
+                    </div>
+                  </a-col>
+                </a-row>
+              </div>
             </a-card>
           </template>
         </draggable>
@@ -1015,7 +1023,7 @@ const onDeleteSpot = (spot) => {
 }
 
 :deep(.spot-cover-image),
-:deep(.sider-content .ant-image .ant-image-mask) {
+:deep(.spot-card .ant-image .ant-image-mask) {
   width: 100%;
   height: 100%;
   object-fit: cover;
