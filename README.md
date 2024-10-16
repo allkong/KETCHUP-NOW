@@ -31,10 +31,14 @@
 
 > 프로젝트에 대한 이야기나 시연 영상은 [블로그](https://allkong.tistory.com/64)에서 확인할 수 있어요.
 
+</br>
+
 Desktop에서는 **크리에이터** 시점으로,</br>
 Mobile에서는 **플레이어** 시점으로 서비스를 이용할 수 있어요.</br>
 
 크리에이터가 스토리를 만들면 플레이어가 스토리를 플레이해요.
+
+</br>
 
 ### 1. 크리에이터 (desktop)
 
@@ -48,6 +52,8 @@ Mobile에서는 **플레이어** 시점으로 서비스를 이용할 수 있어�
   - 스토리 조회, 스토리 생성
 - **스토리 수정**
   - 스토리 정보 수정, 키워드 검색, 관광지 조회, 스팟 등록, AI 스토리 작가, 배포
+
+</br>
 
 ### 2. 플레이어 (mobile)
 
@@ -97,15 +103,19 @@ Mobile에서는 **플레이어** 시점으로 서비스를 이용할 수 있어�
 
 ## 🗃️ 아키텍처
 
-![architecture](assets/architecture.png)
+<img src="assets/architecture.png" alt="architecture" width="80%">
+
+</br>
 
 ## 🎨 와이어프레임
 
-![wireframe](assets/wireframe.png)
+<img src="assets/wireframe.png" alt="wireframe" width="80%">
+
+</br>
 
 ## 😎 팀원
 
-<table style="text-align: center;">
+<table>
   <tr>
     <th>박유빈 👑</th>
     <th>정다빈</th>
@@ -114,19 +124,19 @@ Mobile에서는 **플레이어** 시점으로 서비스를 이용할 수 있어�
     <td><img src="assets/member/yubin.png" alt="yubin" style="width: 200px;"></td>
     <td><img src="assets/member/dabin.png" alt="dabin" style="width: 200px;"></td>
   </tr>
-  <tr>
+  <tr align=center>
     <td><a href="https://github.com/pcjs156">@pcjs156</a></td>
     <td><a href="https://github.com/allkong">@allkong</a></td>
   </tr>
   <tr>
     <td>
-      <ul style="list-style: none; padding: 0;">
+      <ul">
         <li>Backend 메인 개발</li>
         <li>Frontend 서브 개발</li>
       </ul>
     </td>
     <td>
-      <ul style="list-style: none; padding: 0;">
+      <ul>
         <li>Frontend 메인 개발</li>
         <li>UI/UX 디자인 총괄</li>
       </ul>
